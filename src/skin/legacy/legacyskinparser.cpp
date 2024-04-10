@@ -321,6 +321,9 @@ QWidget* LegacySkinParser::parseSkin(const QString& skinPath, QWidget* pParent) 
     ScopedTimer timer(u"SkinLoader::parseSkin");
     qDebug() << "LegacySkinParser loading skin:" << skinPath;
 
+    // Remove all widget pointers we previously registered for shortcut tooltips.
+    m_pKeyboard->clearWidgets();
+
     m_pContext = std::make_unique<SkinContext>(m_pConfig, skinPath + "/skin.xml");
     m_pContext->setSkinBasePath(skinPath);
 
@@ -420,6 +423,11 @@ QWidget* LegacySkinParser::parseSkin(const QString& skinPath, QWidget* pParent) 
                 *m_pContext,
                 QStringLiteral("Skin produced more than 1 widget!"));
     }
+
+    // We have now registered all widgets with mappable connections.
+    // Trigger creation/population of shortcut tooltips.
+    m_pKeyboard->updateWidgets();
+
     return widgets[0];
 }
 
@@ -2266,8 +2274,8 @@ void LegacySkinParser::setupWidget(const QDomNode& node,
 void LegacySkinParser::setupConnections(const QDomNode& node, WBaseWidget* pWidget) {
     ControlParameterWidgetConnection* pLastLeftOrNoButtonConnection = nullptr;
 
-    QString shortcutTooltip;
-    bool keyboardShortcutsEnabled = m_pKeyboard->isEnabled();
+    // List of ConfigKeys and translatable command strings for the tooltip
+    QList<std::pair<ConfigKey, QString>> shortcutKeys;
 
     for (QDomNode con = m_pContext->selectNode(node, "Connection");
             !con.isNull();
@@ -2392,9 +2400,7 @@ void LegacySkinParser::setupConnections(const QDomNode& node, WBaseWidget* pWidg
                 // Add keyboard shortcut info to tooltip string
                 QString key = m_pContext->selectString(con, "ConfigKey");
                 const ConfigKey configKey = ConfigKey::parseCommaSeparated(key);
-
-                QString shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(configKey);
-                shortcutTooltip.append(buildShortcutString(shortcut, QString("")));
+                shortcutKeys.append(std::make_pair(configKey, QString()));
 
                 const WSliderComposed* pSlider;
 
@@ -2404,13 +2410,11 @@ void LegacySkinParser::setupConnections(const QDomNode& node, WBaseWidget* pWidg
 
                     subkey = configKey;
                     subkey.item += "_activate";
-                    shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                    shortcutTooltip.append(buildShortcutString(shortcut, tr("activate")));
+                    shortcutKeys.append(std::make_pair(subkey, tr("activate")));
 
                     subkey = configKey;
                     subkey.item += "_toggle";
-                    shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                    shortcutTooltip.append(buildShortcutString(shortcut, tr("toggle")));
+                    shortcutKeys.append(std::make_pair(subkey, tr("toggle")));
                 } else if ((pSlider = qobject_cast<const WSliderComposed*>(pWidget->toQWidget())) ||
                         qobject_cast<const WKnobComposed*>(pWidget->toQWidget())) {
                     // check for "_up", "_down", "_up_small", "_down_small"
@@ -2419,54 +2423,46 @@ void LegacySkinParser::setupConnections(const QDomNode& node, WBaseWidget* pWidg
                     if (pSlider && pSlider->tryParseHorizontal(node)) {
                         subkey = configKey;
                         subkey.item += "_up";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("right")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("right")));
 
                         subkey = configKey;
                         subkey.item += "_down";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("left")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("left")));
 
                         subkey = configKey;
                         subkey.item += "_up_small";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("right small")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("right small")));
 
                         subkey = configKey;
                         subkey.item += "_down_small";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("left small")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("left small")));
                     } else { // vertical slider of knob
                         subkey = configKey;
                         subkey.item += "_up";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("up")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("up")));
 
                         subkey = configKey;
                         subkey.item += "_down";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("down")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("down")));
 
                         subkey = configKey;
                         subkey.item += "_up_small";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("up small")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("up small")));
 
                         subkey = configKey;
                         subkey.item += "_down_small";
-                        shortcut = m_pKeyboard->getKeyboardConfig()->getValueString(subkey);
-                        shortcutTooltip.append(buildShortcutString(shortcut, tr("down small")));
+                        shortcutKeys.append(std::make_pair(subkey, tr("down small")));
                     }
                 }
             }
         }
     }
 
-    if (!shortcutTooltip.isEmpty()) {
-        pWidget->appendShortcutTooltip(shortcutTooltip);
-        pWidget->toggleKeyboardShortcutHints(keyboardShortcutsEnabled);
-        // Connect to update tooltip when toggling shortcuts functionality
-        m_pKeyboard->connectBaseWidgetShortcutToggle(pWidget);
+    if (!shortcutKeys.isEmpty()) {
+        pWidget->setShortcutKeys(shortcutKeys);
+        // KeyboardEventFilter will take care of creating the tooltips,
+        // as well as updating them when the mapping file has changed.
+        m_pKeyboard->registerShortcutWidget(pWidget);
     }
 
     // Legacy behavior: The last left-button or no-button connection with
@@ -2476,27 +2472,6 @@ void LegacySkinParser::setupConnections(const QDomNode& node, WBaseWidget* pWidg
     if (pLastLeftOrNoButtonConnection != nullptr) {
         pWidget->setDisplayConnection(pLastLeftOrNoButtonConnection);
     }
-}
-
-const QString LegacySkinParser::buildShortcutString(
-        const QString& shortcut, const QString& cmd) const {
-    if (shortcut.isEmpty()) {
-        return QString();
-    }
-
-    // translate shortcut to native text
-    QString nativeShortcut = QKeySequence(shortcut, QKeySequence::PortableText).toString(QKeySequence::NativeText);
-
-    QString shortcutTooltip;
-    shortcutTooltip += "\n";
-    shortcutTooltip += tr("Shortcut");
-    if (!cmd.isEmpty()) {
-        shortcutTooltip += " ";
-        shortcutTooltip += cmd;
-    }
-    shortcutTooltip += ": ";
-    shortcutTooltip += nativeShortcut;
-    return shortcutTooltip;
 }
 
 QString LegacySkinParser::parseLaunchImageStyle(const QDomNode& node) {

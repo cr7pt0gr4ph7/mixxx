@@ -4,6 +4,8 @@
 #include <QString>
 #include <QWidget>
 
+#include "preferences/configobject.h"
+
 class ControlWidgetPropertyConnection;
 class ControlParameterWidgetConnection;
 
@@ -33,8 +35,9 @@ class WBaseWidget {
         updateBaseTooltipOptShortcuts();
     }
 
-    void appendShortcutTooltip(const QString& tooltip) {
-        m_shortcutTooltip.append(tooltip);
+    void setShortcutTooltip(const QString& tooltip, bool enabled) {
+        m_shortcutTooltip = tooltip;
+        m_showKeyboardShortcuts = enabled;
         updateBaseTooltipOptShortcuts();
     }
 
@@ -50,22 +53,21 @@ class WBaseWidget {
         return m_baseTooltipOptShortcuts;
     }
 
+    void setShortcutKeys(const QList<std::pair<ConfigKey, QString>>& cfgKeys) {
+        m_shortcutKeys = cfgKeys;
+    }
+
+    const QList<std::pair<ConfigKey, QString>> getShortcutKeys() {
+        return m_shortcutKeys;
+    }
+
     /// Append/remove shortcuts hint when shortcuts are toggled
     void toggleKeyboardShortcutHints(bool enabled) {
         m_showKeyboardShortcuts = enabled;
         updateBaseTooltipOptShortcuts();
     }
 
-    void updateBaseTooltipOptShortcuts() {
-        QString tooltip;
-        tooltip += m_baseTooltip;
-        if (m_showKeyboardShortcuts && !m_shortcutTooltip.isEmpty()) {
-            tooltip += "\n";
-            tooltip += m_shortcutTooltip;
-        }
-        m_baseTooltipOptShortcuts = tooltip;
-        m_pWidget->setToolTip(tooltip);
-    }
+    void updateBaseTooltipOptShortcuts();
 
     void addLeftConnection(ControlParameterWidgetConnection* pConnection);
     void addRightConnection(ControlParameterWidgetConnection* pConnection);
@@ -128,6 +130,7 @@ class WBaseWidget {
     QString m_baseTooltip;
     QString m_shortcutTooltip;
     QString m_baseTooltipOptShortcuts;
+    QList<std::pair<ConfigKey, QString>> m_shortcutKeys;
 
     bool m_showKeyboardShortcuts;
 

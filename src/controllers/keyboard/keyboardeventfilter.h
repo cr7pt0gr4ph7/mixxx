@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QFileSystemWatcher>
 #include <QLocale>
 #include <QMultiHash>
 #include <QObject>
@@ -33,7 +34,13 @@ class KeyboardEventFilter : public QObject {
         return m_enabled;
     }
 
-    void connectBaseWidgetShortcutToggle(WBaseWidget* pWidget); // const
+    void registerShortcutWidget(WBaseWidget* pWidget);
+    void updateWidgets();
+    void clearWidgets();
+    const QString buildShortcutString(const QString& shortcut, const QString& cmd) const;
+
+  public slots:
+    void reloadKeyboardConfig();
 
   signals:
     // We're only the relay here: CoreServices -> this -> WBaseWidget
@@ -72,11 +79,17 @@ class KeyboardEventFilter : public QObject {
     QList<KeyDownInformation> m_qActiveKeyList;
 
     UserSettingsPointer m_pConfig;
-    // Pointer to keyboard config object
-    std::shared_ptr<ConfigObject<ConfigValueKbd>> m_pKbdConfig;
+    QLocale m_locale;
     bool m_enabled;
 
-    QLocale m_locale;
+    // Pointer to keyboard config object
+    std::shared_ptr<ConfigObject<ConfigValueKbd>> m_pKbdConfig;
+
+    QFileSystemWatcher m_fileWatcher;
+
+    // Widgets that have mappable connections, registered by LegacySkinParser
+    // during skin construction.
+    QList<WBaseWidget*> m_widgets;
 
     // Multi-hash of key sequence to
     QMultiHash<ConfigValueKbd, ConfigKey> m_keySequenceToControlHash;

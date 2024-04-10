@@ -1,8 +1,8 @@
 #include "widget/wbasewidget.h"
 
-#include "widget/controlwidgetconnection.h"
 #include "util/cmdlineargs.h"
 #include "util/debug.h"
+#include "widget/controlwidgetconnection.h"
 
 WBaseWidget::WBaseWidget(QWidget* pWidget)
         : m_pDisplayConnection(nullptr),
@@ -144,6 +144,17 @@ void WBaseWidget::setControlParameterRightUp(double v) {
     for (ControlParameterWidgetConnection* pControlConnection : std::as_const(m_rightConnections)) {
         pControlConnection->setControlParameterUp(v);
     }
+}
+
+void WBaseWidget::updateBaseTooltipOptShortcuts() {
+    QString tooltip;
+    tooltip += m_baseTooltip;
+    if (m_showKeyboardShortcuts && !m_shortcutTooltip.isEmpty()) {
+        tooltip += "\n";
+        tooltip += m_shortcutTooltip;
+    }
+    m_baseTooltipOptShortcuts = tooltip;
+    m_pWidget->setToolTip(tooltip);
 }
 
 void WBaseWidget::updateTooltip() {
