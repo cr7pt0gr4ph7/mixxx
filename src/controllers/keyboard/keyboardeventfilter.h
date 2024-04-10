@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QLocale>
 #include <QMultiHash>
 #include <QObject>
 
@@ -15,16 +16,17 @@ class WBaseWidget;
 class KeyboardEventFilter : public QObject {
     Q_OBJECT
   public:
-    KeyboardEventFilter(ConfigObject<ConfigValueKbd> *pKbdConfigObject,
-                        QObject *parent = nullptr, const char* name = nullptr);
+    KeyboardEventFilter(UserSettingsPointer pConfig,
+            QLocale& locale,
+            QObject* parent = nullptr,
+            const char* name = nullptr);
     virtual ~KeyboardEventFilter();
 
     bool eventFilter(QObject* obj, QEvent* e);
 
     // Set the keyboard config object. KeyboardEventFilter does NOT take
     // ownership of pKbdConfigObject.
-    void setKeyboardConfig(ConfigObject<ConfigValueKbd> *pKbdConfigObject);
-    ConfigObject<ConfigValueKbd>* getKeyboardConfig();
+    std::shared_ptr<ConfigObject<ConfigValueKbd>> getKeyboardConfig();
 
     void setEnabled(bool enabled);
     bool isEnabled() {
@@ -64,11 +66,17 @@ class KeyboardEventFilter : public QObject {
                 });
     }
 
+    void createKeyboardConfig();
+
     // List containing keys which is currently pressed
     QList<KeyDownInformation> m_qActiveKeyList;
+
+    UserSettingsPointer m_pConfig;
     // Pointer to keyboard config object
-    ConfigObject<ConfigValueKbd> *m_pKbdConfigObject;
+    std::shared_ptr<ConfigObject<ConfigValueKbd>> m_pKbdConfig;
     bool m_enabled;
+
+    QLocale m_locale;
 
     // Multi-hash of key sequence to
     QMultiHash<ConfigValueKbd, ConfigKey> m_keySequenceToControlHash;
