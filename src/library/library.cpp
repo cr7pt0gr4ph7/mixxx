@@ -14,6 +14,7 @@
 #include "library/export/libraryexporter.h"
 #endif
 #include "library/externaltrackcollection.h"
+#include "library/http/httpserverfeature.h"
 #include "library/itunes/itunesfeature.h"
 #include "library/library_prefs.h"
 #include "library/librarycontrol.h"
@@ -201,6 +202,11 @@ Library::Library(
     if (m_pConfig->getValue(
                 ConfigKey(kConfigGroup, "ShowSeratoLibrary"), true)) {
         addFeature(new SeratoFeature(this, m_pConfig));
+    }
+
+    if (m_pConfig->getValue(
+                ConfigKey(kConfigGroup, "ShowHttpServerLibrary"), true)) {
+        addFeature(new HttpServerFeature(this, m_pConfig));
     }
 
     for (const auto& externalTrackCollection : m_pTrackCollectionManager->externalCollections()) {
