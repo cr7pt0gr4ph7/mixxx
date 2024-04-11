@@ -101,7 +101,8 @@ void HeaderViewState::restoreState(QHeaderView* headers) {
 WTrackTableViewHeader::WTrackTableViewHeader(Qt::Orientation orientation,
                                              QWidget* parent)
         : QHeaderView(orientation, parent),
-          m_menu(tr("Show or hide columns."), this) {
+          m_menu(tr("Show or hide columns."), this),
+          m_defaultColumnLayoutStateString() {
 }
 
 void WTrackTableViewHeader::contextMenuEvent(QContextMenuEvent* event) {
@@ -211,6 +212,50 @@ void WTrackTableViewHeader::setModel(QAbstractItemModel* model) {
             showSection(i);
         }
     }
+
+    // Create the menu for for loading and saving the current column layout
+    // from/to a named column layout template.
+    m_menu.addSeparator();
+
+    auto pLoadLayoutMenu = make_parented<QMenu>(&m_menu);
+    pLoadLayoutMenu->setTitle(tr("Load layout..."));
+    m_menu.addMenu(pLoadLayoutMenu);
+
+    auto pSaveLayoutMenu = make_parented<QMenu>(&m_menu);
+    pSaveLayoutMenu->setTitle(tr("Save layout..."));
+    m_menu.addMenu(pSaveLayoutMenu);
+
+    auto pSaveAsNewLayout = new QAction(tr("New layout..."), pSaveLayoutMenu);
+    pSaveLayoutMenu->addAction(pSaveAsNewLayout);
+    pSaveLayoutMenu->addSeparator();
+
+    // foreach layout....
+    auto pLoadDefaultLayout = new QAction(tr("Default Layout"), pLoadLayoutMenu);
+    pLoadLayoutMenu->addAction(pLoadDefaultLayout);
+
+    connect(pLoadDefaultLayout,
+        &QAction::triggered,
+        this,
+        [this] {
+            // Load the stored header state (stored as serialized protobuf).
+            // Decode it and restore it.
+            HeaderViewState view_state(m_defaultColumnLayoutStateString);
+            if (view_state.healthy()) {
+                view_state.restoreState(this);
+            }
+        });
+
+    auto pSaveDefaultLayout = new QAction(tr("Default Layout"), pSaveLayoutMenu);
+    pSaveLayoutMenu->addAction(pSaveDefaultLayout);
+
+    connect(pSaveDefaultLayout,
+        &QAction::triggered,
+        this,
+        [this] {
+            // Convert the QByteArray to a Base64 string and save it.
+            HeaderViewState view_state(*this);
+            m_defaultColumnLayoutStateString = view_state.saveState();
+        });
 }
 
 void WTrackTableViewHeader::saveHeaderState() {

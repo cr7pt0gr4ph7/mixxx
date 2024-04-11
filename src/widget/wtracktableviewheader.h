@@ -76,4 +76,5 @@ class WTrackTableViewHeader : public QHeaderView {
 
     QMenu m_menu;
     QMap<int, QCheckBox*> m_columnCheckBoxes;
+    QString m_defaultColumnLayoutStateString;
 };
