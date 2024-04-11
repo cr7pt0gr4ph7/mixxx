@@ -191,15 +191,24 @@ class TrackModel {
     /*non-virtual*/ bool hasCapabilities(Capabilities caps) const {
         return (getCapabilities() & caps) == caps;
     }
+
+    /*non-virtual*/ QString getKeyForModelSetting(const QString& name) const {
+        if (name.startsWith("shared_settings.")) {
+            return "mixxx.db.model." + name;
+        } else {
+            return m_settingsNamespace + "." + name;
+        }
+    }
+
     virtual QString getModelSetting(const QString& name) {
         SettingsDAO settings(m_db);
-        QString key = m_settingsNamespace + "." + name;
+        QString key = getKeyForModelSetting(name);
         return settings.getValue(key);
     }
 
     virtual bool setModelSetting(const QString& name, const QVariant& value) {
         SettingsDAO settings(m_db);
-        QString key = m_settingsNamespace + "." + name;
+        QString key = getKeyForModelSetting(name);
         return settings.setValue(key, value);
     }
 

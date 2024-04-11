@@ -23,3 +23,11 @@ message HeaderViewState {
   // This corresponds to the Qt::SortOrder enum.
   optional int32 sort_order = 4;
 }
+
+message NamedHeaderLayouts {
+  message NamedHeaderLayout {
+    required string layout_name = 1;
+    required HeaderViewState header_view_state = 2;
+  }
+  repeated NamedHeaderLayout layout = 1;
+}

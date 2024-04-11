@@ -11,6 +11,28 @@
 
 #define WTTVH_MINIMUM_SECTION_SIZE 20
 
+NamedHeaderLayouts::NamedHeaderLayouts(const QString& base64serialized) {
+    // First decode the array from Base64, then initialize the protobuf from it.
+    QByteArray array = QByteArray::fromBase64(base64serialized.toLatin1());
+    if (!m_named_layouts.ParseFromArray(array.constData(), array.size())) {
+        qWarning() << "Could not parse m_named_layouts from QByteArray of size "
+                   << array.size();
+        return;
+    }
+}
+
+QString NamedHeaderLayouts::saveState() const {
+    // Serialize the proto to a byte array, then encode the array as Base64.
+#if GOOGLE_PROTOBUF_VERSION >= 3001000
+    int size = static_cast<int>(m_named_layouts.ByteSizeLong());
+#else
+    int size = m_named_layouts.ByteSize();
+#endif
+    QByteArray array(size, '\0');
+    m_named_layouts.SerializeToArray(array.data(), size);
+    return QString(array.toBase64());
+}
+
 HeaderViewState::HeaderViewState(const QHeaderView& headers) {
     QAbstractItemModel* model = headers.model();
     for (int vi = 0; vi < headers.count(); ++vi) {

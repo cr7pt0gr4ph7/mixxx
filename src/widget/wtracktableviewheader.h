@@ -51,6 +51,23 @@ private:
     mixxx::library::HeaderViewState m_view_state;
 };
 
+class NamedHeaderLayouts {
+public:
+    NamedHeaderLayouts() {}
+
+    // Populate from an existing protobuf, mostly for testing.
+    explicit NamedHeaderLayouts(const mixxx::library::NamedHeaderLayouts& pb)
+            : m_named_layouts(pb) { }
+
+    // Populate the object with the serialized protobuf data provided.
+    explicit NamedHeaderLayouts(const QString& base64serialized);
+
+    // Returns a serialized protobuf of the current state.
+    QString saveState() const;
+
+private:
+    mixxx::library::NamedHeaderLayouts m_named_layouts;
+};
 
 class WTrackTableViewHeader : public QHeaderView {
     Q_OBJECT
