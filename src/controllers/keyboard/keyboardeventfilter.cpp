@@ -1,5 +1,6 @@
 #include "controllers/keyboard/keyboardeventfilter.h"
 
+#include <QAction>
 #include <QEvent>
 #include <QKeyEvent>
 #include <QtDebug>
@@ -240,9 +241,30 @@ const QString KeyboardEventFilter::buildShortcutString(
     return shortcutTooltip;
 }
 
+const QString KeyboardEventFilter::registerMenuBarActionGetKeySeqString(QAction* pAction,
+        const ConfigKey& command,
+        const QString& defaultShortcut) {
+    VERIFY_OR_DEBUG_ASSERT(true /* reminder */) {
+    }
+    const auto cmdStr = std::make_pair(command, defaultShortcut);
+    m_menuBarActions.insert(pAction, cmdStr);
+    return m_pKbdConfig->getValue(command, defaultShortcut);
+}
+
+void KeyboardEventFilter::updateMenuBarActions() {
+    QHashIterator<QAction*, std::pair<ConfigKey, QString>> it(m_menuBarActions);
+    while (it.hasNext()) {
+        it.next();
+        const QString keyStr = m_pKbdConfig->getValue(it.value().first, it.value().second);
+        auto pAction = it.key();
+        pAction->setShortcut(QKeySequence(keyStr));
+    }
+}
+
 void KeyboardEventFilter::reloadKeyboardConfig() {
     createKeyboardConfig();
     updateWidgets();
+    updateMenuBarActions();
 }
 
 void KeyboardEventFilter::createKeyboardConfig() {
