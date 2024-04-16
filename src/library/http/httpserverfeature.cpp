@@ -65,14 +65,15 @@ void HttpServerFeature::activate() {
             return;
         }
 
-        qDebug() << "Using HTTP Protocol V" << m_connection.getProtocolVersion();
+        qDebug() << "Using HTTP protocol version" << m_connection.getProtocolVersion();
 
         m_isActivated =  true;
 
         QFuture<QList<HttpServerConnection::Playlist>> playlistsFuture = m_connection.getPlaylists();
 
-        playlistsFuture.then([this, playlistsFuture] (auto playlists) {
-          std::unique_ptr<TreeItem> pRootItem = TreeItem::newRoot(this);
+        playlistsFuture.then(this, [this, playlistsFuture] (auto playlists) {
+            std::unique_ptr<TreeItem> pRootItem = TreeItem::newRoot(this);
+            qDebug() << "Discovered" << playlistsFuture.result().size() << "playlists provided by the HTTP server";
 
             for (const HttpServerConnection::Playlist& playlist: playlistsFuture.result()) {
                 qDebug() << playlist.name;

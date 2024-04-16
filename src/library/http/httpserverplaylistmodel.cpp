@@ -150,7 +150,7 @@ void HttpServerPlaylistModel::selectPlaylist(int playlistId) {
 
         auto listFuture = m_pConnection->getPlaylistEntries(playlistId);
 
-        QList<struct HttpServerConnection::PlaylistEntry> list = listFuture.result();
+        QList<struct HttpServerConnection::PlaylistEntry> list;// = listFuture.result();
 
         if (!list.isEmpty()) {
             beginInsertRows(QModelIndex(), 0, list.size() - 1);
