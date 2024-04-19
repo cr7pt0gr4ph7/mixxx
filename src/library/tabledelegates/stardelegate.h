@@ -46,6 +46,7 @@ class StarDelegate : public TableItemDelegate {
 
     enum PersistentEditorState {
         PersistentEditor_NotOpen,
+        PersistentEditor_Opening,
         PersistentEditor_Open,
         PersistentEditor_ShouldRestore,
         PersistentEditor_InDeferredRestore
