@@ -176,6 +176,13 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
     }
 }
 
+void WLibrarySidebar::editSelectedItem() {
+    QModelIndex index = selectedIndex();
+    if (index.isValid()) {
+        QEvent fakeEvent(QEvent::Type::KeyPress);
+        edit(index, QAbstractItemView::EditKeyPressed, &fakeEvent);
+    }
+}
 void WLibrarySidebar::toggleSelectedItem() {
     QModelIndex index = selectedIndex();
     if (index.isValid()) {

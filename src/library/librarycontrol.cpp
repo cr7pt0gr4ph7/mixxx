@@ -977,11 +977,18 @@ void LibraryControl::slotToggleSelectedSidebarItem(double v) {
 }
 
 void LibraryControl::slotEditItem(double v) {
-    LibraryView* pActiveView = m_pLibraryWidget->getActiveView();
-    if (!pActiveView) {
-        return;
+    switch (m_focusedWidget) {
+    case FocusWidget::Sidebar: {
+        m_pSidebarWidget->editSelectedItem();
     }
-    pActiveView->editSelectedItem();
+    case FocusWidget::TracksTable: {
+        LibraryView* pActiveView = m_pLibraryWidget->getActiveView();
+        if (!pActiveView) {
+            return;
+        }
+        pActiveView->editSelectedItem();
+    }
+    }
 }
 
 void LibraryControl::slotGoToItem(double v) {
