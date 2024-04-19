@@ -1,0 +1,35 @@
+syntax = "proto2";
+
+package mixxx.library.http;
+
+option optimize_for = LITE_RUNTIME;
+
+service HttpLibraryService {
+    rpc GetCollections(GetCollectionsRequest) returns (GetCollectionsResponse);
+    rpc GetTracks(GetTracksRequest) returns (GetTracksResponse);
+}
+
+message GetCollectionsRequest {
+}
+
+message GetCollectionsResponse {
+    message TrackCollection {
+        required string collection_id = 1;
+        required string collection_name = 2;
+        // CollectionType collection
+    }
+    repeated Playlist playlist = 1;
+}
+
+message GetTracksRequest {
+    // The ID of the playlist from which the tracks should be retrieved.
+    // If not specified or empty, retrieve all available tracks instead.
+    optional string playlist_id = 1;
+
+    // A search query that is used to filter the tracks.
+    // If not specified or empty: Retrieve all tracks without applying a filter.
+    optional string search_text = 2;
+}
+
+message GetTracksResponse {
+}

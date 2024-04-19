@@ -1237,6 +1237,13 @@ void WTrackTableView::hideOrRemoveSelectedTracks() {
     restoreCurrentIndex();
 }
 
+void WTrackTableView::editSelectedItem() {
+    if (state() != EditingState) {
+        QEvent fakeEvent(QEvent::Type::KeyPress);
+        edit(currentIndex(), EditKeyPressed, &fakeEvent);
+    }
+}
+
 void WTrackTableView::activateSelectedTrack() {
     auto indices = getSelectedRows();
     if (indices.isEmpty()) {
