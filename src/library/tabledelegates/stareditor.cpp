@@ -41,6 +41,7 @@ QSize StarEditor::sizeHint() const {
 
 void StarEditor::paintEvent(QPaintEvent*) {
     // If a StarEditor is open, by definition the mouse is hovering over us.
+    // FIXME: This assumption does not hold when we use keyboard controls to edit the contents.
     m_styleOption.state |= QStyle::State_MouseOver;
     m_styleOption.rect = rect();
 
