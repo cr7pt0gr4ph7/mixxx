@@ -33,13 +33,22 @@ class StarDelegate : public TableItemDelegate {
 
   private slots:
     void commitAndCloseEditor();
+    void closingEditor(QWidget* widget, QAbstractItemDelegate::EndEditHint hint);
     void cellEntered(const QModelIndex& index);
     void cursorNotOverAnyCell();
     void editRequested(const QModelIndex &index, QAbstractItemView::EditTrigger trigger, QEvent *event);
 
   private:
     void openPersistentRatingEditor(const QModelIndex& index);
-    void closeCurrentPersistentRatingEditor();
+    void closeCurrentPersistentRatingEditor(bool rememberForRestore);
+    void restorePersistentRatingEditor(const QModelIndex& index);
+
+    enum PersistentEditorState {
+        PersistentEditor_NotOpen,
+        PersistentEditor_Open,
+        PersistentEditor_ShouldRestore
+    };
+
     QPersistentModelIndex m_currentEditedCellIndex;
-    bool m_isPersistentEditorOpen;
+    PersistentEditorState m_persistentEditorState;
 };
