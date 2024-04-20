@@ -37,6 +37,7 @@ class StarDelegate : public TableItemDelegate {
     void cellEntered(const QModelIndex& index);
     void cursorNotOverAnyCell();
     void editRequested(const QModelIndex &index, QAbstractItemView::EditTrigger trigger, QEvent *event);
+    void restorePersistentRatingEditorNow();
 
   private:
     void openPersistentRatingEditor(const QModelIndex& index);
@@ -46,7 +47,8 @@ class StarDelegate : public TableItemDelegate {
     enum PersistentEditorState {
         PersistentEditor_NotOpen,
         PersistentEditor_Open,
-        PersistentEditor_ShouldRestore
+        PersistentEditor_ShouldRestore,
+        PersistentEditor_InDeferredRestore
     };
 
     QPersistentModelIndex m_currentEditedCellIndex;
