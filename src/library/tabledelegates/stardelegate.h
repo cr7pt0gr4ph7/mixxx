@@ -35,6 +35,8 @@ class StarDelegate : public TableItemDelegate {
     void cursorNotOverAnyCell();
 
   private:
+    void openPersistentRatingEditor(const QModelIndex& index);
+    void closeCurrentPersistentRatingEditor();
     QPersistentModelIndex m_currentEditedCellIndex;
-    bool m_isOneCellInEditMode;
+    bool m_isPersistentEditorOpen;
 };
