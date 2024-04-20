@@ -84,6 +84,9 @@ class WTrackTableView : public WLibraryTableView {
     void focusBorderColorChanged(QColor col);
     void playedInactiveColorChanged(QColor col);
 
+    // Invoked when the mouse leaves this widget.
+    void viewportLeaving();
+
   public slots:
     void loadTrackModel(QAbstractItemModel* model, bool restoreState = false);
     void slotMouseDoubleClicked(const QModelIndex &);
@@ -131,6 +134,7 @@ class WTrackTableView : public WLibraryTableView {
     void selectionChanged(const QItemSelection &selected,
                           const QItemSelection &deselected) override;
 
+    void leaveEvent(QEvent* pEvent) override;
     void mousePressEvent(QMouseEvent* pEvent) override;
     // Mouse move event, implemented to hide the text and show an icon instead
     // when dragging.

@@ -554,6 +554,10 @@ void WTrackTableView::onSearch(const QString& text) {
 void WTrackTableView::onShow() {
 }
 
+void WTrackTableView::leaveEvent(QEvent* pEvent) {
+    emit viewportLeaving();
+}
+
 void WTrackTableView::mousePressEvent(QMouseEvent* pEvent) {
     DragAndDropHelper::mousePressed(pEvent);
     WLibraryTableView::mousePressEvent(pEvent);
