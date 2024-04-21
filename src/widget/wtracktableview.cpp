@@ -1211,6 +1211,12 @@ void WTrackTableView::hideOrRemoveSelectedTracks() {
     restoreCurrentIndex();
 }
 
+void WTrackTableView::editSelectedItem() {
+    if (state() != EditingState) {
+        edit(currentIndex(), EditKeyPressed, nullptr);
+    }
+}
+
 void WTrackTableView::activateSelectedTrack() {
     auto indices = getSelectedRows();
     if (indices.isEmpty()) {

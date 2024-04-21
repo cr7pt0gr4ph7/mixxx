@@ -205,6 +205,18 @@ LibraryControl::LibraryControl(Library* pLibrary)
                 &LibraryControl::refocusPrevLibraryWidget);
     }
 
+    // Control to "edit" the currently selected item/field in focused widget (context dependent)
+    m_pEditItem = std::make_unique<ControlPushButton>(ConfigKey("[Library]", "EditItem"));
+#ifdef MIXXX_USE_QML
+    if (!CmdlineArgs::Instance().isQml())
+#endif
+    {
+        connect(m_pEditItem.get(),
+                &ControlPushButton::valueChanged,
+                this,
+                &LibraryControl::slotEditItem);
+    }
+
     // Control to "goto" the currently selected item in focused widget (context dependent)
     m_pGoToItem = std::make_unique<ControlPushButton>(ConfigKey("[Library]", "GoToItem"));
 #ifdef MIXXX_USE_QML
@@ -962,6 +974,17 @@ void LibraryControl::slotToggleSelectedSidebarItem(double v) {
     if (m_pSidebarWidget && v > 0) {
         m_pSidebarWidget->toggleSelectedItem();
     }
+}
+
+void LibraryControl::slotEditItem(double v) {
+    if (v <= 0) {
+        return;
+    }
+    LibraryView* pActiveView = m_pLibraryWidget->getActiveView();
+    if (!pActiveView) {
+        return;
+    }
+    pActiveView->editSelectedItem();
 }
 
 void LibraryControl::slotGoToItem(double v) {
