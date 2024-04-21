@@ -980,11 +980,24 @@ void LibraryControl::slotEditItem(double v) {
     if (v <= 0) {
         return;
     }
-    LibraryView* pActiveView = m_pLibraryWidget->getActiveView();
-    if (!pActiveView) {
-        return;
+
+    switch (m_focusedWidget) {
+    case FocusWidget::Sidebar: {
+        m_pSidebarWidget->editSelectedItem();
+        break;
     }
-    pActiveView->editSelectedItem();
+    case FocusWidget::TracksTable: {
+        LibraryView* pActiveView = m_pLibraryWidget->getActiveView();
+        if (!pActiveView) {
+            return;
+        }
+        pActiveView->editSelectedItem();
+        break;
+    }
+    default: {
+        break;
+    }
+    }
 }
 
 void LibraryControl::slotGoToItem(double v) {

@@ -176,6 +176,20 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
     }
 }
 
+void WLibrarySidebar::editSelectedItem() {
+    // Rename crate or playlist (internal, external, history)
+    QModelIndex selIndex = selectedIndex();
+    if (!selIndex.isValid()) {
+        return;
+    }
+    if (isExpanded(selIndex)) {
+        // Root views / knots can not be renamed
+        return;
+    }
+    emit renameItem(selIndex);
+    return;
+}
+
 void WLibrarySidebar::toggleSelectedItem() {
     QModelIndex index = selectedIndex();
     if (index.isValid()) {
@@ -312,16 +326,7 @@ void WLibrarySidebar::keyPressEvent(QKeyEvent* event) {
         emit setLibraryFocus(FocusWidget::TracksTable);
         return;
     case kRenameSidebarItemShortcutKey: { // F2
-        // Rename crate or playlist (internal, external, history)
-        QModelIndex selIndex = selectedIndex();
-        if (!selIndex.isValid()) {
-            return;
-        }
-        if (isExpanded(selIndex)) {
-            // Root views / knots can not be renamed
-            return;
-        }
-        emit renameItem(selIndex);
+        editSelectedItem();
         return;
     }
     case kHideRemoveShortcutKey: { // Del (macOS: Cmd+Backspace)
