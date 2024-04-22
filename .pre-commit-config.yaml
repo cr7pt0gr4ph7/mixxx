@@ -38,7 +38,7 @@ repos:
         exclude: ^.*(\.cbproj|\.groupproj|\.props|\.sln|\.vcxproj|\.vcxproj.filters|UTF-8-BOM.txt)$
       - id: check-case-conflict
       - id: check-json
-        exclude: \.devcontainer\/devcontainer\.json$
+        exclude: \.devcontainer\/devcontainer\.json|\.vscode/(launch\.json|settings\.json)$
       - id: check-merge-conflict
       - id: check-xml
       - id: check-yaml
