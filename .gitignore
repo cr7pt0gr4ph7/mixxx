@@ -4,6 +4,7 @@
 # gitignore or locally in .git/info/exclude.
 
 /sample_music
+/subrepo
 
 # Logs
 *.log
