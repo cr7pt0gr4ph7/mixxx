@@ -176,7 +176,7 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
     }
 }
 
-void WLibrarySidebar::editSelectedItem() {
+void WLibrarySidebar::renameSelectedItem() {
     // Rename crate or playlist (internal, external, history)
     QModelIndex selIndex = selectedIndex();
     if (!selIndex.isValid()) {
@@ -326,7 +326,7 @@ void WLibrarySidebar::keyPressEvent(QKeyEvent* event) {
         emit setLibraryFocus(FocusWidget::TracksTable);
         return;
     case kRenameSidebarItemShortcutKey: { // F2
-        editSelectedItem();
+        renameSelectedItem();
         return;
     }
     case kHideRemoveShortcutKey: { // Del (macOS: Cmd+Backspace)
