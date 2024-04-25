@@ -1225,6 +1225,12 @@ bool WTrackTableView::edit(const QModelIndex &index, EditTrigger trigger, QEvent
     return QAbstractItemView::edit(index, trigger, event);
 }
 
+void WTrackTableView::editSelectedItem() {
+    if (state() != EditingState) {
+        edit(currentIndex(), EditKeyPressed, nullptr);
+    }
+}
+
 void WTrackTableView::activateSelectedTrack() {
     auto indices = getSelectedRows();
     if (indices.isEmpty()) {

@@ -25,6 +25,10 @@ class LibraryView {
     virtual void pasteFromSidebar() {
     }
 
+    /// If applicable, requests that the selected field/item be edited
+    virtual void editSelectedItem() {
+    }
+
     /// If applicable, requests that the LibraryView load the selected
     /// track. Does nothing otherwise.
     virtual void activateSelectedTrack() {
