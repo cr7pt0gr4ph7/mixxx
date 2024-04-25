@@ -1,6 +1,5 @@
 #include "library/tabledelegates/stardelegate.h"
 
-#include <QTableView>
 #include <QTimer>
 
 #include "library/starrating.h"
@@ -9,18 +8,17 @@
 #include "widget/wtracktableview.h"
 #include "moc_stardelegate.cpp"
 
-StarDelegate::StarDelegate(QTableView* pTableView)
-        : TableItemDelegate(pTableView),
+StarDelegate::StarDelegate(WTrackTableView* pTrackTable)
+        : TableItemDelegate(pTrackTable),
           m_persistentEditorState(PersistentEditor_NotOpen) {
     connect(this, &QAbstractItemDelegate::closeEditor, this, &StarDelegate::closingEditor);
-    connect(pTableView, &QTableView::entered, this, &StarDelegate::cellEntered);
-    connect(pTableView, &QTableView::viewportEntered, this, &StarDelegate::cursorNotOverAnyCell);
-
-    auto pTrackTableView = qobject_cast<WTrackTableView*>(pTableView);
-    if (pTrackTableView) {
-        connect(pTrackTableView, &WTrackTableView::viewportLeaving, this, &StarDelegate::cursorNotOverAnyCell);
-        connect(pTrackTableView, &WTrackTableView::editRequested, this, &StarDelegate::editRequested);
-    }
+    connect(pTrackTable, &QTableView::entered, this, &StarDelegate::cellEntered);
+    connect(pTrackTable, &QTableView::viewportEntered, this, &StarDelegate::cursorNotOverAnyCell);
+    connect(pTrackTable,
+            &WTrackTableView::viewportLeaving,
+            this,
+            &StarDelegate::cursorNotOverAnyCell);
+    connect(pTrackTable, &WTrackTableView::editRequested, this, &StarDelegate::editRequested);
 }
 
 void StarDelegate::paintItem(

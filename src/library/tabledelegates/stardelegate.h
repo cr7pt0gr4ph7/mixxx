@@ -1,13 +1,12 @@
 #pragma once
 
-#include <QAbstractItemView>
-
 #include "library/tabledelegates/tableitemdelegate.h"
+#include "widget/wtracktableview.h"
 
 class StarDelegate : public TableItemDelegate {
     Q_OBJECT
   public:
-    StarDelegate(QTableView* pTrackTable);
+    StarDelegate(WTrackTableView* pTrackTable);
 
     // reimplemented from QItemDelegate and is called whenever the view needs to
     // repaint an item
