@@ -52,6 +52,6 @@ class StarDelegate : public TableItemDelegate {
       PersistentEditor_InDeferredRestore
     };
 
-    QPersistentModelIndex m_persistentEditorCellIndex;
+    QPersistentModelIndex m_currentEditedCellIndex;
     PersistentEditorState m_persistentEditorState;
 };
