@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QFileSystemWatcher>
+#include <QLocale>
 #include <QMultiHash>
 #include <QObject>
 
@@ -9,21 +11,46 @@
 class ControlObject;
 class QEvent;
 class QKeyEvent;
+class WBaseWidget;
 
 // This class provides handling of keyboard events.
 class KeyboardEventFilter : public QObject {
     Q_OBJECT
   public:
-    KeyboardEventFilter(ConfigObject<ConfigValueKbd> *pKbdConfigObject,
-                        QObject *parent = nullptr, const char* name = nullptr);
+    KeyboardEventFilter(UserSettingsPointer pConfig,
+            QLocale& locale,
+            QObject* parent = nullptr,
+            const char* name = nullptr);
     virtual ~KeyboardEventFilter();
 
     bool eventFilter(QObject* obj, QEvent* e);
 
     // Set the keyboard config object. KeyboardEventFilter does NOT take
     // ownership of pKbdConfigObject.
-    void setKeyboardConfig(ConfigObject<ConfigValueKbd> *pKbdConfigObject);
-    ConfigObject<ConfigValueKbd>* getKeyboardConfig();
+    std::shared_ptr<ConfigObject<ConfigValueKbd>> getKeyboardConfig();
+
+    void setEnabled(bool enabled);
+    bool isEnabled() {
+        return m_enabled;
+    }
+
+    void registerShortcutWidget(WBaseWidget* pWidget);
+    void updateWidgets();
+    void clearWidgets();
+    const QString buildShortcutString(const QString& shortcut, const QString& cmd) const;
+
+    const QString registerMenuBarActionGetKeySeqString(
+            QAction* pAction,
+            const ConfigKey& command,
+            const QString& defaultShortcut);
+    void updateMenuBarActions();
+
+  public slots:
+    void reloadKeyboardConfig();
+
+  signals:
+    // We're only the relay here: CoreServices -> this -> WBaseWidget
+    void shortcutsEnabled(bool enabled);
 
   private:
     struct KeyDownInformation {
@@ -52,10 +79,28 @@ class KeyboardEventFilter : public QObject {
                 });
     }
 
+    void createKeyboardConfig();
+
     // List containing keys which is currently pressed
     QList<KeyDownInformation> m_qActiveKeyList;
+
+    UserSettingsPointer m_pConfig;
+    QLocale m_locale;
+    bool m_enabled;
+
     // Pointer to keyboard config object
-    ConfigObject<ConfigValueKbd> *m_pKbdConfigObject;
+    std::shared_ptr<ConfigObject<ConfigValueKbd>> m_pKbdConfig;
+
+    QFileSystemWatcher m_fileWatcher;
+
+    // Actions in the menu bar
+    // Value pair is the ConfigKey and the default QKeySequence (as QString).
+    QHash<QAction*, std::pair<ConfigKey, QString>> m_menuBarActions;
+
+    // Widgets that have mappable connections, registered by LegacySkinParser
+    // during skin construction.
+    QList<WBaseWidget*> m_widgets;
+
     // Multi-hash of key sequence to
     QMultiHash<ConfigValueKbd, ConfigKey> m_keySequenceToControlHash;
 };
