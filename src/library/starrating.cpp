@@ -34,6 +34,25 @@ QSize StarRating::sizeHint() const {
 }
 
 void StarRating::paint(QPainter* painter, const QRect& rect) const {
+    paintImpl(painter, rect, false, QBrush(), QBrush());
+}
+
+void StarRating::paint(QPainter* painter, const QRect& rect, const QBrush& brush) const {
+    paintImpl(painter, rect, true, brush, brush);
+}
+
+void StarRating::paint(QPainter* painter,
+        const QRect& rect,
+        const QBrush& brush,
+        const QBrush& selectedBrush) const {
+    paintImpl(painter, rect, true, brush, selectedBrush);
+}
+
+void StarRating::paintImpl(QPainter* painter,
+        const QRect& rect,
+        bool useBrushes,
+        const QBrush& brush,
+        const QBrush& selectedBrush) const {
     PainterScope painterScope(painter);
     // Assume the painter is configured with the right brush.
     painter->setRenderHint(QPainter::Antialiasing, true);
@@ -50,8 +69,16 @@ void StarRating::paint(QPainter* painter, const QRect& rect) const {
     // Determine number of stars that are possible to paint
     int n = rect.width() / PaintingScaleFactor;
 
+    if (useBrushes) {
+        painter->setBrush(brush);
+    }
+
     for (int i = 0; i < m_maxStarCount && i < n; ++i) {
-        if (i < m_starCount) {
+        if (i == m_starCount - 1 && useBrushes) {
+            painter->setBrush(selectedBrush);
+            painter->drawPolygon(m_starPolygon, Qt::WindingFill);
+            painter->setBrush(brush);
+        } else if (i < m_starCount) {
             painter->drawPolygon(m_starPolygon, Qt::WindingFill);
         } else {
             painter->drawPolygon(m_diamondPolygon, Qt::WindingFill);
