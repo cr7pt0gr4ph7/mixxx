@@ -9,6 +9,7 @@
 #include "library/libraryfeature.h"
 #include "util/parented_ptr.h"
 
+class KeyboardEventFilter;
 class BaseSqlTableModel;
 class TrackCollection;
 
@@ -22,6 +23,7 @@ class BaseExternalLibraryFeature : public LibraryFeature {
     ~BaseExternalLibraryFeature() override = default;
 
   public slots:
+    void bindLibraryWidget(WLibrary* pLibraryWidget, KeyboardEventFilter* pKeyboard) override;
     void bindSidebarWidget(WLibrarySidebar* pSidebarWidget) override;
     void onRightClick(const QPoint& globalPos) override;
     void onRightClickChild(const QPoint& globalPos, const QModelIndex& index) override;
@@ -51,6 +53,7 @@ class BaseExternalLibraryFeature : public LibraryFeature {
     TrackCollection* const m_pTrackCollection;
 
   private:
+    void initActions(KeyboardEventFilter* pKeyboard);
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
 
     // Caution: Make sure this is reset whenever the library tree is updated,

@@ -223,7 +223,11 @@ void WTrackProperty::ensureTrackMenuIsCreated() {
     }
 
     m_pTrackMenu = make_parented<WTrackMenu>(
-            this, m_pConfig, m_pLibrary, WTrackMenu::kDeckTrackMenuFeatures);
+            this,
+            m_pConfig,
+            m_pLibrary,
+            nullptr /* Keyboard shortcuts are not available */,
+            WTrackMenu::kDeckTrackMenuFeatures);
 
     // The show control exists only for main decks.
     if (!m_isMainDeck) {

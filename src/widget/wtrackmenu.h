@@ -20,6 +20,7 @@ class DlgTagFetcher;
 class DlgTrackInfo;
 //class DlgDeleteFilesConfirmation;
 class ExternalTrackCollection;
+class KeyboardEventFilter;
 class Library;
 class TrackModel;
 class WColorPickerAction;
@@ -84,6 +85,7 @@ class WTrackMenu : public QMenu {
     WTrackMenu(QWidget* parent,
             UserSettingsPointer pConfig,
             Library* pLibrary,
+            KeyboardEventFilter* pKeyboard,
             Features flags = Feature::All,
             TrackModel* trackModel = nullptr);
     ~WTrackMenu() override;
@@ -202,7 +204,7 @@ class WTrackMenu : public QMenu {
     int getTrackCount() const;
 
     void createMenus();
-    void createActions();
+    void createActions(KeyboardEventFilter* pKeyboard);
     void setupActions();
     void updateMenus();
 

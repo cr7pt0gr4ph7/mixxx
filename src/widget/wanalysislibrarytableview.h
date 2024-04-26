@@ -10,6 +10,7 @@ class WAnalysisLibraryTableView : public WTrackTableView {
             QWidget* parent,
             UserSettingsPointer pConfig,
             Library* pLibrary,
+            KeyboardEventFilter* pKeyboard,
             double trackTableBackgroundColorOpacity);
 
     void onSearch(const QString& text) override;

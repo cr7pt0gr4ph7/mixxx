@@ -126,7 +126,7 @@ void WTrackWidgetGroup::ensureTrackMenuIsCreated() {
         return;
     }
     m_pTrackMenu = make_parented<WTrackMenu>(
-            this, m_pConfig, m_pLibrary, WTrackMenu::kDeckTrackMenuFeatures);
+            this, m_pConfig, m_pLibrary, nullptr, WTrackMenu::kDeckTrackMenuFeatures);
 
     // The show control exists onlyfor main decks.
     // See WTrackProperty for info

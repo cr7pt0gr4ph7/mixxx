@@ -22,6 +22,7 @@ DlgHidden::DlgHidden(
                           this,
                           pConfig,
                           pLibrary,
+                          pKeyboard,
                           parent->getTrackTableBackgroundColorOpacity(),
                           true)) {
     setupUi(this);

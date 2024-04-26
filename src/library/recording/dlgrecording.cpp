@@ -21,6 +21,7 @@ DlgRecording::DlgRecording(
                           this,
                           pConfig,
                           pLibrary,
+                          pKeyboard,
                           parent->getTrackTableBackgroundColorOpacity(),
                           true)),
           m_browseModel(this, pLibrary->trackCollectionManager(), pRecordingManager),

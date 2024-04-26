@@ -6,10 +6,12 @@ WAnalysisLibraryTableView::WAnalysisLibraryTableView(
         QWidget* parent,
         UserSettingsPointer pConfig,
         Library* pLibrary,
+        KeyboardEventFilter* pKeyboard,
         double trackTableBackgroundColorOpacity)
         : WTrackTableView(parent,
                   pConfig,
                   pLibrary,
+                  pKeyboard,
                   trackTableBackgroundColorOpacity,
                   true) {
     setDragDropMode(QAbstractItemView::DragOnly);

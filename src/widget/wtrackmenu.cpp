@@ -12,6 +12,7 @@
 #include "analyzer/analyzersilence.h"
 #include "analyzer/analyzertrack.h"
 #include "control/controlobject.h"
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/coverartutils.h"
 #include "library/dao/trackschema.h"
 #include "library/dlgtagfetcher.h"
@@ -94,6 +95,7 @@ WTrackMenu::WTrackMenu(
         QWidget* parent,
         UserSettingsPointer pConfig,
         Library* pLibrary,
+        KeyboardEventFilter* pKeyboard,
         Features flags,
         TrackModel* trackModel)
         : QMenu(parent),
@@ -114,7 +116,7 @@ WTrackMenu::WTrackMenu(
     }
 
     createMenus();
-    createActions();
+    createActions(pKeyboard);
     setupActions();
 }
 
@@ -267,7 +269,7 @@ void WTrackMenu::createMenus() {
     }
 }
 
-void WTrackMenu::createActions() {
+void WTrackMenu::createActions(KeyboardEventFilter* pKeyboard) {
     const auto hideRemoveKeySequence =
             // TODO(XXX): Qt6 replace enum | with QKeyCombination
             QKeySequence(static_cast<int>(kHideRemoveShortcutModifier) |
@@ -282,6 +284,21 @@ void WTrackMenu::createActions() {
 
         m_pAutoDJReplaceAct = new QAction(tr("Add to Auto DJ Queue (replace)"), this);
         connect(m_pAutoDJReplaceAct, &QAction::triggered, this, &WTrackMenu::slotAddToAutoDJReplace);
+
+        if (pKeyboard) {
+            pKeyboard->registerActionForShortcut(m_pAutoDJBottomAct,
+                    ConfigKey("[Library]", "AutoDjAddBottom"),
+                    "",
+                    true);
+            pKeyboard->registerActionForShortcut(m_pAutoDJTopAct,
+                    ConfigKey("[Library]", "AutoDjAddTop"),
+                    "",
+                    true);
+            pKeyboard->registerActionForShortcut(m_pAutoDJReplaceAct,
+                    ConfigKey("[Library]", "AutoDjAddReplace"),
+                    "",
+                    true);
+        }
     }
 
     if (featureIsEnabled(Feature::LoadTo)) {

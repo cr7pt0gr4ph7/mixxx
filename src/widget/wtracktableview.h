@@ -5,6 +5,7 @@
 
 #include "control/controlproxy.h"
 #include "control/pollingcontrolproxy.h"
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/dao/playlistdao.h"
 #include "library/trackmodel.h" // Can't forward declare enums
 #include "preferences/usersettings.h"
@@ -26,6 +27,7 @@ class WTrackTableView : public WLibraryTableView {
             QWidget* parent,
             UserSettingsPointer pConfig,
             Library* pLibrary,
+            KeyboardEventFilter* pKeyboard,
             double backgroundColorOpacity,
             bool sorting);
     ~WTrackTableView() override;
@@ -160,6 +162,7 @@ class WTrackTableView : public WLibraryTableView {
 
     const UserSettingsPointer m_pConfig;
     Library* const m_pLibrary;
+    KeyboardEventFilter* m_pKeyboard;
 
     // Context menu container
     parented_ptr<WTrackMenu> m_pTrackMenu;

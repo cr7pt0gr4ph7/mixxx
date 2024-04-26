@@ -43,11 +43,13 @@ const ConfigKey kVScrollBarPosConfigKey{
 WTrackTableView::WTrackTableView(QWidget* parent,
         UserSettingsPointer pConfig,
         Library* pLibrary,
+        KeyboardEventFilter* pKeyboard,
         double backgroundColorOpacity,
         bool sorting)
         : WLibraryTableView(parent, pConfig),
           m_pConfig(pConfig),
           m_pLibrary(pLibrary),
+          m_pKeyboard(pKeyboard),
           m_backgroundColorOpacity(backgroundColorOpacity),
           // Default color for the focus border of TableItemDelegates
           m_focusBorderColor(Qt::white),
@@ -55,6 +57,7 @@ WTrackTableView::WTrackTableView(QWidget* parent,
           m_sorting(sorting),
           m_selectionChangedSinceLastGuiTick(true),
           m_loadCachedOnly(false) {
+    Q_UNUSED(pKeyboard);
     // Connect slots and signals to make the world go 'round.
     connect(this, &WTrackTableView::doubleClicked, this, &WTrackTableView::slotMouseDoubleClicked);
 
@@ -337,6 +340,7 @@ void WTrackTableView::initTrackMenu() {
     m_pTrackMenu = make_parented<WTrackMenu>(this,
             m_pConfig,
             m_pLibrary,
+            m_pKeyboard,
             WTrackMenu::Feature::All,
             trackModel);
     connect(m_pTrackMenu.get(),

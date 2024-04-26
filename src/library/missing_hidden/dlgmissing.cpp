@@ -22,6 +22,7 @@ DlgMissing::DlgMissing(
                           this,
                           pConfig,
                           pLibrary,
+                          pKeyboard,
                           parent->getTrackTableBackgroundColorOpacity(),
                           true)) {
     setupUi(this);

@@ -105,16 +105,31 @@ void BasePlaylistFeature::initActions(KeyboardEventFilter* pKeyboard) {
             &BasePlaylistFeature::slotTogglePlaylistLock);
 
     m_pAddToAutoDJAction = new QAction(tr("Add to Auto DJ Queue (bottom)"), this);
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJAction,
+            ConfigKey("[AutoDJ]", "AddSelectedTracks_to_bottom"),
+            "",
+            true);
     connect(m_pAddToAutoDJAction,
             &QAction::triggered,
             this,
             &BasePlaylistFeature::slotAddToAutoDJ);
     m_pAddToAutoDJTopAction = new QAction(tr("Add to Auto DJ Queue (top)"), this);
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJTopAction,
+            ConfigKey("[AutoDJ]", "AddSelectedTracks_to_top"),
+            "",
+            true);
     connect(m_pAddToAutoDJTopAction,
             &QAction::triggered,
             this,
             &BasePlaylistFeature::slotAddToAutoDJTop);
     m_pAddToAutoDJReplaceAction = new QAction(tr("Add to Auto DJ Queue (replace)"), this);
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJReplaceAction,
+            ConfigKey("[AutoDJ]", "AddSelectedTracks_replace_all"),
+            "",
+            true);
     connect(m_pAddToAutoDJReplaceAction,
             &QAction::triggered,
             this,

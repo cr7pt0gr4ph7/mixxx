@@ -2,6 +2,7 @@
 
 #include <QMenu>
 
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/basesqltablemodel.h"
 #include "library/library.h"
 #include "library/trackcollection.h"
@@ -52,6 +53,31 @@ BaseExternalLibraryFeature::BaseExternalLibraryFeature(
             &QAction::triggered,
             this,
             &BaseExternalLibraryFeature::slotImportAsMixxxCrate);
+}
+
+void BaseExternalLibraryFeature::initActions(KeyboardEventFilter* pKeyboard) {
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJAction,
+            ConfigKey("[Library]", "AutoDjAddBottom"),
+            "",
+            true);
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJTopAction,
+            ConfigKey("[AutoDJ]", "AutoDjAddTop"),
+            "",
+            true);
+    pKeyboard->registerActionForShortcut(
+            m_pAddToAutoDJReplaceAction,
+            ConfigKey("[AutoDJ]", "AutoDjAddReplace"),
+            "",
+            true);
+}
+
+void BaseExternalLibraryFeature::bindLibraryWidget(
+        WLibrary* pLibrary, KeyboardEventFilter* pKeyboard) {
+    Q_UNUSED(pLibrary);
+    initActions(pKeyboard);
+    LibraryFeature::bindLibraryWidget(pLibrary, pKeyboard);
 }
 
 void BaseExternalLibraryFeature::bindSidebarWidget(WLibrarySidebar* pSidebarWidget) {
