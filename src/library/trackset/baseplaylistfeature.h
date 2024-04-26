@@ -124,7 +124,7 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
     void slotResetSelectedTrack();
 
   private:
-    void initActions();
+    void initActions(KeyboardEventFilter* pKeyboard);
     void connectPlaylistDAO();
     virtual QString getRootViewHtml() const = 0;
     void markTreeItem(TreeItem* pTreeItem);

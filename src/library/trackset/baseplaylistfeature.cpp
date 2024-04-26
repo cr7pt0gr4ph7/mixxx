@@ -5,6 +5,7 @@
 #include <QInputDialog>
 #include <QList>
 
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/export/trackexportwizard.h"
 #include "library/library.h"
 #include "library/library_prefs.h"
@@ -51,7 +52,6 @@ BasePlaylistFeature::BasePlaylistFeature(
           m_keepHiddenTracks(keepHiddenTracks) {
     pModel->setParent(this);
 
-    initActions();
     connectPlaylistDAO();
     connect(m_pLibrary,
             &Library::trackSelected,
@@ -66,7 +66,7 @@ BasePlaylistFeature::BasePlaylistFeature(
             &BasePlaylistFeature::slotResetSelectedTrack);
 }
 
-void BasePlaylistFeature::initActions() {
+void BasePlaylistFeature::initActions(KeyboardEventFilter* pKeyboard) {
     m_pCreatePlaylistAction = new QAction(tr("Create New Playlist"), this);
     connect(m_pCreatePlaylistAction,
             &QAction::triggered,
@@ -74,7 +74,11 @@ void BasePlaylistFeature::initActions() {
             &BasePlaylistFeature::slotCreatePlaylist);
 
     m_pRenamePlaylistAction = new QAction(tr("Rename"), this);
-    m_pRenamePlaylistAction->setShortcut(kRenameSidebarItemShortcutKey);
+    pKeyboard->registerActionForShortcut(
+            m_pRenamePlaylistAction,
+            ConfigKey("[Library]", "EditItem"),
+            QKeySequence(kRenameSidebarItemShortcutKey).toString(),
+            true);
     connect(m_pRenamePlaylistAction,
             &QAction::triggered,
             this,
@@ -685,7 +689,7 @@ TreeItemModel* BasePlaylistFeature::sidebarModel() const {
 
 void BasePlaylistFeature::bindLibraryWidget(WLibrary* pLibraryWidget,
         KeyboardEventFilter* pKeyboard) {
-    Q_UNUSED(pKeyboard);
+    initActions(pKeyboard);
     WLibraryTextBrowser* pEdit = new WLibraryTextBrowser(pLibraryWidget);
     pEdit->setHtml(getRootViewHtml());
     pEdit->setOpenLinks(false);
