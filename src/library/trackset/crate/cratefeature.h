@@ -77,7 +77,7 @@ class CrateFeature : public BaseTrackSetFeature {
     void slotUpdateCrateLabels(const QSet<CrateId>& updatedCrateIds);
 
   private:
-    void initActions();
+    void initActions(KeyboardEventFilter* pKeyboard);
     void connectLibrary(Library* pLibrary);
     void connectTrackCollection();
 

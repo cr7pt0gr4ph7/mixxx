@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "analyzer/analyzerscheduledtrack.h"
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/export/trackexportwizard.h"
 #include "library/library.h"
 #include "library/library_prefs.h"
@@ -50,8 +51,6 @@ CrateFeature::CrateFeature(Library* pLibrary,
           m_lockedCrateIcon(":/images/library/ic_library_locked_tracklist.svg"),
           m_pTrackCollection(pLibrary->trackCollectionManager()->internalCollection()),
           m_crateTableModel(this, pLibrary->trackCollectionManager()) {
-    initActions();
-
     // construct child model
     m_pSidebarModel->setRootItem(TreeItem::newRoot(this));
     rebuildChildModel();
@@ -60,7 +59,7 @@ CrateFeature::CrateFeature(Library* pLibrary,
     connectTrackCollection();
 }
 
-void CrateFeature::initActions() {
+void CrateFeature::initActions(KeyboardEventFilter* pKeyboard) {
     m_pCreateCrateAction = make_parented<QAction>(tr("Create New Crate"), this);
     connect(m_pCreateCrateAction.get(),
             &QAction::triggered,
@@ -68,7 +67,11 @@ void CrateFeature::initActions() {
             &CrateFeature::slotCreateCrate);
 
     m_pRenameCrateAction = make_parented<QAction>(tr("Rename"), this);
-    m_pRenameCrateAction->setShortcut(kRenameSidebarItemShortcutKey);
+    pKeyboard->registerActionForShortcut(
+            m_pRenameCrateAction,
+            ConfigKey("[Library]", "EditItem"),
+            QKeySequence(kRenameSidebarItemShortcutKey).toString(),
+            true);
     connect(m_pRenameCrateAction.get(),
             &QAction::triggered,
             this,
@@ -272,7 +275,7 @@ bool CrateFeature::dragMoveAcceptChild(const QModelIndex& index, const QUrl& url
 
 void CrateFeature::bindLibraryWidget(
         WLibrary* libraryWidget, KeyboardEventFilter* keyboard) {
-    Q_UNUSED(keyboard);
+    initActions(keyboard);
     WLibraryTextBrowser* edit = new WLibraryTextBrowser(libraryWidget);
     edit->setHtml(formatRootViewHtml());
     edit->setOpenLinks(false);
