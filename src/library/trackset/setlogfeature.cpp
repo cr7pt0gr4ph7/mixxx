@@ -26,12 +26,10 @@ using namespace mixxx::library::prefs;
 
 SetlogFeature::SetlogFeature(
         Library* pLibrary,
-        UserSettingsPointer pConfig,
-        KeyboardShortcutManager* pShortcuts)
+        UserSettingsPointer pConfig)
         : BasePlaylistFeature(
                   pLibrary,
                   pConfig,
-                  pShortcuts,
                   new PlaylistTableModel(
                           nullptr,
                           pLibrary->trackCollectionManager(),

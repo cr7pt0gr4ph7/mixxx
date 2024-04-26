@@ -8,7 +8,6 @@
 #include "library/dao/playlistdao.h"
 #include "library/trackset/basetracksetfeature.h"
 #include "track/trackid.h"
-#include "util/keyboardshortcutmanager.h"
 
 class WLibrary;
 class KeyboardEventFilter;
@@ -24,7 +23,6 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
   public:
     BasePlaylistFeature(Library* pLibrary,
             UserSettingsPointer pConfig,
-            KeyboardShortcutManager* pShortcuts,
             PlaylistTableModel* pModel,
             const QString& rootViewName,
             const QString& iconName,
@@ -97,7 +95,6 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
 
     QString createPlaylistLabel(const QString& name, int count, int duration) const;
 
-    KeyboardShortcutsManager* m_pShortcuts;
     PlaylistDAO& m_playlistDao;
     QModelIndex m_lastClickedIndex;
     QModelIndex m_lastRightClickedIndex;
