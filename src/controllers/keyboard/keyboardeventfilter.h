@@ -7,7 +7,6 @@
 
 #include "control/controlobject.h"
 #include "preferences/configobject.h"
-#include "util/keyboardshortcutmanager.h"
 
 class ControlObject;
 class QEvent;
@@ -15,7 +14,7 @@ class QKeyEvent;
 class WBaseWidget;
 
 // This class provides handling of keyboard events.
-class KeyboardEventFilter : public QObject, public KeyboardShortcutManager {
+class KeyboardEventFilter : public QObject {
     Q_OBJECT
   public:
     KeyboardEventFilter(UserSettingsPointer pConfig,
@@ -44,7 +43,7 @@ class KeyboardEventFilter : public QObject, public KeyboardShortcutManager {
             QAction* pAction,
             const ConfigKey& command,
             const QString& defaultShortcut,
-            bool useDefaultIfKeyboardDisabled = false) override;
+            bool useDefaultIfKeyboardDisabled = false);
 
     const QString registerMenuBarActionGetKeySeqString(
             QAction* pAction,
