@@ -87,7 +87,9 @@ class WTrackTableView : public WLibraryTableView {
 
     // Invoked when the mouse leaves this widget.
     void viewportLeaving();
-    void editRequested(const QModelIndex &index, EditTrigger trigger, QEvent *event);
+    void editRequested(const QModelIndex& index,
+            QAbstractItemView::EditTrigger trigger,
+            QEvent* event);
 
   public slots:
     void loadTrackModel(QAbstractItemModel* model, bool restoreState = false);
