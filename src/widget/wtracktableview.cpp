@@ -555,6 +555,7 @@ void WTrackTableView::onShow() {
 }
 
 void WTrackTableView::leaveEvent(QEvent* pEvent) {
+    Q_UNUSED(pEvent);
     emit viewportLeaving();
 }
 
