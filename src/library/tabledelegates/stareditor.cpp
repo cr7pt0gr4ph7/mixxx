@@ -86,14 +86,12 @@ void StarEditor::paintEvent(QPaintEvent*) {
         cg = QPalette::Inactive;
     }
 
-    painter.save();
     if (m_styleOption.state & QStyle::State_Selected) {
         painter.setBrush(m_styleOption.palette.color(cg, QPalette::HighlightedText));
     } else {
         painter.setBrush(m_styleOption.palette.color(cg, QPalette::Text));
     }
     m_starRating.paint(&painter, m_styleOption.rect);
-    painter.restore();
 }
 
 bool StarEditor::eventFilter(QObject* obj, QEvent* event) {
