@@ -25,6 +25,11 @@ class StarRating {
             int maxStarCount = mixxx::TrackRecord::kMaxRating - mixxx::TrackRecord::kMinRating);
 
     void paint(QPainter* painter, const QRect& rect) const;
+    void paint(QPainter* painter, const QRect& rect, const QBrush& brush) const;
+    void paint(QPainter* painter,
+            const QRect& rect,
+            const QBrush& brush,
+            const QBrush& selectedBrush) const;
     QSize sizeHint() const;
 
     int starCount() const {
@@ -49,6 +54,12 @@ class StarRating {
     }
 
   private:
+    void paintImpl(QPainter* painter,
+            const QRect& rect,
+            bool useBrushes,
+            const QBrush& brush,
+            const QBrush& selectedBrush) const;
+
     QPolygonF m_starPolygon;
     QPolygonF m_diamondPolygon;
     int m_starCount;
