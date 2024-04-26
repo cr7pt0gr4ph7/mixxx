@@ -17,7 +17,8 @@ class PlaylistFeature : public BasePlaylistFeature {
   public:
     PlaylistFeature(
             Library* pLibrary,
-            UserSettingsPointer pConfig);
+            UserSettingsPointer pConfig,
+            KeyboardShortcutManager* pShortcuts);
     ~PlaylistFeature() override = default;
 
     QVariant title() override;

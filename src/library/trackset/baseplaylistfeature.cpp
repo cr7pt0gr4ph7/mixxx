@@ -37,12 +37,14 @@ using namespace mixxx::library::prefs;
 BasePlaylistFeature::BasePlaylistFeature(
         Library* pLibrary,
         UserSettingsPointer pConfig,
+        KeyboardShortcutManager* pShortcuts,
         PlaylistTableModel* pModel,
         const QString& rootViewName,
         const QString& iconName,
         const QString& countsDurationTableName,
         bool keepHiddenTracks)
         : BaseTrackSetFeature(pLibrary, pConfig, rootViewName, iconName),
+          m_pShortcuts(pShortcuts),
           m_playlistDao(pLibrary->trackCollectionManager()
                                 ->internalCollection()
                                 ->getPlaylistDAO()),

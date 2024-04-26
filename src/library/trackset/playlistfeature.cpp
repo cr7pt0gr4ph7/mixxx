@@ -18,9 +18,12 @@
 #include "widget/wlibrarysidebar.h"
 #include "widget/wtracktableview.h"
 
-PlaylistFeature::PlaylistFeature(Library* pLibrary, UserSettingsPointer pConfig)
+PlaylistFeature::PlaylistFeature(Library* pLibrary,
+        UserSettingsPointer pConfig,
+        KeyboardShortcutManager* pShortcuts)
         : BasePlaylistFeature(pLibrary,
                   pConfig,
+                  pShortcuts,
                   new PlaylistTableModel(nullptr,
                           pLibrary->trackCollectionManager(),
                           "mixxx.db.model.playlist"),
