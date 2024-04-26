@@ -39,11 +39,17 @@ class KeyboardEventFilter : public QObject {
     void clearWidgets();
     const QString buildShortcutString(const QString& shortcut, const QString& cmd) const;
 
+    void registerActionForShortcut(
+            QAction* pAction,
+            const ConfigKey& command,
+            const QString& defaultShortcut,
+            bool useDefaultIfKeyboardDisabled = false);
+
     const QString registerMenuBarActionGetKeySeqString(
             QAction* pAction,
             const ConfigKey& command,
             const QString& defaultShortcut);
-    void updateMenuBarActions();
+    void updateActions();
 
   public slots:
     void reloadKeyboardConfig();
@@ -93,9 +99,28 @@ class KeyboardEventFilter : public QObject {
 
     QFileSystemWatcher m_fileWatcher;
 
-    // Actions in the menu bar
+    struct ShortcutInformation {
+        ShortcutInformation(const ConfigKey& key,
+                const QString& defaultShortcut,
+                bool useDefaultIfKeyboardDisabled)
+                : key(key),
+                  defaultShortcut(defaultShortcut),
+                  useDefaultIfKeyboardDisabled(useDefaultIfKeyboardDisabled) {
+        }
+
+        ConfigKey key;
+        QString defaultShortcut;
+        bool useDefaultIfKeyboardDisabled;
+    };
+
+    // Gets the shortcut that should be displayed in tooltips,
+    // as determined by the current configuration
+    QKeySequence getKeySequence(const ShortcutInformation& cmdInfo) const;
+
+    // Actions in the menu bar and elsewhere
     // Value pair is the ConfigKey and the default QKeySequence (as QString).
-    QHash<QAction*, std::pair<ConfigKey, QString>> m_menuBarActions;
+    // Menu bar shortcuts are available even when keyboard shortcuts are disabled.
+    QHash<QAction*, ShortcutInformation> m_actions;
 
     // Widgets that have mappable connections, registered by LegacySkinParser
     // during skin construction.
