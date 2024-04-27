@@ -406,6 +406,9 @@ WTrackProperty[selected="true"],
   #LatencyLabel {
     margin-top: 1px;
   }
+  #AutoDjStatusText {
+    margin-bottom: 1px;
+  }
 
 #Deck1, #DeckCompact1, #DeckMini1,
 #Deck2, #DeckCompact2, #DeckMini2,
@@ -1371,6 +1374,12 @@ WEffectChainPresetSelector QAbstractScrollArea,
 #MixerMainHeadphone #KnobLabel,
 #MixerMainHeadphone #FxAssignButtons WPushButton[displayValue="0"] {
   color: #555;
+}
+
+#AutoDjTracksRemaining,
+#AutoDjTimeRemaining {
+  color: #444;
+  font-weight: bold;
 }
 
 #LatencyLabel {

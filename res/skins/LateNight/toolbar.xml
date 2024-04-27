@@ -120,6 +120,46 @@
 
       <WidgetGroup><Size>me,min</Size></WidgetGroup>
 
+      <WidgetGroup>
+        <ObjectName>AutoDjStatusText</ObjectName>
+        <Size>min,min</Size>
+        <Layout>horizontal</Layout>
+        <Children>
+          <Number>
+            <!-- <TooltipId>autodj_tracks_remaining</TooltipId> -->
+            <ObjectName>AutoDjTracksRemaining</ObjectName>
+            <!-- <Size>min,min</Size> -->
+            <NumberOfDigits>0</NumberOfDigits>
+            <Alignment>right</Alignment>
+            <Text>Auto DJ: %1 tracks in queue</Text>
+            <Connection>
+              <ConfigKey>[AutoDJ],tracks_remaining</ConfigKey>
+            </Connection>
+            <Connection>
+              <ConfigKey>[AutoDJ],enabled</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </Number>
+
+          <NumberDuration>
+            <!-- <TooltipId>autodj_time_remaining</TooltipId> -->
+            <ObjectName>AutoDjTimeRemaining</ObjectName>
+            <!-- <Size>min,min</Size> -->
+            <NumberOfDigits>0</NumberOfDigits>
+            <Alignment>right</Alignment>
+            <TimeFormat>hh:mm:ss</TimeFormat>
+            <Text>, %1 remaining</Text>
+            <Connection>
+              <ConfigKey>[AutoDJ],time_remaining</ConfigKey>
+            </Connection>
+            <Connection>
+              <ConfigKey>[AutoDJ],enabled</ConfigKey>
+              <BindProperty>visible</BindProperty>
+            </Connection>
+          </NumberDuration>
+        </Children>
+      </WidgetGroup>
+
       <StatusLight>
         <TooltipId>autodj_status</TooltipId>
         <ObjectName>AutoDjStatus</ObjectName>
