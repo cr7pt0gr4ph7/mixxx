@@ -31,6 +31,7 @@ void PlaylistStatsDAO::preparePlaylistSummaryTable() {
             "  Playlists.id AS id, "
             "  Playlists.name AS name, "
             "  Playlists.date_created AS date_created, "
+            "  Playlists.hidden as hidden, "
             "  LOWER(Playlists.name) AS sort_name, "
             "  (case Playlists.hidden "
             "    when %2 then max(PlaylistTracks.position) "
