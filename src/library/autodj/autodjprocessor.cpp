@@ -153,6 +153,15 @@ AutoDJProcessor::AutoDJProcessor(
     m_pEnabledAutoDJ->connectValueChangeRequest(this,
             &AutoDJProcessor::controlEnableChangeRequest);
 
+    m_pTracksRemaining = new ControlObject(
+            ConfigKey("[AutoDJ]", "tracks_remaining"));
+    m_pTimeRemaining = new ControlObject(
+            ConfigKey("[AutoDJ]", "time_remaining"));
+    connect(m_pAutoDJTableModel,
+            &PlaylistTableModel::tracksChanged,
+            this,
+            &AutoDJProcessor::playlistTracksChanged);
+
     // TODO(rryan) listen to signals from PlayerManager and add/remove as decks
     // are created.
     for (unsigned int i = 0; i < pPlayerManager->numberOfDecks(); ++i) {
@@ -190,6 +199,8 @@ AutoDJProcessor::~AutoDJProcessor() {
     delete m_pAddRandomTrack;
     delete m_pShufflePlaylist;
     delete m_pEnabledAutoDJ;
+    delete m_pTracksRemaining;
+    delete m_pTimeRemaining;
     delete m_pFadeNow;
 
     delete m_pAutoDJTableModel;
@@ -207,6 +218,11 @@ void AutoDJProcessor::setCrossfader(double value) {
         value *= -1.0;
     }
     m_pCOCrossfader->set(value);
+}
+
+void AutoDJProcessor::playlistTracksChanged() {
+    m_pTracksRemaining->set(m_pAutoDJTableModel->rowCount());
+    m_pTimeRemaining->set(m_pAutoDJTableModel->getTotalDuration().toDoubleSeconds());
 }
 
 AutoDJProcessor::AutoDJError AutoDJProcessor::shufflePlaylist(
