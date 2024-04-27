@@ -18,7 +18,6 @@ class SidebarModel : public QAbstractItemModel {
     enum Roles {
         IconNameRole = Qt::UserRole + 1,
         DataRole,
-        ExtraLabelRole,
     };
     Q_ENUM(Roles);
 

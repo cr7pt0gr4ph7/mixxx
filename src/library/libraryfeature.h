@@ -31,10 +31,6 @@ class LibraryFeature : public QObject {
 
     virtual QVariant title() = 0;
 
-    virtual QVariant titleSuffix() {
-        return QVariant();
-    }
-
     /// Returns the icon name.
     ///
     /// This is useful for QML skins that need to build a URL anyway and may use their own icon theme.

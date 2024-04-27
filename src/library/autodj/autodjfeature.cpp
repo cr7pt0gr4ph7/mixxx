@@ -42,12 +42,14 @@ int findOrCreateAutoDjPlaylistId(PlaylistDAO& playlistDAO) {
 }
 
 /// Create a title for the Auto DJ node
-QString createAutoDjTitleSuffix(int count,
+QString createAutoDjTitle(const QString& name,
+        int count,
         int duration,
         bool randomQueueEnabled,
         bool showCountRemaining,
         bool showTimeRemaining) {
-    QString result();
+    QString result(name);
+
     // Show duration and track count only if Auto DJ queue has tracks
     if (count > 0 && showCountRemaining) {
         result.append(QStringLiteral(" ("));
@@ -145,10 +147,6 @@ AutoDJFeature::~AutoDJFeature() {
 }
 
 QVariant AutoDJFeature::title() {
-    return tr("Auto DJ");
-}
-
-QVariant AutoDJFeature::titleSuffix() {
     PlaylistStatsDAO& playlistStatsDAO =
             m_pLibrary->trackCollectionManager()->internalCollection()->getPlaylistStatsDAO();
     auto playlistInfo = playlistStatsDAO.getPlaylistSummary(m_iAutoDJPlaylistId);
@@ -165,7 +163,8 @@ QVariant AutoDJFeature::titleSuffix() {
     //       * intro durations of songs
     //       * outro durations of song
     //
-    return createAutoDjTitleSuffix(playlistInfo.count,
+    return createAutoDjTitle(tr("Auto DJ"),
+            playlistInfo.count,
             playlistInfo.duration,
             randomQueueEnabled,
             true,

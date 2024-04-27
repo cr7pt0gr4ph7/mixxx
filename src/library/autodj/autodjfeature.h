@@ -31,7 +31,6 @@ class AutoDJFeature : public LibraryFeature {
     virtual ~AutoDJFeature();
 
     QVariant title() override;
-    QVariant titleSuffix() override;
 
     void clear() override;
     void paste() override;

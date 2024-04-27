@@ -262,8 +262,6 @@ QVariant SidebarModel::data(const QModelIndex& index, int role) const {
             return m_sFeatures[index.row()]->icon();
         case SidebarModel::IconNameRole:
             return m_sFeatures[index.row()]->iconName();
-        case SidebarModel::ExtraLabelRole:
-            return m_sFeatures[index.row()]->titleSuffix();
         default:
             return QVariant();
         }

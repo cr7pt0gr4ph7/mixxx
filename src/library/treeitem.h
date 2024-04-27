@@ -119,13 +119,6 @@ class TreeItem final {
         return m_icon;
     }
 
-    void setExtraLabel(const QString& extraLabel) {
-        m_extraLabel = extraLabel;
-    }
-    const QString& getExtraLabel() const {
-        return m_extraLabel;
-    }
-
     void setBold(bool bold) {
         m_bold = bold;
     }
@@ -151,7 +144,6 @@ class TreeItem final {
     QList<TreeItem*> m_children; // owned child items
 
     QString m_label;
-    QString m_extraLabel;
     QVariant m_data;
     QIcon m_icon;
     bool m_bold;
