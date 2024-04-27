@@ -318,6 +318,7 @@ mixxx::Duration AutoDJProcessor::calculateRemainingTime() {
                 TrackAttributes fromTrack(previousTrack);
                 TrackAttributes toTrack(track);
                 calculateTransitionImpl(fromTrack, toTrack, true);
+                durationTotal += track->getDuration() - fromTrack.fadeDurationSeconds;
             } else {
                 // TODO: Take the transition between an already playing deck
                 //       and the top of the Auto DJ queue into account?
@@ -330,11 +331,12 @@ mixxx::Duration AutoDJProcessor::calculateRemainingTime() {
     } else {
         // This is the simplest case of the tracks' actual play time
         // being equal to their duration minus the fixed fade time.
-        // No fade time
+        // No fade time is applied to the last track.
         int numTracks = m_pAutoDJTableModel->rowCount();
         if (numTracks >= 2) {
             // A negative transition time causes silence to be inserted
-            // between the tracks, which is accurately reflected here.
+            // between the tracks, which is accurately reflected here
+            // as an increase of the total playtime.
             return m_pAutoDJTableModel->getTotalDuration() -
                     mixxx::Duration::fromSeconds((numTracks - 1) * m_transitionTime);
         } else {
