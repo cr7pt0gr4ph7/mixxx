@@ -10,6 +10,7 @@
 #include "track/track_decl.h"
 
 class PlaylistTableModel;
+class ProxyTrackModel;
 class WLibrary;
 class WTrackTableView;
 class Library;
@@ -67,6 +68,7 @@ class DlgAutoDJ : public QWidget, public Ui::DlgAutoDJ, public LibraryView {
     WTrackTableView* const m_pTrackTableView;
     const bool m_bShowButtonText;
 
+    ProxyTrackModel* m_pProxyTableModel;
     PlaylistTableModel* m_pAutoDJTableModel;
 
     QString m_enableBtnTooltip;

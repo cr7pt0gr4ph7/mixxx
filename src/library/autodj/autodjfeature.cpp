@@ -221,7 +221,6 @@ TreeItemModel* AutoDJFeature::sidebarModel() const {
 void AutoDJFeature::activate() {
     //qDebug() << "AutoDJFeature::activate()";
     emit switchToView(kViewName);
-    emit disableSearch();
     emit enableCoverArtDisplay(true);
 }
 
