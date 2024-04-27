@@ -120,6 +120,9 @@ QVariant AutoDJFeature::title() {
             m_pLibrary->trackCollectionManager()->internalCollection()->getPlaylistStatsDAO();
     auto playlistInfo = playlistStatsDAO.getPlaylistSummary(m_iAutoDJPlaylistId);
 
+    bool randomQueueEnabled = m_pConfig->getValue<bool>(
+            ConfigKey("[Auto DJ]", "EnableRandomQueue"));
+
     // TODO: Take cross-fade times into account when calculating the duration,
     //       i.e. either min(lastSong.outroDuration, nextSong.introDuration)
     //       or just a fixed duration. The calculation depends on:
@@ -129,20 +132,25 @@ QVariant AutoDJFeature::title() {
     //       * intro durations of songs
     //       * outro durations of song
     //
-    return createTitle(tr("Auto DJ"), playlistInfo.count, playlistInfo.duration);
+    return createTitle(tr("Auto DJ"),
+            playlistInfo.count,
+            playlistInfo.duration,
+            randomQueueEnabled);
 }
 
 // static
 QString AutoDJFeature::createTitle(const QString& name,
         int count,
-        int duration) {
+        int duration,
+        bool randomQueueEnabled) {
     // Show duration and track count only if Auto DJ queue has tracks
     if (count > 0) {
-            return QStringLiteral("%1 (%2) %3")
+            return QStringLiteral("%1 (%2%4) %3%4")
                     .arg(name,
                             QString::number(count),
                             mixxx::Duration::formatTime(
-                                    duration, mixxx::Duration::Precision::SECONDS));
+                                    duration, mixxx::Duration::Precision::SECONDS),
+                            randomQueueEnabled ? QStringLiteral("+") : QString());
     } else {
             return name;
     }
