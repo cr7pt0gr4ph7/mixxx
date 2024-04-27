@@ -124,7 +124,8 @@ QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels() {
             m_pLibrary->trackCollectionManager()->internalCollection()->getPlaylistStatsDAO();
 
     QList<BasePlaylistFeature::IdAndLabel> playlistLabels;
-    for (auto playlistInfo : playlistStatsDao.getPlaylistSummaries(PlaylistDAO::PLHT_NOT_HIDDEN)) {
+    for (const auto& playlistInfo : playlistStatsDao.getPlaylistSummaries(
+                 PlaylistDAO::PLHT_NOT_HIDDEN)) {
         BasePlaylistFeature::IdAndLabel idAndLabel;
         idAndLabel.id = playlistInfo.playlistId;
         idAndLabel.label = createPlaylistLabel(

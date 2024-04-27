@@ -240,7 +240,8 @@ QModelIndex SetlogFeature::constructChildModel(int selectedId) {
     // Generous estimate (number of years the db is used ;))
     itemList.reserve(kNumToplevelHistoryEntries + 15);
     int numEntries = 0;
-    for (auto playlistInfo : playlistStatsDao.getPlaylistSummaries(PlaylistDAO::PLHT_SET_LOG)) {
+    for (const auto& playlistInfo :
+            playlistStatsDao.getPlaylistSummaries(PlaylistDAO::PLHT_SET_LOG)) {
         int id = playlistInfo.playlistId;
         QString label = createPlaylistLabel(
                 playlistInfo.name, playlistInfo.count, playlistInfo.duration);
