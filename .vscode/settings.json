@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.qss": "css",
         "array": "cpp",
         "string_view": "cpp",
         "span_ext": "cpp",
@@ -83,7 +84,8 @@
         "qtsql": "cpp",
         "*.moc": "cpp",
         "bitset": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "qtglobal": "cpp"
     },
     "C_Cpp.default.includePath": [
         "${workspaceRoot}/src",
