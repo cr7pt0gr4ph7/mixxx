@@ -10,10 +10,8 @@
 #include "util/make_const_iterator.h"
 #include "util/math.h"
 
-PlaylistStatsDAO::PlaylistStatsDAO(const QString& countsDurationTableName,
-        const PlaylistDAO::HiddenType playlistType)
-        : m_countsDurationTableName(countsDurationTableName),
-          m_hiddenType(playlistType) {
+PlaylistStatsDAO::PlaylistStatsDAO()
+        : m_countsDurationTableName(QStringLiteral("PlaylistsCountsDurations")) {
 }
 
 void PlaylistStatsDAO::initialize(const QSqlDatabase& database) {
@@ -22,11 +20,11 @@ void PlaylistStatsDAO::initialize(const QSqlDatabase& database) {
 }
 
 void PlaylistStatsDAO::preparePlaylistSummaryTable() {
-    // If true, deleted tracks should still be counted
-    // towards the track count and duration totals.
-    // If false, treat deleted tracks as if they weren't there.
-    bool includeDeleted = m_hiddenType == PlaylistDAO::PLHT_SET_LOG;
+    qDebug() << "Preparing playlist counts/duration table" << m_countsDurationTableName;
 
+    // Deleted tracks should still be counted towards the track count
+    // and duration totals for playlists with hidden == PLHT_SET_LOG.
+    // Otherwise, we treat deleted tracks as if they weren't there.
     QString queryString = QStringLiteral(
             "CREATE TEMPORARY VIEW IF NOT EXISTS %1 "
             "AS SELECT "
@@ -34,26 +32,24 @@ void PlaylistStatsDAO::preparePlaylistSummaryTable() {
             "  Playlists.name AS name, "
             "  Playlists.date_created AS date_created, "
             "  LOWER(Playlists.name) AS sort_name, "
-            "  IF(%3, "
-            "    max(PlaylistTracks.position),"
-            "    COUNT(case library.mixxx_deleted "
-            "      when 0 then 1 else null end)) "
-            "    AS count, "
-            "  IF(%3, "
-            "    SUM(library.duration), "
-            "    SUM(case library.mixxx_deleted "
-            "      when 0 then library.duration else 0 end)) "
-            "    AS durationSeconds "
+            "  (case Playlists.hidden "
+            "    when %2 then max(PlaylistTracks.position) "
+            "    else COUNT(case library.mixxx_deleted "
+            "      when 0 then 1 else null end) "
+            "    end) AS count, "
+            "  (case Playlists.hidden "
+            "    when %2 then SUM(library.duration) "
+            "    else SUM(case library.mixxx_deleted "
+            "      when 0 then library.duration else 0 end) "
+            "    end) AS durationSeconds "
             "FROM Playlists "
             "LEFT JOIN PlaylistTracks "
             "  ON PlaylistTracks.playlist_id = Playlists.id "
             "LEFT JOIN library "
             "  ON PlaylistTracks.track_id = library.id "
-            "  WHERE Playlists.hidden = %2 "
-            "  GROUP BY Playlists.id")
+            "GROUP BY Playlists.id")
                                   .arg(m_countsDurationTableName,
-                                          QString::number(m_hiddenType),
-                                          includeDeleted ? "true" : "false");
+                                          QString::number(PlaylistDAO::PLHT_SET_LOG));
 
     queryString.append(
             mixxx::DbConnection::collateLexicographically(
@@ -64,14 +60,17 @@ void PlaylistStatsDAO::preparePlaylistSummaryTable() {
     }
 }
 
-QList<PlaylistStatsDAO::PlaylistSummary> PlaylistStatsDAO::getPlaylistSummaries() {
+QList<PlaylistStatsDAO::PlaylistSummary> PlaylistStatsDAO::getPlaylistSummaries(
+        PlaylistDAO::HiddenType playlistType) {
     // Setup the sidebar playlist model
     QSqlTableModel playlistTableModel(this, m_database);
     playlistTableModel.setTable(m_countsDurationTableName);
-    if (m_hiddenType == PlaylistDAO::PLHT_SET_LOG) {
+    if (playlistType == PlaylistDAO::PLHT_SET_LOG) {
         // TODO: Can we remove this special handling for the SetLog?
         playlistTableModel.setSort(playlistTableModel.fieldIndex("id"), Qt::DescendingOrder);
     }
+    const QString filter = "hidden=" + QString::number(playlistType);
+    playlistTableModel.setFilter(filter);
     playlistTableModel.select();
     while (playlistTableModel.canFetchMore()) {
         playlistTableModel.fetchMore();
