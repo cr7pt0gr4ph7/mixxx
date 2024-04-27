@@ -261,6 +261,9 @@ AutoDJProcessor::AutoDJProcessor(
 
     m_transitionMode = m_pConfig->getValue(
             ConfigKey(kConfigKey, kTransitionModePreferenceName), TransitionMode::FullIntroOutro);
+
+    // Calculate the initial values for track count and time remaining
+    playlistTracksChanged();
 }
 
 AutoDJProcessor::~AutoDJProcessor() {
