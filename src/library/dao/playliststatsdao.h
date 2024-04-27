@@ -27,7 +27,7 @@ class PlaylistStatsDAO : public QObject, public virtual DAO {
         }
         PlaylistSummary(const int playlistId,
                 const QString& name,
-                QDateTime dateCreated,
+                const QDateTime& dateCreated,
                 int count,
                 int duration)
                 : hasValue(true),
