@@ -48,15 +48,13 @@ QString createAutoDjTitle(const QString& name,
         bool randomQueueEnabled,
         bool showCountRemaining,
         bool showTimeRemaining) {
+    Q_UNUSED(randomQueueEnabled);
     QString result(name);
 
     // Show duration and track count only if Auto DJ queue has tracks
     if (count > 0 && showCountRemaining) {
         result.append(QStringLiteral(" ("));
         result.append(QString::number(count));
-        if (randomQueueEnabled) {
-            result.append(QStringLiteral("+"));
-        }
         result.append(QStringLiteral(")"));
     }
 
@@ -64,9 +62,6 @@ QString createAutoDjTitle(const QString& name,
         result.append(QStringLiteral(" "));
         result.append(mixxx::Duration::formatTime(
                 duration, mixxx::Duration::Precision::SECONDS));
-        if (randomQueueEnabled) {
-            result.append(QStringLiteral("+"));
-        }
     }
 
     return result;
