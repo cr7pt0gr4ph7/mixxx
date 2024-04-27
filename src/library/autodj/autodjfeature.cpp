@@ -119,6 +119,16 @@ QVariant AutoDJFeature::title() {
     PlaylistStatsDAO& playlistStatsDAO =
             m_pLibrary->trackCollectionManager()->internalCollection()->getPlaylistStatsDAO();
     auto playlistInfo = playlistStatsDAO.getPlaylistSummary(m_iAutoDJPlaylistId);
+
+    // TODO: Take cross-fade times into account when calculating the duration,
+    //       i.e. either min(lastSong.outroDuration, nextSong.introDuration)
+    //       or just a fixed duration. The calculation depends on:
+    //
+    //       * cross-fade mode
+    //       * default cross-fade duration
+    //       * intro durations of songs
+    //       * outro durations of song
+    //
     return createTitle(tr("Auto DJ"), playlistInfo.count, playlistInfo.duration);
 }
 
