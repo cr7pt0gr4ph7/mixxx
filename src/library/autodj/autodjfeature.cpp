@@ -40,6 +40,37 @@ int findOrCreateAutoDjPlaylistId(PlaylistDAO& playlistDAO) {
     }
     return playlistId;
 }
+
+/// Create a title for the Auto DJ node
+QString createAutoDjTitle(const QString& name,
+        int count,
+        int duration,
+        bool randomQueueEnabled,
+        bool showCountRemaining,
+        bool showTimeRemaining) {
+    QString result(name);
+
+    // Show duration and track count only if Auto DJ queue has tracks
+    if (count > 0 && showCountRemaining) {
+        result.append(QStringLiteral(" ("));
+        result.append(QString::number(count));
+        if (randomQueueEnabled) {
+            result.append(QStringLiteral("+"));
+        }
+        result.append(QStringLiteral(")"));
+    }
+
+    if (count > 0 && showTimeRemaining) {
+        result.append(QStringLiteral(" "));
+        result.append(mixxx::Duration::formatTime(
+                duration, mixxx::Duration::Precision::SECONDS));
+        if (randomQueueEnabled) {
+            result.append(QStringLiteral("+"));
+        }
+    }
+
+    return result;
+}
 } // anonymous namespace
 
 AutoDJFeature::AutoDJFeature(Library* pLibrary,
@@ -132,28 +163,12 @@ QVariant AutoDJFeature::title() {
     //       * intro durations of songs
     //       * outro durations of song
     //
-    return createTitle(tr("Auto DJ"),
+    return createAutoDjTitle(tr("Auto DJ"),
             playlistInfo.count,
             playlistInfo.duration,
-            randomQueueEnabled);
-}
-
-// static
-QString AutoDJFeature::createTitle(const QString& name,
-        int count,
-        int duration,
-        bool randomQueueEnabled) {
-    // Show duration and track count only if Auto DJ queue has tracks
-    if (count > 0) {
-            return QStringLiteral("%1 (%2%4) %3%4")
-                    .arg(name,
-                            QString::number(count),
-                            mixxx::Duration::formatTime(
-                                    duration, mixxx::Duration::Precision::SECONDS),
-                            randomQueueEnabled ? QStringLiteral("+") : QString());
-    } else {
-            return name;
-    }
+            randomQueueEnabled,
+            true,
+            true);
 }
 
 void AutoDJFeature::slotPlaylistContentChanged(const QSet<int>& playlistIds) {
