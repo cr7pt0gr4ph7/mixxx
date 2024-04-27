@@ -413,6 +413,6 @@ QString PlaylistTableModel::modelKey(bool noSearch) const {
 void PlaylistTableModel::playlistsChanged(const QSet<int>& playlistIds) {
     if (playlistIds.contains(m_iPlaylistId)) {
         select(); // Repopulate the data model.
-        emit tracksChanged();
+        emit playlistTracksChanged();
     }
 }

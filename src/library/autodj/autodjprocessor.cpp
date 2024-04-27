@@ -234,7 +234,7 @@ AutoDJProcessor::AutoDJProcessor(
     m_pTimeRemaining = new ControlObject(
             ConfigKey("[AutoDJ]", "time_remaining"));
     connect(m_pAutoDJTableModel,
-            &PlaylistTableModel::tracksChanged,
+            &PlaylistTableModel::playlistTracksChanged,
             this,
             &AutoDJProcessor::playlistTracksChanged);
     connect(pTrackCollectionManager->internalCollection(),
