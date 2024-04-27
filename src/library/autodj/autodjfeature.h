@@ -67,6 +67,9 @@ class AutoDJFeature : public LibraryFeature {
     // Initialize the list of crates loaded into the auto-DJ queue.
     void constructCrateChildModel();
 
+    // Create a title for the Auto DJ node
+    static QString createTitle(const QString& name, int count, int duration);
+
     // The "Crates" tree-item under the "Auto DJ" tree-item.
     TreeItem* m_pCratesTreeItem;
 
@@ -99,4 +102,9 @@ class AutoDJFeature : public LibraryFeature {
     // Adds a random track from the queue upon hitting minimum number
     // of tracks in the playlist
     void slotRandomQueue(int numTracksToAdd);
+
+    // Updates the title of the "Auto DJ" node with the number of tracks
+    // and remaining duration when tracks are added to or removed from
+    // the Auto DJ queue.
+    void slotPlaylistContentChanged(const QSet<int>& playlistIds);
 };
