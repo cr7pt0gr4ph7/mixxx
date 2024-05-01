@@ -19,3 +19,14 @@ enum class FocusWidget {
     Count        // Used for setting the number of PushButton states of
                  // m_pFocusedWidget in librarycontrol.cpp
 };
+
+namespace LibraryViewName {
+const QString Analysis = QStringLiteral("Analysis");
+const QString AutoDj = QStringLiteral("Auto DJ");
+const QString FileBrowser = QStringLiteral("BROWSEHOME");
+const QString Playlists = QStringLiteral("PLAYLISTHOME");
+const QString Rekordbox = QStringLiteral("REKORDBOXHOME");
+const QString Recording = QStringLiteral("Recording");
+const QString Serato = QStringLiteral("SERATOHOME");
+const QString Tracks = QStringLiteral("WTrackTableView");
+}; // namespace LibraryViewName

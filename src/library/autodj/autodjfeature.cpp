@@ -21,7 +21,7 @@
 
 namespace {
 
-const QString kViewName = QStringLiteral("Auto DJ");
+const QString kViewName = LibraryViewName::AutoDj;
 
 } // namespace
 

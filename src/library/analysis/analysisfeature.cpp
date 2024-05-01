@@ -17,7 +17,7 @@ namespace {
 
 const mixxx::Logger kLogger("AnalysisFeature");
 
-const QString kViewName = QStringLiteral("Analysis");
+const QString kViewName = LibraryViewName::Analysis;
 
 // Utilize all available cores for batch analysis of tracks
 const int kNumberOfAnalyzerThreads = math_max(1, QThread::idealThreadCount());

@@ -19,7 +19,7 @@
 
 namespace {
 
-const QString kViewName = QStringLiteral("BROWSEHOME");
+const QString kViewName = LibraryViewName::FileBrowser;
 
 const QString kQuickLinksSeparator = QStringLiteral("-+-");
 

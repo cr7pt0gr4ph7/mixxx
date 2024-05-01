@@ -8,7 +8,7 @@
 
 namespace {
 
-const QString kViewName = QStringLiteral("Recording");
+const QString kViewName = LibraryViewName::Recording;
 
 } // anonymous namespace
 
