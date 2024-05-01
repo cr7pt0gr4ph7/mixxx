@@ -19,3 +19,7 @@ enum class FocusWidget {
     Count        // Used for setting the number of PushButton states of
                  // m_pFocusedWidget in librarycontrol.cpp
 };
+
+namespace LibraryFeatureName {
+const QString Tracks = QStringLiteral("Tracks");
+}
