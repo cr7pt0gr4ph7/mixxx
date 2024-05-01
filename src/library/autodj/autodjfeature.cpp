@@ -1,6 +1,7 @@
 #include "library/autodj/autodjfeature.h"
 
 #include <QMenu>
+#include <QShortcut>
 #include <QtDebug>
 
 #include "library/autodj/autodjprocessor.h"
@@ -134,6 +135,12 @@ AutoDJFeature::AutoDJFeature(Library* pLibrary,
             &PlaylistDAO::tracksChanged,
             this,
             &AutoDJFeature::slotPlaylistContentChanged);
+
+    m_pActivateShortcut = new QShortcut(QKeySequence("Ctrl+Shift+A"), this);
+    connect(m_pActivateShortcut,
+            &QShortcut::activated,
+            this,
+            &AutoDJFeature::activate);
 }
 
 AutoDJFeature::~AutoDJFeature() {

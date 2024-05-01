@@ -21,6 +21,7 @@ class WLibrarySidebar;
 class QAction;
 class QModelIndex;
 class QPoint;
+class QShortcut;
 
 class AutoDJFeature : public LibraryFeature {
     Q_OBJECT
@@ -81,6 +82,9 @@ class AutoDJFeature : public LibraryFeature {
     // A context-menu item that allows crates to be removed from the
     // auto-DJ list.
     QAction* m_pRemoveCrateFromAutoDj;
+
+    // A keyboard shortcut to switch to the Auto DJ view.
+    QShortcut* m_pActivateShortcut;
 
     QPointer<WLibrarySidebar> m_pSidebarWidget;
 
