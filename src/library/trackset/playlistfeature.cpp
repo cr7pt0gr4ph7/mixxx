@@ -25,7 +25,7 @@ PlaylistFeature::PlaylistFeature(Library* pLibrary, UserSettingsPointer pConfig)
                   new PlaylistTableModel(nullptr,
                           pLibrary->trackCollectionManager(),
                           "mixxx.db.model.playlist"),
-                  LibraryViewName::Playlists,
+                  QStringLiteral("PLAYLISTHOME"),
                   QStringLiteral("playlist")) {
     // construct child model
     std::unique_ptr<TreeItem> pRootItem = TreeItem::newRoot(this);
