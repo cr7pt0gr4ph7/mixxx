@@ -21,7 +21,8 @@ WBeatSpinBox::WBeatSpinBox(QWidget* parent,
         : QDoubleSpinBox(parent),
           WBaseWidget(this),
           m_valueControl(configKey, this, ControlFlag::NoAssertIfMissing),
-          m_scaleFactor(1.0) {
+          m_scaleFactor(1.0),
+          m_useFineSteps(false) {
     // replace the original QLineEdit by one that supports font scaling.
     setLineEdit(new WBeatLineEdit(this));
     setDecimals(decimals);
@@ -54,7 +55,10 @@ void WBeatSpinBox::stepBy(int steps) {
     QString temp = text();
     int cursorPos = lineEdit()->cursorPosition();
     if (validate(temp, cursorPos) == QValidator::Acceptable) {
-        newValue = valueFromText(temp) * pow(2, steps);
+        newValue = valueFromText(temp);
+        newValue = m_useFineSteps
+                ? newValue + steps
+                : newValue * pow(2, steps);
     } else {
         // here we have an unacceptable edit, going back to the old value first
         newValue = oldValue;
@@ -318,7 +322,13 @@ void WBeatSpinBox::keyPressEvent(QKeyEvent* pEvent) {
         ControlObject::set(ConfigKey("[Library]", "refocus_prev_widget"), 1);
         return;
     }
+
+    // Holding down the Shift key while pressing Up or Down
+    // causes the value to be incremented or decremented by 1,
+    // instead of multiplying/dividing it by 2.
+    m_useFineSteps = (pEvent->modifiers() & Qt::ShiftModifier);
     QDoubleSpinBox::keyPressEvent(pEvent);
+    m_useFineSteps = false;
 }
 
 bool WBeatLineEdit::event(QEvent* pEvent) {
