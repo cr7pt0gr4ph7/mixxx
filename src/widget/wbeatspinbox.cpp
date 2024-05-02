@@ -281,16 +281,39 @@ bool WBeatSpinBox::event(QEvent* pEvent) {
             const_cast<QFont&>(fonti).setPixelSize(
                     static_cast<int>(fonti.pixelSize() * m_scaleFactor));
         }
+    } else if (pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+
+        // Override the behavior of the Tab key to move focus back to the
+        // previously focused library widget (to match the behavior of
+        // Return and Enter), instead of always focusing the library search
+        // box.
+        //
+        // We have to intercept the KeyPress event here to prevent it from
+        // reaching the special Tab handling code in QWidget::event().
+        if (pKeyEvent->key() == Qt::Key_Tab &&
+                !(pKeyEvent->modifiers() &
+                        (Qt::ControlModifier | Qt::AltModifier |
+                                Qt::ShiftModifier))) {
+            // Prevent parents from handling this event, commit the
+            // current value (as if Enter/Return had been pressed)
+            // and move focus back to the library widget.
+            pEvent->accept();
+            interpretText();
+            ControlObject::set(ConfigKey("[Library]", "refocus_prev_widget"), 1);
+            return true;
+        }
     }
     return QDoubleSpinBox::event(pEvent);
 }
 
 void WBeatSpinBox::keyPressEvent(QKeyEvent* pEvent) {
-    // By default, Return & Enter keys apply the current value.
+    // By default, Return and Enter keys apply the current value.
     // Additionally, move focus back to the previously focused library widget.
     if (pEvent->key() == Qt::Key_Return ||
             pEvent->key() == Qt::Key_Enter ||
-            pEvent->key() == Qt::Key_Escape) {
+            pEvent->key() == Qt::Key_Escape ||
+            pEvent->key() == Qt::Key_Tab) {
         QDoubleSpinBox::keyPressEvent(pEvent);
         ControlObject::set(ConfigKey("[Library]", "refocus_prev_widget"), 1);
         return;
