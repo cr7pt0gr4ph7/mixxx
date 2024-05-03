@@ -372,7 +372,7 @@ namespace {
 const QRegularExpression kAlsaHwDeviceRegex("(.*) \\((plug)?(hw:(\\d)+(,(\\d)+))?\\)");
 }
 
-SoundDeviceId SoundDeviceId::fromAlsaHwName(const QString& name, const int portAudioIndex) {
+const SoundDeviceId SoundDeviceId::fromAlsaHwName(const QString& name, const int portAudioIndex) {
     // PortAudio gives the device name including the ALSA hw device. The
     // ALSA hw device is an only somewhat reliable identifier; it may change
     // when an audio interface is unplugged or Linux is restarted. Separating
@@ -382,12 +382,12 @@ SoundDeviceId SoundDeviceId::fromAlsaHwName(const QString& name, const int portA
     SoundDeviceId result;
     QRegularExpressionMatch match = kAlsaHwDeviceRegex.match(name);
     if (match.hasMatch()) {
-        result.name = match.captured(1);
-        result.alsaHwDevice = match.captured(3);
+        auto name = match.captured(1);
+        auto alsaHwDevice = match.captured(3);
+        return SoundDeviceId(name, alsaHwDevice, portAudioIndex);
     } else {
         // Special ALSA devices like "default" and "pulse" do not match the regex
-        result.name = name;
+        return SoundDeviceId(name, QString(), portAudioIndex);
     }
-    result.portAudioIndex = portAudioIndex;
     return result;
 }
