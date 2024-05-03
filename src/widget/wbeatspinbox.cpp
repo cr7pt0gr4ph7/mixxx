@@ -56,9 +56,13 @@ void WBeatSpinBox::stepBy(int steps) {
     int cursorPos = lineEdit()->cursorPosition();
     if (validate(temp, cursorPos) == QValidator::Acceptable) {
         newValue = valueFromText(temp);
-        newValue = m_useFineSteps
-                ? newValue + steps
-                : newValue * pow(2, steps);
+        if (!m_useFineSteps) {
+            newValue = newValue * pow(2, steps);
+        } else if (steps < 0) {
+            newValue = std::ceil(newValue) + steps;
+        } else if (steps > 0) {
+            newValue = std::floor(newValue) + steps;
+        }
     } else {
         // here we have an unacceptable edit, going back to the old value first
         newValue = oldValue;
