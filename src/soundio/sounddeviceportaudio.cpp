@@ -80,7 +80,7 @@ SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
         SoundManager* sm,
         const PaDeviceInfo* deviceInfo,
         PaHostApiTypeId deviceTypeId,
-        unsigned int devIndex)
+        unsigned int deviceIndex)
         : SoundDevice(config, sm),
           m_pStream(nullptr),
           m_deviceInfo(deviceInfo),
@@ -116,7 +116,7 @@ SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
     } else {
         m_deviceId.name = deviceInfo->name;
     }
-    m_deviceId.portAudioIndex = devIndex;
+    m_deviceId.portAudioIndex = deviceIndex;
     m_strDisplayName = QString::fromUtf8(deviceInfo->name);
     m_numInputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxInputChannels);
     m_numOutputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxOutputChannels);
