@@ -73,7 +73,9 @@ Description:
                             <SizePolicy>me,min</SizePolicy>
                             <Children>
 
-                              <SearchBox></SearchBox>
+                              <SearchBox>
+                                <ObjectName>LibrarySearchBox</ObjectName>
+                              </SearchBox>
 
                               <!-- Align the expand buttontop in case the searchbox grows taller -->
                               <WidgetGroup>

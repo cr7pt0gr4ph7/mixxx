@@ -44,7 +44,9 @@
                         <Layout>horizontal</Layout>
                         <SizePolicy>min,max</SizePolicy>
                         <Children>
-                          <SearchBox></SearchBox>
+                          <SearchBox>
+                            <ObjectName>LibrarySearchBox</ObjectName>
+                          </SearchBox>
                         </Children>
                       </WidgetGroup>
 

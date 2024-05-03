@@ -25,7 +25,9 @@
                 <Children>
                   <Template src="skin:preview_deck.xml"/>
 
-                  <SearchBox></SearchBox>
+                  <SearchBox>
+                    <ObjectName>LibrarySearchBox</ObjectName>
+                  </SearchBox>
 
                   <WidgetGroup><Size>,5f</Size></WidgetGroup>
 

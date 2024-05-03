@@ -33,7 +33,9 @@
                   <WidgetGroup>
                     <Layout>horizontal</Layout>
                     <Children>
-                      <SearchBox></SearchBox>
+                      <SearchBox>
+                        <ObjectName>LibrarySearchBox</ObjectName>
+                      </SearchBox>
                       <Template src="skin:hide_show_button.xml">
                         <SetVariable name="TooltipId">maximize_library</SetVariable>
                         <SetVariable name="object_name">LibraryToggle</SetVariable>
