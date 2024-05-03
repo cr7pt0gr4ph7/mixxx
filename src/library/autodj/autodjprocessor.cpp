@@ -307,6 +307,26 @@ void AutoDJProcessor::setCrossfader(double value) {
     m_pCOCrossfader->set(value);
 }
 
+void AutoDJProcessor::setCrossfaderToIdle(double value) {
+    DEBUG_ASSERT(value == 1.0 || value == -1.0);
+
+    // Depending on the user's preferences, the idle position
+    // of the crossfader is either fully to the left/right,
+    // or in the middle.
+    const bool resetFaderToNeutralOnIdle = m_pConfig->getValue<bool>(
+            ConfigKey("[Auto DJ]", "ResetFaderToNeutralOnIdle"),
+            false);
+
+    if (resetFaderToNeutralOnIdle) {
+        // Move crossfader to neutral. Crossfader will be moved
+        // to the left/right just before starting a crossfade.
+        setCrossfader(0.0);
+    } else {
+        // Move crossfader fully to the left/right
+        setCrossfader(value);
+    }
+}
+
 void AutoDJProcessor::playlistTracksChanged() {
     m_pTracksRemaining->set(m_pAutoDJTableModel->rowCount());
     updateRemainingTime();
@@ -726,8 +746,11 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
             // playerPositionChanged for deck1 after the track is loaded.
             m_eState = ADJ_ENABLE_P1LOADED;
 
-            // Move crossfader to the left.
-            setCrossfader(-1.0);
+            // Move crossfader to its idle position (either to the left,
+            // or in the middle, depending on the user's preferences).
+            // We will set it fully to the left just before starting
+            // a crossfade anyway.
+            setCrossfaderToIdle(-1.0);
 
             // Load track into the left deck and play. Once it starts playing,
             // we will receive a playerPositionChanged update for deck 1 which
@@ -740,13 +763,21 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
             if (leftDeckPlaying) {
                 // Load track into the right deck.
                 emitLoadTrackToPlayer(nextTrack, pRightDeck->group, false);
-                // Move crossfader to the left.
-                setCrossfader(-1.0);
+
+                // Move crossfader to its idle position (either to the left,
+                // or in the middle, depending on the user's preferences).
+                // We will set it fully to the left just before starting
+                // a crossfade anyway.
+                setCrossfaderToIdle(-1.0);
             } else {
                 // Load track into the left deck.
                 emitLoadTrackToPlayer(nextTrack, pLeftDeck->group, false);
-                // Move crossfader to the right.
-                setCrossfader(1.0);
+
+                // Move crossfader to its idle position (either to the right,
+                // or in the middle, depending on the user's preferences).
+                // We will set it fully to the right just before starting
+                // a crossfade anyway.
+                setCrossfaderToIdle(1.0);
             }
         }
         emitAutoDJStateChanged(m_eState);
@@ -925,12 +956,9 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
         // If the user stops the toDeck during a fade, let the fade continue
         // and do not load the next track.
         if (!otherDeckPlaying && otherDeck->isFromDeck) {
-            // Force crossfader all the way to the (non fading) toDeck.
-            if (m_eState == ADJ_RIGHT_FADING) {
-                setCrossfader(-1.0);
-            } else {
-                setCrossfader(1.0);
-            }
+            // Force crossfader all the way to the (non fading) toDeck,
+            // or to the middle, depending on the user's preferences.
+            setCrossfaderToIdle(m_eState == ADJ_RIGHT_FADING ? -1.0 : 1.0);
             m_eState = ADJ_IDLE;
             // Invalidate threshold calculated for the old otherDeck
             // This avoids starting a fade back before the new track is
@@ -987,12 +1015,12 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
                     otherDeck->setPlayPosition(otherDeck->startPos);
                 }
 
-                if (!otherDeckPlaying) {
-                    otherDeck->play();
-                }
-
                 if (thisDeck->fadeBeginPos >= thisDeck->fadeEndPos) {
                     setCrossfader(thisDeck->isLeft() ? 1.0 : -1.0);
+                }
+
+                if (!otherDeckPlaying) {
+                    otherDeck->play();
                 }
 
                 // Now that we have started the other deck playing, remove the track
