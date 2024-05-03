@@ -47,12 +47,6 @@ class SoundDevicePortAudio : public SoundDevice {
                         const PaStreamCallbackTimeInfo *timeInfo,
                         PaStreamCallbackFlags statusFlags);
 
-    mixxx::audio::SampleRate getDefaultSampleRate() const override {
-        return m_deviceInfo ? mixxx::audio::SampleRate::fromDouble(
-                                      m_deviceInfo->defaultSampleRate)
-                            : SoundManagerConfig::kMixxxDefaultSampleRate;
-    }
-
   private:
     void updateCallbackEntryToDacTime(
             SINT framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo);

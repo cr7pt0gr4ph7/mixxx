@@ -36,8 +36,6 @@ class SoundDeviceNetwork : public SoundDevice {
     void writeProcess(SINT framesPerBuffer) override;
     QString getError() const override;
 
-    mixxx::audio::SampleRate getDefaultSampleRate() const override;
-
     // NOTE: This does not take a frames per buffer argument because that is
     //       always equal to the configured buffer size for network streams
     void callbackProcessClkRef();
