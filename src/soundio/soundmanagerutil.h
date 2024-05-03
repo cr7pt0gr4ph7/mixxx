@@ -267,6 +267,15 @@ class SoundDeviceId final {
 
     SoundDeviceId()
        : portAudioIndex(-1) {}
+
+    static SoundDeviceId fromName(const QString& name, const int portAudioIndex = -1) {
+        SoundDeviceId result;
+        result.name = name;
+        result.portAudioIndex = portAudioIndex;
+        return result;
+    }
+
+    static SoundDeviceId fromAlsaHwName(const QString& name, const int portAudioIndex = -1);
 };
 
 /// This must be registered with QMetaType::registerComparators for

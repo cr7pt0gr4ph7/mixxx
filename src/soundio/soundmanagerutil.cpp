@@ -1,5 +1,7 @@
 #include "soundio/soundmanagerutil.h"
 
+#include <QRegularExpression>
+
 #include "engine/channels/enginechannel.h"
 
 /// Constructs a ChannelGroup.
@@ -364,4 +366,28 @@ QString SoundDeviceId::debugName() const {
     } else {
         return name + QStringLiteral(", ") + alsaHwDevice + QStringLiteral(", ") + QString::number(portAudioIndex);
     }
+}
+
+namespace {
+const QRegularExpression kAlsaHwDeviceRegex("(.*) \\((plug)?(hw:(\\d)+(,(\\d)+))?\\)");
+}
+
+SoundDeviceId SoundDeviceId::fromAlsaHwName(const QString& name, const int portAudioIndex) {
+    // PortAudio gives the device name including the ALSA hw device. The
+    // ALSA hw device is an only somewhat reliable identifier; it may change
+    // when an audio interface is unplugged or Linux is restarted. Separating
+    // the name from the hw device allows for making the use of both pieces
+    // of information in SoundManagerConfig::readFromDisk to minimize how
+    // often users need to reconfigure their sound hardware.
+    SoundDeviceId result;
+    QRegularExpressionMatch match = kAlsaHwDeviceRegex.match(name);
+    if (match.hasMatch()) {
+        result.name = match.captured(1);
+        result.alsaHwDevice = match.captured(3);
+    } else {
+        // Special ALSA devices like "default" and "pulse" do not match the regex
+        result.name = name;
+    }
+    result.portAudioIndex = portAudioIndex;
+    return result;
 }
