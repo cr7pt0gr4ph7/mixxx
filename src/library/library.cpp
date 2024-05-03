@@ -540,12 +540,7 @@ void Library::slotSwitchToFeature(const QString& featureName) {
     }
     for (auto feature : m_features) {
         if (feature->featureName() == featureName) {
-            // 'Select' the feature (i.e. update the sidebar selection).
-            // Selecting an index does not yet activate it (see below).
-            emit feature->featureSelect(feature, QModelIndex());
-
-            // 'Activate' the feature, i.e. update the library view
-            feature->activate();
+            feature->selectAndActivate();
             return;
         }
     }
