@@ -16,7 +16,7 @@ class SoundDeviceNotFound : public SoundDevice {
   public:
     SoundDeviceNotFound(const QString& name)
             : SoundDevice(UserSettingsPointer(), nullptr) {
-        m_deviceId.name = name;
+        m_deviceId = SoundDeviceId::fromName(name);
         m_strDisplayName = name;
     }
 
