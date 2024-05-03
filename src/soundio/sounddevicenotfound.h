@@ -34,8 +34,4 @@ class SoundDeviceNotFound : public SoundDevice {
     QString getError() const override {
         return QObject::tr("Device not found");
     };
-
-    mixxx::audio::SampleRate getDefaultSampleRate() const override {
-        return SoundManagerConfig::kMixxxDefaultSampleRate;
-    }
 };

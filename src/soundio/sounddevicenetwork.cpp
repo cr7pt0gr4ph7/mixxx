@@ -48,11 +48,12 @@ SoundDeviceNetwork::SoundDeviceNetwork(
           m_targetTime(0) {
     // Setting parent class members:
     m_hostAPI = "Network stream";
-    m_sampleRate = SoundManagerConfig::kMixxxDefaultSampleRate;
     m_strDisplayName = QObject::tr("Network stream");
     m_deviceId = SoundDeviceId::fromName(kNetworkDeviceInternalName);
     m_numInputChannels = pNetworkStream->getNumInputChannels();
     m_numOutputChannels = pNetworkStream->getNumOutputChannels();
+    m_defaultSampleRate = SoundManagerConfig::kMixxxDefaultSampleRate;
+    m_sampleRate = m_defaultSampleRate;
 }
 
 SoundDeviceNetwork::~SoundDeviceNetwork() {
@@ -128,10 +129,6 @@ SoundDeviceStatus SoundDeviceNetwork::close() {
     m_inputFifo.reset();
 
     return SoundDeviceStatus::Ok;
-}
-
-mixxx::audio::SampleRate SoundDeviceNetwork::getDefaultSampleRate() const {
-    return SoundManagerConfig::kMixxxDefaultSampleRate;
 }
 
 QString SoundDeviceNetwork::getError() const {
