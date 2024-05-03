@@ -15,20 +15,55 @@ class AudioInputBuffer;
 
 const QString kNetworkDeviceInternalName = "Network stream";
 
-class SoundDevice {
+class SoundDeviceDescriptor {
   public:
-    SoundDevice(UserSettingsPointer config, SoundManager* sm);
-    virtual ~SoundDevice() = default;
+    SoundDeviceDescriptor();
+    virtual ~SoundDeviceDescriptor() = default;
 
-    inline const SoundDeviceId& getDeviceId() const {
-        return m_deviceId;
-    }
-    inline const QString& getDisplayName() const {
-        return m_strDisplayName;
-    }
+    /// Get the name of the audio API used by this device.
     inline const QString& getHostAPI() const {
         return m_hostAPI;
     }
+    /// Get the name of the soundcard, as displayed to the user.
+    inline const QString& getDisplayName() const {
+        return m_strDisplayName;
+    }
+    /// Get the ID of this sound device.
+    inline const SoundDeviceId& getDeviceId() const {
+        return m_deviceId;
+    }
+    /// Get the number of input channels that the soundcard has
+    inline mixxx::audio::ChannelCount getNumInputChannels() const {
+        return m_numInputChannels;
+    }
+    /// Get the number of output channels that the soundcard has
+    inline mixxx::audio::ChannelCount getNumOutputChannels() const {
+        return m_numOutputChannels;
+    }
+    /// Get the default sample rate for this soundcard
+    inline mixxx::audio::SampleRate getDefaultSampleRate() const {
+        return m_defaultSampleRate;
+    }
+
+    // The name of the audio API used by this device.
+    QString m_hostAPI;
+    // The name of the soundcard, as displayed to the user
+    QString m_strDisplayName;
+    // The identifier for the device in the underlying API.
+    SoundDeviceId m_deviceId;
+    // The number of output channels that the soundcard has
+    mixxx::audio::ChannelCount m_numOutputChannels;
+    // The number of input channels that the soundcard has
+    mixxx::audio::ChannelCount m_numInputChannels;
+    // The default samplerate for the sound device.
+    mixxx::audio::SampleRate m_defaultSampleRate;
+};
+
+class SoundDevice : public SoundDeviceDescriptor {
+  public:
+    SoundDevice(UserSettingsPointer config, SoundManager* sm);
+    ~SoundDevice() override;
+
     void setSampleRate(mixxx::audio::SampleRate sampleRate);
     void setConfigFramesPerBuffer(unsigned int framesPerBuffer);
     virtual SoundDeviceStatus open(bool isClkRefDevice, int syncBuffers) = 0;
@@ -37,9 +72,6 @@ class SoundDevice {
     virtual void readProcess(SINT framesPerBuffer) = 0;
     virtual void writeProcess(SINT framesPerBuffer) = 0;
     virtual QString getError() const = 0;
-    virtual mixxx::audio::SampleRate getDefaultSampleRate() const = 0;
-    mixxx::audio::ChannelCount getNumOutputChannels() const;
-    mixxx::audio::ChannelCount getNumInputChannels() const;
     SoundDeviceStatus addOutput(const AudioOutputBuffer& out);
     SoundDeviceStatus addInput(const AudioInputBuffer& in);
     const QList<AudioInputBuffer>& inputs() const {
@@ -68,20 +100,11 @@ class SoundDevice {
     void clearInputBuffer(const SINT framesToPush,
                           const SINT framesWriteOffset);
 
-    SoundDeviceId m_deviceId;
     UserSettingsPointer m_pConfig;
     // Pointer to the SoundManager object which we'll request audio from.
     SoundManager* m_pSoundManager;
-    // The name of the soundcard, as displayed to the user
-    QString m_strDisplayName;
-    // The number of output channels that the soundcard has
-    mixxx::audio::ChannelCount m_numOutputChannels;
-    // The number of input channels that the soundcard has
-    mixxx::audio::ChannelCount m_numInputChannels;
     // The current samplerate for the sound device.
     mixxx::audio::SampleRate m_sampleRate;
-    // The name of the audio API used by this device.
-    QString m_hostAPI;
     // The **configured** number of frames per buffer. We'll tell PortAudio we
     // want this many frames in a buffer, but PortAudio may still give us have a
     // differently sized buffers. As such this value should only be used for
@@ -92,4 +115,5 @@ class SoundDevice {
     QList<AudioInputBuffer> m_audioInputs;
 };
 
+typedef QSharedPointer<SoundDeviceDescriptor> SoundDeviceDescriptorPointer;
 typedef QSharedPointer<SoundDevice> SoundDevicePointer;

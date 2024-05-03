@@ -103,12 +103,12 @@ SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
           m_lastCallbackEntrytoDacSecs(0) {
     // Setting parent class members:
     m_hostAPI = Pa_GetHostApiInfo(deviceInfo->hostApi)->name;
-    m_sampleRate = mixxx::audio::SampleRate::fromDouble(deviceInfo->defaultSampleRate);
-
-    m_deviceId = buildPortAudioDeviceId(deviceInfo, deviceTypeId, deviceIndex);
     m_strDisplayName = QString::fromUtf8(deviceInfo->name);
+    m_deviceId = buildPortAudioDeviceId(deviceInfo, deviceTypeId, deviceIndex);
     m_numInputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxInputChannels);
     m_numOutputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxOutputChannels);
+    m_defaultSampleRate = mixxx::audio::SampleRate::fromDouble(deviceInfo->defaultSampleRate);
+    m_sampleRate = m_defaultSampleRate;
 
     m_inputParams.device = 0;
     m_inputParams.channelCount = 0;
