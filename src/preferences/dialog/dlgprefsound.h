@@ -38,12 +38,12 @@ class DlgPrefSound : public DlgPreferencePage, public Ui::DlgPrefSoundDlg  {
   signals:
     void loadPaths(const SoundManagerConfig &config);
     void writePaths(SoundManagerConfig *config);
-    void refreshOutputDevices(const QList<SoundDevicePointer>& devices);
-    void refreshInputDevices(const QList<SoundDevicePointer>& devices);
-    void addOutputDevice(SoundDevicePointer pDevice);
-    void addInputDevice(SoundDevicePointer pDevice);
-    void removeOutputDevice(SoundDevicePointer pDevice);
-    void removeInputDevice(SoundDevicePointer pDevice);
+    void refreshOutputDevices(const QList<SoundDeviceDescriptorPointer>& devices);
+    void refreshInputDevices(const QList<SoundDeviceDescriptorPointer>& devices);
+    void addOutputDevice(SoundDeviceDescriptorPointer pDevice);
+    void addInputDevice(SoundDeviceDescriptorPointer pDevice);
+    void removeOutputDevice(SoundDeviceDescriptorPointer pDevice);
+    void removeInputDevice(SoundDeviceDescriptorPointer pDevice);
     void updatingAPI();
     void updatedAPI();
     void deviceRouteUpdated(const SoundDeviceId& device, const AudioPath* pPath);
@@ -87,9 +87,9 @@ class DlgPrefSound : public DlgPreferencePage, public Ui::DlgPrefSoundDlg  {
     void updateKeylockDualThreadingCheckbox();
     void updateKeylockMultithreading(bool enabled);
 #endif
-    void addDevice(SoundDevicePointer pDevice);
-    void removeDevice(SoundDevicePointer pDevice);
-    void updateDeviceChannels(SoundDevicePointer pDevice);
+    void addDevice(SoundDeviceDescriptorPointer pDevice);
+    void removeDevice(SoundDeviceDescriptorPointer pDevice);
+    void updateDeviceChannels(SoundDeviceDescriptorPointer pDevice);
     void updateSampleRates(const QList<mixxx::audio::SampleRate>& sampleRates);
 
   private:
@@ -115,8 +115,8 @@ class DlgPrefSound : public DlgPreferencePage, public Ui::DlgPrefSoundDlg  {
     parented_ptr<ControlProxy> m_pMainEnabled;
     parented_ptr<ControlProxy> m_pMainMonoMixdown;
 
-    QList<SoundDevicePointer> m_inputDevices;
-    QList<SoundDevicePointer> m_outputDevices;
+    QList<SoundDeviceDescriptorPointer> m_inputDevices;
+    QList<SoundDeviceDescriptorPointer> m_outputDevices;
     QHash<DlgPrefSoundItem*, QPair<SoundDeviceId, int>> m_selectedOutputChannelIndices;
     QHash<DlgPrefSoundItem*, QPair<SoundDeviceId, int>> m_selectedInputChannelIndices;
     bool m_settingsModified;

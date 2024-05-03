@@ -864,7 +864,7 @@ void DlgPrefSound::refreshDevices() {
     emit refreshInputDevices(m_inputDevices);
 }
 
-void DlgPrefSound::addDevice(SoundDevicePointer pDevice) {
+void DlgPrefSound::addDevice(SoundDeviceDescriptorPointer pDevice) {
     const bool hasInputs = pDevice->getNumInputChannels().isValid();
     const bool hasOutputs = pDevice->getNumOutputChannels().isValid();
 
@@ -878,7 +878,7 @@ void DlgPrefSound::addDevice(SoundDevicePointer pDevice) {
     }
 }
 
-void DlgPrefSound::removeDevice(SoundDevicePointer pDevice) {
+void DlgPrefSound::removeDevice(SoundDeviceDescriptorPointer pDevice) {
     const bool hasInputs = pDevice->getNumInputChannels().isValid();
     const bool hasOutputs = pDevice->getNumOutputChannels().isValid();
 
@@ -891,7 +891,7 @@ void DlgPrefSound::removeDevice(SoundDevicePointer pDevice) {
     }
 }
 
-void DlgPrefSound::updateDeviceChannels(SoundDevicePointer pDevice) {
+void DlgPrefSound::updateDeviceChannels(SoundDeviceDescriptorPointer pDevice) {
     const bool hasInputs = pDevice->getNumInputChannels().isValid();
     const bool hasOutputs = pDevice->getNumOutputChannels().isValid();
     const bool hadInputs = m_inputDevices.contains(pDevice);

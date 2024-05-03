@@ -19,7 +19,7 @@
 DlgPrefSoundItem::DlgPrefSoundItem(
         QWidget* parent,
         AudioPathType type,
-        const QList<SoundDevicePointer>& devices,
+        const QList<SoundDeviceDescriptorPointer>& devices,
         bool isInput,
         unsigned int index)
         : QWidget(parent),
@@ -49,7 +49,7 @@ DlgPrefSoundItem::~DlgPrefSoundItem() {
 
 /// Slot called when the parent preferences pane updates its list of sound
 /// devices, to update the item widget's list of devices to display.
-void DlgPrefSoundItem::refreshDevices(const QList<SoundDevicePointer>& devices) {
+void DlgPrefSoundItem::refreshDevices(const QList<SoundDeviceDescriptorPointer>& devices) {
     m_devices = devices;
     SoundDeviceId oldDev = deviceComboBox->itemData(deviceComboBox->currentIndex()).value<SoundDeviceId>();
     deviceComboBox->setCurrentIndex(0);
@@ -70,7 +70,7 @@ void DlgPrefSoundItem::refreshDevices(const QList<SoundDevicePointer>& devices) 
     }
 }
 
-void DlgPrefSoundItem::addDevice(const SoundDevicePointer pDevice) {
+void DlgPrefSoundItem::addDevice(const SoundDeviceDescriptorPointer pDevice) {
     // SoundDeviceId oldDev =
     // deviceComboBox->itemData(deviceComboBox->currentIndex()).value<SoundDeviceId>();
     deviceComboBox->addItem(pDevice->getDisplayName(), QVariant::fromValue(pDevice->getDeviceId()));
@@ -81,7 +81,7 @@ void DlgPrefSoundItem::addDevice(const SoundDevicePointer pDevice) {
     m_devices.push_back(pDevice);
 }
 
-void DlgPrefSoundItem::removeDevice(const SoundDevicePointer pDevice) {
+void DlgPrefSoundItem::removeDevice(const SoundDeviceDescriptorPointer pDevice) {
     int removeIndex = deviceComboBox->findData(QVariant::fromValue(pDevice->getDeviceId()));
     int currentIndex = deviceComboBox->currentIndex();
 
@@ -100,7 +100,7 @@ void DlgPrefSoundItem::removeDevice(const SoundDevicePointer pDevice) {
     m_devices.removeOne(pDevice);
 }
 
-void DlgPrefSoundItem::updateDeviceChannels(SoundDevicePointer pDevice) {
+void DlgPrefSoundItem::updateDeviceChannels(SoundDeviceDescriptorPointer pDevice) {
     const auto& id = pDevice->getDeviceId();
     int index = deviceComboBox->findData(QVariant::fromValue(id));
     if (index >= 0 && deviceComboBox->currentIndex() == index) {
@@ -147,7 +147,7 @@ void DlgPrefSoundItem::deviceChanged(int index) {
     channelComboBox->clear();
     SoundDeviceId selection = deviceComboBox->itemData(index).value<SoundDeviceId>();
     mixxx::audio::ChannelCount numChannels;
-    SoundDevicePointer selectedDevice;
+    SoundDeviceDescriptorPointer selectedDevice;
 
     if (selection == SoundDeviceId()) {
         goto emitAndReturn;
@@ -252,7 +252,7 @@ void DlgPrefSoundItem::loadPath(const SoundManagerConfig &config) {
 /// record its respective path with the SoundManagerConfig instance at
 /// config.
 void DlgPrefSoundItem::writePath(SoundManagerConfig* config) const {
-    SoundDevicePointer pDevice = getDevice();
+    SoundDeviceDescriptorPointer pDevice = getDevice();
     if (!pDevice) {
         return;
     } // otherwise, this will have a valid audiopath
@@ -299,10 +299,10 @@ void DlgPrefSoundItem::reload() {
 
 /// Gets the currently selected SoundDevice
 /// @returns pointer to SoundDevice, or NULL if the "None" option is selected.
-SoundDevicePointer DlgPrefSoundItem::getDevice() const {
+SoundDeviceDescriptorPointer DlgPrefSoundItem::getDevice() const {
     SoundDeviceId selection = deviceComboBox->itemData(deviceComboBox->currentIndex()).value<SoundDeviceId>();
     if (selection == SoundDeviceId()) {
-        return SoundDevicePointer();
+        return SoundDeviceDescriptorPointer();
     }
     for (const auto& pDevice : std::as_const(m_devices)) {
         if (selection == pDevice->getDeviceId()) {
@@ -312,7 +312,7 @@ SoundDevicePointer DlgPrefSoundItem::getDevice() const {
     }
     // looks like something became invalid ???
     deviceComboBox->setCurrentIndex(0); // set it to none
-    return SoundDevicePointer();
+    return SoundDeviceDescriptorPointer();
 }
 
 /// Selects a device in the device combo box given a SoundDevice' internal name,
@@ -354,7 +354,7 @@ void DlgPrefSoundItem::setChannel(unsigned int channelBase,
 }
 
 /// Checks that a given device can act as a source/input for our type.
-int DlgPrefSoundItem::hasSufficientChannels(const SoundDevice& device) const {
+int DlgPrefSoundItem::hasSufficientChannels(const SoundDeviceDescriptor& device) const {
     const auto needed = AudioPath::minChannelsForType(m_type);
 
     if (m_isInput) {
