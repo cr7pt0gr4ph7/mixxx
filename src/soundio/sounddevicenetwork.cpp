@@ -45,7 +45,7 @@ SoundDeviceNetwork::SoundDeviceNetwork(
     // Setting parent class members:
     m_hostAPI = "Network stream";
     m_sampleRate = SoundManagerConfig::kMixxxDefaultSampleRate;
-    m_deviceId.name = kNetworkDeviceInternalName;
+    m_deviceId = SoundDeviceId::fromName(kNetworkDeviceInternalName);
     m_strDisplayName = QObject::tr("Network stream");
     m_numInputChannels = pNetworkStream->getNumInputChannels();
     m_numOutputChannels = pNetworkStream->getNumOutputChannels();
