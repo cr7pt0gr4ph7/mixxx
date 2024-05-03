@@ -2,7 +2,6 @@
 
 #include <float.h>
 
-#include <QRegularExpression>
 #include <QThread>
 #include <QtDebug>
 
@@ -71,9 +70,16 @@ int paV19CallbackClkRef(const void *inputBuffer, void *outputBuffer,
             (const CSAMPLE*) inputBuffer, timeInfo, statusFlags);
 }
 
-const QRegularExpression kAlsaHwDeviceRegex("(.*) \\((plug)?(hw:(\\d)+(,(\\d)+))?\\)");
-
 const QString kAppGroup = QStringLiteral("[App]");
+
+SoundDeviceId buildPortAudioDeviceId(const PaDeviceInfo* deviceInfo,
+        const PaHostApiTypeId deviceTypeId,
+        const unsigned int deviceIndex) {
+    if (deviceTypeId == paALSA) {
+        return SoundDeviceId::fromAlsaHwName(deviceInfo->name, deviceIndex);
+    }
+    return SoundDeviceId::fromName(deviceInfo->name, deviceIndex);
+}
 } // anonymous namespace
 
 SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
@@ -98,25 +104,8 @@ SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
     // Setting parent class members:
     m_hostAPI = Pa_GetHostApiInfo(deviceInfo->hostApi)->name;
     m_sampleRate = mixxx::audio::SampleRate::fromDouble(deviceInfo->defaultSampleRate);
-    if (m_deviceTypeId == paALSA) {
-        // PortAudio gives the device name including the ALSA hw device. The
-        // ALSA hw device is an only somewhat reliable identifier; it may change
-        // when an audio interface is unplugged or Linux is restarted. Separating
-        // the name from the hw device allows for making the use of both pieces
-        // of information in SoundManagerConfig::readFromDisk to minimize how
-        // often users need to reconfigure their sound hardware.
-        QRegularExpressionMatch match = kAlsaHwDeviceRegex.match(deviceInfo->name);
-        if (match.hasMatch()) {
-            m_deviceId.name = match.captured(1);
-            m_deviceId.alsaHwDevice = match.captured(3);
-        } else {
-            // Special ALSA devices like "default" and "pulse" do not match the regex
-            m_deviceId.name = deviceInfo->name;
-        }
-    } else {
-        m_deviceId.name = deviceInfo->name;
-    }
-    m_deviceId.portAudioIndex = deviceIndex;
+
+    m_deviceId = buildPortAudioDeviceId(deviceInfo, deviceTypeId, deviceIndex);
     m_strDisplayName = QString::fromUtf8(deviceInfo->name);
     m_numInputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxInputChannels);
     m_numOutputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxOutputChannels);
