@@ -810,8 +810,7 @@ void WSearchLineEdit::slotSetShortcutFocus() {
 
 void WSearchLineEdit::slotSwitchToTracksAndSetFocusShortcut() {
     emit switchToLibraryFeature(LibraryFeatureName::Tracks);
-    setFocus(Qt::ShortcutFocusReason);
-    lineEdit()->selectAll();
+    slotSetShortcutFocus();
 }
 
 // Use the same font as the library table and the sidebar
