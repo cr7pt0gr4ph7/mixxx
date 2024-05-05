@@ -129,7 +129,7 @@ WSearchLineEdit::WSearchLineEdit(QWidget* pParent, UserSettingsPointer pConfig)
             &WSearchLineEdit::slotSetShortcutFocus);
 
     QShortcut* switchToTracksAndSetFocusShortcut =
-            new QShortcut(QKeySequence("Ctrl+Shift+F"), this);
+            new QShortcut(QKeySequence("Ctrl+Shift+F"), new QObject(this));
     connect(switchToTracksAndSetFocusShortcut,
             &QShortcut::activated,
             this,
