@@ -26,10 +26,16 @@ class LibraryFeature : public QObject {
     LibraryFeature(
             Library* pLibrary,
             UserSettingsPointer pConfig,
-            const QString& iconName);
+            const QString& iconName,
+            const QString& featureName = QString());
     ~LibraryFeature() override = default;
 
     virtual QVariant title() = 0;
+
+    /// Returns the identifier for this LibraryFeature subclass.
+    QString featureName() const {
+        return m_featureName;
+    }
 
     /// Returns the icon name.
     ///
@@ -165,6 +171,7 @@ class LibraryFeature : public QObject {
   private:
     QStringList getPlaylistFiles(QFileDialog::FileMode mode) const;
 
+    QString m_featureName;
     QString m_iconName;
     QIcon m_icon;
 };

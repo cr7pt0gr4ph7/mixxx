@@ -23,10 +23,9 @@
 #include "widget/wlibrarysidebar.h"
 #endif
 
-
 MixxxLibraryFeature::MixxxLibraryFeature(Library* pLibrary,
         UserSettingsPointer pConfig)
-        : LibraryFeature(pLibrary, pConfig, QStringLiteral("tracks")),
+        : LibraryFeature(pLibrary, pConfig, QStringLiteral("tracks"), LibraryFeatureName::Tracks),
           kMissingTitle(tr("Missing Tracks")),
           kHiddenTitle(tr("Hidden Tracks")),
           m_pTrackCollection(pLibrary->trackCollectionManager()->internalCollection()),

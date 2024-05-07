@@ -104,6 +104,7 @@ class Library: public QObject {
 
   public slots:
     void slotShowTrackModel(QAbstractItemModel* model);
+    void slotSwitchToFeature(const QString& featureName);
     void slotSwitchToView(const QString& view);
     void slotLoadTrack(TrackPointer pTrack);
     void slotLoadTrackToPlayer(TrackPointer pTrack, const QString& group, bool play);

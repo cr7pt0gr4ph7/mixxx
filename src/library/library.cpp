@@ -322,6 +322,10 @@ void Library::bindSearchboxWidget(WSearchLineEdit* pSearchboxWidget) {
             &WSearchLineEdit::setLibraryFocus,
             m_pLibraryControl,
             &LibraryControl::setLibraryFocus);
+    connect(pSearchboxWidget,
+            &WSearchLineEdit::switchToLibraryFeature,
+            this,
+            &Library::slotSwitchToFeature);
 }
 
 void Library::bindSidebarWidget(WLibrarySidebar* pSidebarWidget) {
@@ -527,6 +531,26 @@ void Library::onPlayerManagerTrackAnalyzerIdle() {
     if (m_pAnalysisFeature) {
         m_pAnalysisFeature->resumeAnalysis();
     }
+}
+
+void Library::slotSwitchToFeature(const QString& featureName) {
+    // qDebug() << "Library::slotSwitchToFeature" << featureName;
+    VERIFY_OR_DEBUG_ASSERT(!featureName.isNull()) {
+        return;
+    }
+    for (auto feature : m_features) {
+        if (feature->featureName() == featureName) {
+            // 'Select' the feature (i.e. update the sidebar selection).
+            // Selecting an index does not yet activate it (see below).
+            emit feature->featureSelect(feature, QModelIndex());
+
+            // 'Activate' the feature, i.e. update the library view
+            feature->activate();
+            return;
+        }
+    }
+    qWarning() << "Failed to switch library view: No LibraryFeature named"
+               << featureName << "was registered";
 }
 
 void Library::slotShowTrackModel(QAbstractItemModel* model) {
