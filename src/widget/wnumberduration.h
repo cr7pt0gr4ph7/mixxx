@@ -18,6 +18,6 @@ class WNumberDuration : public WNumber {
     void setValue(double dValue) override;
 
   private:
-    TrackTime::DisplayFormat m_displayFormat;
-    QString m_displayFormatString;
+    TrackTime::DisplayFormat m_standardFormat;
+    QString m_customFormat;
 };
