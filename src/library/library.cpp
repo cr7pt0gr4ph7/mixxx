@@ -322,10 +322,6 @@ void Library::bindSearchboxWidget(WSearchLineEdit* pSearchboxWidget) {
             &WSearchLineEdit::setLibraryFocus,
             m_pLibraryControl,
             &LibraryControl::setLibraryFocus);
-    connect(pSearchboxWidget,
-            &WSearchLineEdit::switchToLibraryFeature,
-            this,
-            &Library::slotSwitchToFeature);
 }
 
 void Library::bindSidebarWidget(WLibrarySidebar* pSidebarWidget) {
