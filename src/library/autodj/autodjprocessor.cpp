@@ -16,6 +16,7 @@
 namespace {
 const char* kTransitionPreferenceName = "Transition";
 const char* kTransitionModePreferenceName = "TransitionMode";
+const char* kResetFaderPreferenceName = "ResetFaderToNeutralOnIdle";
 constexpr double kTransitionPreferenceDefault = 10.0;
 constexpr double kKeepPosition = -1.0;
 constexpr double kSkipToNextTrack = -2.0;
@@ -314,7 +315,7 @@ void AutoDJProcessor::setCrossfaderToIdle(double value) {
     // of the crossfader is either fully to the left/right,
     // or in the middle.
     const bool resetFaderToNeutralOnIdle = m_pConfig->getValue<bool>(
-            ConfigKey("[Auto DJ]", "ResetFaderToNeutralOnIdle"),
+            ConfigKey(kConfigKey, kResetFaderPreferenceName),
             false);
 
     if (resetFaderToNeutralOnIdle) {
