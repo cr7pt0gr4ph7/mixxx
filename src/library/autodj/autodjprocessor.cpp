@@ -25,7 +25,7 @@ constexpr double kSkipToNextTrack = -2.0;
 constexpr double kMinimumTrackDurationSec = 0.2;
 
 constexpr double kCrossfaderLeftOnly = -1.0;
-constexpr double kCrossfaderNeutral = 1.0;
+constexpr double kCrossfaderNeutral = 0.0;
 constexpr double kCrossfaderRightOnly = 1.0;
 
 constexpr bool sDebug = false;
