@@ -1065,7 +1065,7 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
             m_transitionProgress = 1.0;
             // Note: If the user has stopped the toDeck during the transition.
             // this deck just stops as well. In this case a stopped AutoDJ is accepted
-            // because the use did it intentionally
+            // because the user did it intentionally
         } else {
             // We are in Fading state.
             // Calculate the current transitionProgress, the place between begin
