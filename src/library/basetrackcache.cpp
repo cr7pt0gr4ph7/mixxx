@@ -41,8 +41,8 @@ BaseTrackCache::BaseTrackCache(TrackCollection* pTrackCollection,
           m_columnsJoined(columns.join(",")),
           m_columnCache(std::move(columns)),
           m_searchColumnNames(std::move(searchColumns)),
-          m_searchColumns(std::move(columnNamesToIndices(
-                  m_searchColumnNames, m_columnCache))),
+          m_searchColumns(columnNamesToIndices(
+                  m_searchColumnNames, m_columnCache)),
           m_pQueryParser(std::make_unique<SearchQueryParser>(
                   pTrackCollection, m_searchColumnNames)),
           m_bIndexBuilt(false),
