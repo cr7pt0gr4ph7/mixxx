@@ -24,6 +24,10 @@ constexpr double kSkipToNextTrack = -2.0;
 // A track needs to be longer than two callbacks to not stop AutoDJ
 constexpr double kMinimumTrackDurationSec = 0.2;
 
+constexpr double kCrossfaderLeftOnly = -1.0;
+constexpr double kCrossfaderNeutral = 1.0;
+constexpr double kCrossfaderRightOnly = 1.0;
+
 constexpr bool sDebug = false;
 } // anonymous namespace
 
@@ -309,7 +313,7 @@ void AutoDJProcessor::setCrossfader(double value) {
 }
 
 void AutoDJProcessor::setCrossfaderToIdle(double value) {
-    DEBUG_ASSERT(value == 1.0 || value == -1.0);
+    DEBUG_ASSERT(value == kCrossfaderLeftOnly || value == kCrossfaderRightOnly);
 
     // Depending on the user's preferences, the idle position
     // of the crossfader is either fully to the left/right,
@@ -321,7 +325,7 @@ void AutoDJProcessor::setCrossfaderToIdle(double value) {
     if (resetFaderToNeutralOnIdle) {
         // Move crossfader to neutral. Crossfader will be moved
         // to the left/right just before starting a crossfade.
-        setCrossfader(0.0);
+        setCrossfader(kCrossfaderNeutral);
     } else {
         // Move crossfader fully to the left/right
         setCrossfader(value);
@@ -751,7 +755,7 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
             // or in the middle, depending on the user's preferences).
             // We will set it fully to the left just before starting
             // a crossfade anyway.
-            setCrossfaderToIdle(-1.0);
+            setCrossfaderToIdle(kCrossfaderLeftOnly);
 
             // Load track into the left deck and play. Once it starts playing,
             // we will receive a playerPositionChanged update for deck 1 which
@@ -769,7 +773,7 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
                 // or in the middle, depending on the user's preferences).
                 // We will set it fully to the left just before starting
                 // a crossfade anyway.
-                setCrossfaderToIdle(-1.0);
+                setCrossfaderToIdle(kCrossfaderLeftOnly);
             } else {
                 // Load track into the left deck.
                 emitLoadTrackToPlayer(nextTrack, pLeftDeck->group, false);
@@ -778,7 +782,7 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
                 // or in the middle, depending on the user's preferences).
                 // We will set it fully to the right just before starting
                 // a crossfade anyway.
-                setCrossfaderToIdle(1.0);
+                setCrossfaderToIdle(kCrossfaderRightOnly);
             }
         }
         emitAutoDJStateChanged(m_eState);
@@ -959,7 +963,9 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
         if (!otherDeckPlaying && otherDeck->isFromDeck) {
             // Force crossfader all the way to the (non fading) toDeck,
             // or to the middle, depending on the user's preferences.
-            setCrossfaderToIdle(m_eState == ADJ_RIGHT_FADING ? -1.0 : 1.0);
+            setCrossfaderToIdle(m_eState == ADJ_RIGHT_FADING
+                            ? kCrossfaderLeftOnly
+                            : kCrossfaderRightOnly);
             m_eState = ADJ_IDLE;
             // Invalidate threshold calculated for the old otherDeck
             // This avoids starting a fade back before the new track is
@@ -1017,7 +1023,7 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
                 }
 
                 if (thisDeck->fadeBeginPos >= thisDeck->fadeEndPos) {
-                    setCrossfader(thisDeck->isLeft() ? 1.0 : -1.0);
+                    setCrossfader(thisDeck->isLeft() ? kCrossfaderRightOnly : kCrossfaderLeftOnly);
                 }
 
                 if (!otherDeckPlaying) {
@@ -1039,9 +1045,9 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
 
         double crossfaderTarget;
         if (m_eState == ADJ_LEFT_FADING) {
-            crossfaderTarget = 1.0;
+            crossfaderTarget = kCrossfaderRightOnly;
         } else if (m_eState == ADJ_RIGHT_FADING) {
-            crossfaderTarget = -1.0;
+            crossfaderTarget = kCrossfaderLeftOnly;
         } else {
             // this happens if the not playing track is cued into the outro region,
             // calculated for the swapped roles.
