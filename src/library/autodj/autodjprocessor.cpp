@@ -1022,8 +1022,21 @@ void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
                     otherDeck->setPlayPosition(otherDeck->startPos);
                 }
 
+                const bool resetFaderToNeutralOnIdle = m_pConfig->getValue<bool>(
+                    ConfigKey(kConfigKey, kResetFaderPreferenceName),
+                    false);
+
                 if (thisDeck->fadeBeginPos >= thisDeck->fadeEndPos) {
+                    // This deck has an invalid fade position, so we
+                    // immediately switch over to the other deck.
                     setCrossfader(thisDeck->isLeft() ? kCrossfaderRightOnly : kCrossfaderLeftOnly);
+                } else if (!otherDeckPlaying && resetFaderToNeutralOnIdle) {
+                    // The user has requested the crossfader to be reset to
+                    // neutral as long as no automatic crossfade is in progress
+                    // (which is handled by setCrossfaderToIdle), so we need
+                    // to set up the crossfader here instead, right before
+                    // starting the fade.
+                    setCrossfader(thisDeck->isLeft() ? kCrossfaderLeftOnly : kCrossfaderRightOnly);
                 }
 
                 if (!otherDeckPlaying) {
