@@ -55,7 +55,7 @@ class StarEditor : public QWidget {
     QModelIndex m_index;
     QStyleOptionViewItem m_styleOption;
     StarRating m_starRating;
-    int m_originalStarCount;
+    int m_starCount;
     int m_starCountToSave;
     bool m_isKeyboardEditMode;
 };

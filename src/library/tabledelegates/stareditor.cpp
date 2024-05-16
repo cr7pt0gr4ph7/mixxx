@@ -28,7 +28,7 @@ StarEditor::StarEditor(QWidget* parent,
           m_pTableView(pTableView),
           m_index(index),
           m_styleOption(option),
-          m_originalStarCount(StarRating::kMinStarCount),
+          m_starCount(StarRating::kMinStarCount),
           m_starCountToSave(StarRating::kInvalidStarCount),
           m_isKeyboardEditMode(isKeyboardEditMode) {
     DEBUG_ASSERT(m_pTableView);
@@ -181,6 +181,7 @@ bool StarEditor::eventFilter(QObject* obj, QEvent* event) {
         if (newRating != m_starRating.starCount()) {
             // Apply star rating if it changed
             m_starRating.setStarCount(newRating);
+            m_starCount = newRating;
             update();
         }
         // Prevent other keys from being handled as global keyboard shortcuts.
