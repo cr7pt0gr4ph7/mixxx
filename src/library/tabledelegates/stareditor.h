@@ -31,7 +31,7 @@ class StarEditor : public QWidget {
         VERIFY_OR_DEBUG_ASSERT(m_starRating.verifyStarCount(stars)) {
             return;
         }
-        m_starCount = stars;
+        m_originalStarCount = stars;
     }
     StarRating starRating() { return m_starRating; }
 
@@ -47,7 +47,7 @@ class StarEditor : public QWidget {
 
   private:
     void resetRating() {
-        m_starRating.setStarCount(m_starCount);
+        m_starRating.setStarCount(m_originalStarCount);
         update();
     }
 
@@ -55,7 +55,7 @@ class StarEditor : public QWidget {
     QModelIndex m_index;
     QStyleOptionViewItem m_styleOption;
     StarRating m_starRating;
-    int m_starCount;
+    int m_originalStarCount;
     int m_starCountToSave;
     bool m_isKeyboardEditMode;
 };

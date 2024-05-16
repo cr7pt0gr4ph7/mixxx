@@ -28,7 +28,7 @@ StarEditor::StarEditor(QWidget* parent,
           m_pTableView(pTableView),
           m_index(index),
           m_styleOption(option),
-          m_starCount(StarRating::kMinStarCount),
+          m_originalStarCount(StarRating::kMinStarCount),
           m_starCountToSave(StarRating::kInvalidStarCount),
           m_isKeyboardEditMode(isKeyboardEditMode) {
     DEBUG_ASSERT(m_pTableView);
