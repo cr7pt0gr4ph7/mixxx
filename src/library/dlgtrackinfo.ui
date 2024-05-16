@@ -1067,6 +1067,11 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
    <extends>QWidget</extends>
    <header>widget/wstarrating.h</header>
   </customwidget>
+  <customwidget>
+    <class>WMultiLineTextEdit</class>
+    <extends>QLineEdit</extends>
+    <header>widget/wmultilinetextedit.h</header>
+   </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
