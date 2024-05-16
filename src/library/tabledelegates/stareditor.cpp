@@ -201,7 +201,7 @@ bool StarEditor::eventFilter(QObject* obj, QEvent* event) {
         // cause a database reload, which then overwrites m_starRating before
         // the MouseButtonRelease event has a chance to commit the new value
         // to the model.
-        m_deferredStarCount = m_starRating.starCount();
+        m_starCountToSave = m_starRating.starCount();
         break;
     }
     case QEvent::MouseButtonRelease: {
