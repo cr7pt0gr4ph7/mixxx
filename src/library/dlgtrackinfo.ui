@@ -234,7 +234,7 @@
                <item>
                 <widget class="WStarRating" name="starRating">
                  <property name="mouseTracking">
-                   <bool>false</bool>
+                   <bool>true</bool>
                  </property>
                  <property name="focusPolicy">
                    <enum>Qt::StrongFocus</enum>
