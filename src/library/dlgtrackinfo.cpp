@@ -420,6 +420,10 @@ void DlgTrackInfo::replaceTrackRecord(
             mixxx::displayLocalDateTime(
                     mixxx::localDateTimeFromUtc(
                             m_trackRecord.getDateAdded())));
+    txtDateLastPlayed->setText(
+            mixxx::displayLocalDateTime(
+                    mixxx::localDateTimeFromUtc(
+                            m_trackRecord.getPlayCounter().getLastPlayedAt())));
 
     QFileInfo info(trackLocation);
     if (info.exists() && info.isFile()) {
