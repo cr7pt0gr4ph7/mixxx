@@ -73,7 +73,7 @@ void StarEditor::paintEvent(QPaintEvent*) {
     QStyle* style = this->style();
     if (style) {
         // Overwrite the background and stars rendered by the StarDelegate
-        style->drawControl(QStyle::CE_ItemViewItem, &m_styleOption, &painter, this);
+        style->drawPrimitive(QStyle::PE_PanelItemViewItem, &m_styleOption, &painter, this);
     }
 
     // Set the palette appropriately based on whether the row is selected or
