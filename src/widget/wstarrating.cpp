@@ -58,10 +58,6 @@ void WStarRating::keyPressEvent(QKeyEvent* event) {
     QKeyEvent* ke = static_cast<QKeyEvent*>(event);
     int newRating = m_visualStarRating.starCount();
     switch (ke->key()) {
-    case Qt::Key_Escape: {
-        resetVisualRating();
-        return;
-    }
     case Qt::Key_0: {
         newRating = 0;
         break;
@@ -119,6 +115,7 @@ void WStarRating::keyPressEvent(QKeyEvent* event) {
     }
     newRating = math_clamp(newRating, StarRating::kMinStarCount, m_visualStarRating.maxStarCount());
     updateVisualRating(newRating);
+    m_starCount = newRating;
 }
 
 void WStarRating::mouseMoveEvent(QMouseEvent *event) {
