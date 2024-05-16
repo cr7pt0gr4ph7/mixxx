@@ -372,7 +372,7 @@ void DlgTrackInfo::replaceTrackRecord(
     txtDateLastPlayed->setText(
             mixxx::displayLocalDateTime(
                     mixxx::localDateTimeFromUtc(
-                            m_trackRecord.getLastPlayedAt())));
+                            m_trackRecord.getPlayCounter().getLastPlayedAt())));
     updateTrackMetadataFields();
 }
 
