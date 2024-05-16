@@ -44,11 +44,11 @@ class StarDelegate : public TableItemDelegate {
     void restorePersistentRatingEditor(const QModelIndex& index);
 
     enum PersistentEditorState {
-      PersistentEditor_NotOpen,
-      PersistentEditor_Opening,
-      PersistentEditor_Open,
-      PersistentEditor_ShouldRestore,
-      PersistentEditor_InDeferredRestore
+        PersistentEditor_NotOpen,
+        PersistentEditor_Opening,
+        PersistentEditor_Open,
+        PersistentEditor_ShouldRestore,
+        PersistentEditor_InDeferredRestore
     };
 
     QPersistentModelIndex m_currentEditedCellIndex;
