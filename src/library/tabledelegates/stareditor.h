@@ -31,7 +31,7 @@ class StarEditor : public QWidget {
         VERIFY_OR_DEBUG_ASSERT(m_starRating.verifyStarCount(stars)) {
             return;
         }
-        m_originalStarCount = stars;
+        m_starCount = stars;
     }
     StarRating starRating() { return m_starRating; }
 
@@ -47,7 +47,7 @@ class StarEditor : public QWidget {
 
   private:
     void resetRating() {
-        m_starRating.setStarCount(m_originalStarCount);
+        m_starRating.setStarCount(m_starCount);
         update();
     }
 
