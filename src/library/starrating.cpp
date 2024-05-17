@@ -42,6 +42,20 @@ StarRating::StarRating(
                       << QPointF(
                                  0.5 + InnerRadius * cos((0.2 + 0.4 * i) * M_PI),
                                  0.5 + InnerRadius * sin((0.2 + 0.4 * i) * M_PI));
+
+        m_starOutlinePolygon
+                << QPointF(0.5 +
+                                   (OuterRadius - 1 / PaintingScaleFactor) *
+                                           cos(0.4 * i * M_PI),
+                           0.5 +
+                                   (OuterRadius - 1 / PaintingScaleFactor) *
+                                           sin(0.4 * i * M_PI))
+                << QPointF(0.5 +
+                                   (InnerRadius - 1 / PaintingScaleFactor) *
+                                           cos((0.2 + 0.4 * i) * M_PI),
+                           0.5 +
+                                   (InnerRadius - 1 / PaintingScaleFactor) *
+                                           sin((0.2 + 0.4 * i) * M_PI));
     }
 
     // Create 4 points for a tiny diamond/rhombe (square turned by 45°)
@@ -86,7 +100,11 @@ void StarRating::paintImpl(QPainter* painter,
     for (int i = 0; i < m_maxStarCount && i < n; ++i) {
         if (i == m_starCount - 1 && usePalette) {
             applyPalette(painter, palette.highlight);
-            painter->drawPolygon(m_starPolygon, Qt::WindingFill);
+            if (palette.highlight.outline.style() != Qt::NoBrush) {
+                painter->drawPolygon(m_starOutlinePolygon, Qt::WindingFill);
+            } else {
+                painter->drawPolygon(m_starPolygon, Qt::WindingFill);
+            }
             applyPalette(painter, palette.normal);
         } else if (i < m_starCount) {
             painter->drawPolygon(m_starPolygon, Qt::WindingFill);

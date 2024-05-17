@@ -120,6 +120,7 @@ class StarRating {
             const Palette& palette) const;
 
     QPolygonF m_starPolygon;
+    QPolygonF m_starOutlinePolygon;
     QPolygonF m_diamondPolygon;
     int m_starCount;
     int m_maxStarCount;
