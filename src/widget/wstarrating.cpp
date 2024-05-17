@@ -23,14 +23,7 @@ void WStarRating::setup(const QDomNode& node, const SkinContext& context) {
 }
 
 QSize WStarRating::sizeHint() const {
-    // Center rating horizontally and vertically
-    m_contentRect.setRect(
-            (size().width() - m_visualStarRating.sizeHint().width()) / 2,
-            (size().height() - m_visualStarRating.sizeHint().height()) / 2,
-            m_visualStarRating.sizeHint().width(),
-            m_visualStarRating.sizeHint().height());
-
-    return size();
+    return m_visualStarRating.sizeHint();
 }
 
 void WStarRating::slotSetRating(int starCount) {
@@ -47,10 +40,17 @@ void WStarRating::paintEvent(QPaintEvent * /*unused*/) {
     option.initFrom(this);
     QStylePainter painter(this);
 
-    painter.setBrush(option.palette.text());
+    // Center rating horizontally and vertically
+    QSize ratingHint = m_visualStarRating.sizeHint();
+    QRect contentRect(
+            (size().width() - ratingHint.width()) / 2,
+            (size().height() - ratingHint.height()) / 2,
+            ratingHint.width(),
+            ratingHint.height());
+
     painter.drawPrimitive(QStyle::PE_Widget, option);
 
-    m_visualStarRating.paint(&painter, m_contentRect);
+    m_visualStarRating.paint(&painter, contentRect);
 }
 
 void WStarRating::keyPressEvent(QKeyEvent* event) {
