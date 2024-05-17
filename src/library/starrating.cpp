@@ -6,8 +6,19 @@
 #include "util/math.h"
 #include "util/painterscope.h"
 
+namespace {
 /// The default size of a single stars bounding box in pixels.
 constexpr int PaintingScaleFactor = 15;
+
+void applyPalette(QPainter* painter, const StarRating::Palette::PaletteGroup& pg) {
+    painter->setBrush(pg.fill);
+    if (pg.outline.style() == Qt::NoBrush) {
+        painter->setPen(Qt::NoPen);
+    } else {
+        painter->setPen(QPen(pg.outline, 1.0 / PaintingScaleFactor));
+    }
+}
+} // namespace
 
 StarRating::StarRating(
         int starCount,
@@ -15,14 +26,24 @@ StarRating::StarRating(
         : m_starCount(starCount),
           m_maxStarCount(maxStarCount) {
     DEBUG_ASSERT(verifyStarCount(m_starCount));
-    // 1st star cusp at 0° of the unit circle (i.e. pointing to the right).
-    // The star's center is shifted to adapt to the 0,0-based paint area
-    m_starPolygon << QPointF(1.0, 0.5);
-    for (int i = 1; i < 5; ++i) {
-        // Add QPointF 2-5 to polygon point array, equally distributed on a circumference.
-        // To create a star (not a pentagon) we need to connect every second of those points.
-        m_starPolygon << QPointF(0.5 + 0.5 * cos(0.8 * i * 3.14), 0.5 + 0.5 * sin(0.8 * i * 3.14));
+
+    constexpr double OuterRadius = 0.5;
+    constexpr double SqrtOf5 = 2.236067977499789696;
+    constexpr double InnerRadius = OuterRadius * 0.5 * (3 - SqrtOf5);
+
+    // 1st star cusp is at 0° of the unit circle (i.e. pointing to the right).
+    // The star's center is shifted to (0.5, 0.5).
+    for (int i = 0; i < 5; ++i) {
+        // Add points for the outline of the star polygon.
+        // All points lay on either the inner or the outer circle.
+        m_starPolygon << QPointF(
+                                 0.5 + OuterRadius * cos(0.4 * i * M_PI),
+                                 0.5 + OuterRadius * sin(0.4 * i * M_PI))
+                      << QPointF(
+                                 0.5 + InnerRadius * cos((0.2 + 0.4 * i) * M_PI),
+                                 0.5 + InnerRadius * sin((0.2 + 0.4 * i) * M_PI));
     }
+
     // Create 4 points for a tiny diamond/rhombe (square turned by 45°)
     m_diamondPolygon << QPointF(0.4, 0.5) << QPointF(0.5, 0.4)
                      << QPointF(0.6, 0.5) << QPointF(0.5, 0.6);
@@ -33,25 +54,16 @@ QSize StarRating::sizeHint() const {
 }
 
 void StarRating::paint(QPainter* painter, const QRect& rect) const {
-    paintImpl(painter, rect, false, QBrush(), QBrush());
+    paintImpl(painter, rect, false, Palette());
 }
 
-void StarRating::paint(QPainter* painter, const QRect& rect, const QBrush& brush) const {
-    paintImpl(painter, rect, true, brush, brush);
+void StarRating::paint(QPainter* painter, const QRect& rect, const Palette& palette) const {
+    paintImpl(painter, rect, true, palette);
 }
-
-void StarRating::paint(QPainter* painter,
-        const QRect& rect,
-        const QBrush& brush,
-        const QBrush& selectedBrush) const {
-    paintImpl(painter, rect, true, brush, selectedBrush);
-}
-
 void StarRating::paintImpl(QPainter* painter,
         const QRect& rect,
-        bool useBrushes,
-        const QBrush& brush,
-        const QBrush& selectedBrush) const {
+        bool usePalette,
+        const Palette& palette) const {
     PainterScope painterScope(painter);
     // Assume the painter is configured with the right brush.
     painter->setRenderHint(QPainter::Antialiasing, true);
@@ -67,16 +79,15 @@ void StarRating::paintImpl(QPainter* painter,
 
     // Determine number of stars that are possible to paint
     int n = rect.width() / PaintingScaleFactor;
-
-    if (useBrushes) {
-        painter->setBrush(brush);
+    if (usePalette) {
+        applyPalette(painter, palette.normal);
     }
 
     for (int i = 0; i < m_maxStarCount && i < n; ++i) {
-        if (i == m_starCount - 1 && useBrushes) {
-            painter->setBrush(selectedBrush);
+        if (i == m_starCount - 1 && usePalette) {
+            applyPalette(painter, palette.highlight);
             painter->drawPolygon(m_starPolygon, Qt::WindingFill);
-            painter->setBrush(brush);
+            applyPalette(painter, palette.normal);
         } else if (i < m_starCount) {
             painter->drawPolygon(m_starPolygon, Qt::WindingFill);
         } else {
