@@ -68,7 +68,7 @@ FrameRange TrackAttributes::outro() const {
     return FrameRange();
 }
 
-FrameRange TrackAttributes::outro() const {
+FrameRange TrackAttributes::track() const {
     // Instead of actually loading the file, we simply infer
     // the number of frames from duration and sample rate stored
     // in the database. This isn't entirely accurate due to

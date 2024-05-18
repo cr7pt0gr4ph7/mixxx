@@ -7,6 +7,7 @@
 #include "control/controlproxy.h"
 #include "engine/channels/enginechannel.h"
 #include "preferences/usersettings.h"
+#include "track/cue.h"
 #include "track/track_decl.h"
 #include "track/trackid.h"
 #include "util/class.h"
