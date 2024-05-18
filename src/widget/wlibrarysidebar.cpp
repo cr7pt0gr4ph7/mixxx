@@ -1,8 +1,6 @@
 #include "widget/wlibrarysidebar.h"
 
-#include <QApplication>
 #include <QHeaderView>
-#include <QPainter>
 #include <QUrl>
 #include <QtDebug>
 
@@ -10,21 +8,12 @@
 #include "moc_wlibrarysidebar.cpp"
 #include "util/defs.h"
 #include "util/dnd.h"
-#include "wlibrarysidebar.h"
 
 constexpr int expand_time = 250;
 
-static constexpr int LongHoverActivationTimeMs = 2000;
-static constexpr int LongHoverExpirationTimeMs = 100;
-static constexpr int LongHoverMaxDistanceManhattan = 10;
-
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
-          WBaseWidget(this),
-          m_longHover(this,
-                  QApplication::startDragTime() * 4,
-                  QApplication::startDragTime(),
-                  QApplication::startDragDistance()) {
+          WBaseWidget(this) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
@@ -54,7 +43,7 @@ void WLibrarySidebar::contextMenuEvent(QContextMenuEvent *event) {
     //}
 }
 
-/// Drag enter event, happens when a dragged item enters the track sources view
+// Drag enter event, happens when a dragged item enters the track sources view
 void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
     qDebug() << "WLibrarySidebar::dragEnterEvent" << event->mimeData()->formats();
     if (event->mimeData()->hasUrls()) {
@@ -65,53 +54,15 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
         QList<mixxx::FileInfo> fileInfos = DragAndDropHelper::supportedTracksFromUrls(
                 event->mimeData()->urls(), false, true);
         if (!fileInfos.isEmpty()) {
-            setState(QAbstractItemView::DraggingState);
             event->acceptProposedAction();
             return;
         }
     }
-
     event->ignore();
-
-    // Note(cr7pt0gr4ph7): Do NOT call the base class method here.
-    // We want to fully replace the reject/accept logic. Note that
-    // this means we have to manually call setState() ourselves.
-    //
-    // QTreeView::dragEnterEvent(event);
+    //QTreeView::dragEnterEvent(event);
 }
 
-/// Drag leave event, happens when the dragged item leaves the track sources view
-/// or when the drag is aborted through Escape or other means.
-void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
-    m_longHover.clearState();
-    m_expandTimer.stop();
-    m_hoverIndex = QModelIndex();
-
-    // Note(cr7pt0gr4ph7): We have to use the base class method here,
-    // because it will stop any in-progress autoscroll, which we
-    // cannot do otherwise via the public Qt API.
-    //
-    // The base class method will also call setState(NoState).
-    QTreeView::dragLeaveEvent(event);
-}
-
-void WLibrarySidebar::paintEvent(QPaintEvent* event) {
-    QTreeView::paintEvent(event);
-    QPainter painter(viewport());
-    paintDropIndicator(painter);
-}
-
-void WLibrarySidebar::paintDropIndicator(QPainter& painter) {
-    if (showDropIndicator() && state() == QAbstractItemView::DraggingState &&
-            viewport()->cursor().shape() != Qt::ForbiddenCursor) {
-        QStyleOption option;
-        option.initFrom(this);
-        option.rect = m_dropIndicatorRect;
-        style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
-    }
-}
-
-/// Drag move event, happens when a dragged item hovers over the track sources view...
+// Drag move event, happens when a dragged item hovers over the track sources view...
 void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     //qDebug() << "dragMoveEvent" << event->mimeData()->formats();
     // Start a timer to auto-expand sections the user hovers on.
@@ -126,9 +77,6 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
         m_hoverIndex = index;
         m_expandTimer.start(expand_time, this);
     }
-
-    m_longHover.hoveringOnItem(index, pos);
-
     // This has to be here instead of after, otherwise all drags will be
     // rejected -- rryan 3/2011
     QTreeView::dragMoveEvent(event);
@@ -145,25 +93,25 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
             if (sidebarModel) {
                 accepted = false;
                 for (const QUrl& url : urls) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                     QPoint pos = event->position().toPoint();
-                    QModelIndex possibleDestIndex = indexAt(pos);
-                    QModelIndex destIndex = m_longHover.tryGuessTarget(possibleDestIndex, pos);
+#else
+                    QPoint pos = event->pos();
+#endif
+                    QModelIndex destIndex = indexAt(pos);
                     if (sidebarModel->dragMoveAccept(destIndex, url)) {
                         // We only need one URL to be valid for us
                         // to accept the whole drag...
-                        // consider we have a long list of valid files, checking
-                        // all will take a lot of time that stalls Mixxx and
-                        // this makes the drop feature useless Eg. you may have
-                        // tried to drag two MP3's and an EXE, the drop is
-                        // accepted here, but the EXE is sorted out later after
-                        // dropping
+                        // consider we have a long list of valid files, checking all will
+                        // take a lot of time that stales Mixxx and this makes the drop feature useless
+                        // Eg. you may have tried to drag two MP3's and an EXE, the drop is accepted here,
+                        // but the EXE is sorted out later after dropping
                         accepted = true;
                         break;
                     }
                 }
             }
             if (accepted) {
-                m_dropIndicatorRect = visualRect(index);
                 event->acceptProposedAction();
             } else {
                 event->ignore();
@@ -186,11 +134,6 @@ void WLibrarySidebar::timerEvent(QTimerEvent *event) {
         m_expandTimer.stop();
         return;
     }
-
-    if (m_longHover.timerEvent(event)) {
-        return;
-    }
-
     QTreeView::timerEvent(event);
 }
 
@@ -209,10 +152,13 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
             //eg. dragging a track from Windows Explorer onto the sidebar
             SidebarModel* sidebarModel = qobject_cast<SidebarModel*>(model());
             if (sidebarModel) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                 QPoint pos = event->position().toPoint();
-                QModelIndex possibleDestIndex = indexAt(pos);
-                QModelIndex destIndex = possibleDestIndex;
+#else
+                QPoint pos = event->pos();
+#endif
 
+                QModelIndex destIndex = indexAt(pos);
                 // event->source() will return NULL if something is dropped from
                 // a different application
                 const QList<QUrl> urls = event->mimeData()->urls();
@@ -228,9 +174,6 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
     } else {
         event->ignore();
     }
-
-    m_longHover.clearState();
-    setState(QAbstractItemView::NoState);
 }
 
 void WLibrarySidebar::renameSelectedItem() {
