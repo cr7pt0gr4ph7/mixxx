@@ -122,6 +122,9 @@ class LegacySkinParser : public QObject, public SkinParser {
     QWidget* parseRecordingDuration(const QDomElement& node);
     QWidget* parseCoverArt(const QDomElement& node);
 
+    // Notification widgets.
+    QWidget* parseNotificationsContainer(const QDomElement& node);
+
     // Renders a template.
     QList<QWidget*> parseTemplate(const QDomElement& node);
 
