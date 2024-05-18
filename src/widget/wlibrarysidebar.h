@@ -49,4 +49,21 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
 
     QBasicTimer m_expandTimer;
     QModelIndex m_hoverIndex;
+
+    class LongHoverData {
+      public:
+        LongHoverData()
+                : isValid(false), isReady(false) {
+        }
+
+        QBasicTimer activationTimer;
+        QBasicTimer expirationTimer;
+        QModelIndex modelIndex;
+        QPoint position;
+        bool isValid;
+        bool isReady;
+    };
+
+    LongHoverData m_longHoverNew;
+    LongHoverData m_longHoverOld;
 };
