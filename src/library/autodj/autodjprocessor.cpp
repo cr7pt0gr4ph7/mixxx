@@ -148,23 +148,23 @@ void DeckAttributes::slotPlayChanged(double v) {
 }
 
 void DeckAttributes::slotPlayPosChanged(double v) {
-    emit playPositionChanged(this, v);
+    emit positionChanged(this, TrackPosition::PLAY_POSITION, v);
 }
 
 void DeckAttributes::slotIntroStartPositionChanged(double v) {
-    emit introStartPositionChanged(this, v);
+    emit positionChanged(this, TrackPosition::INTRO_START, v);
 }
 
 void DeckAttributes::slotIntroEndPositionChanged(double v) {
-    emit introEndPositionChanged(this, v);
+    emit positionChanged(this, TrackPosition::INTRO_END, v);
 }
 
 void DeckAttributes::slotOutroStartPositionChanged(double v) {
-    emit outroStartPositionChanged(this, v);
+    emit positionChanged(this, TrackPosition::OUTRO_START, v);
 }
 
 void DeckAttributes::slotOutroEndPositionChanged(double v) {
-    emit outroEndPositionChanged(this, v);
+    emit positionChanged(this, TrackPosition::OUTRO_END, v);
 }
 
 void DeckAttributes::slotTrackLoaded(TrackPointer pTrack) {
@@ -653,11 +653,11 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
         m_pCOCrossfader->connectValueChanged(this, &AutoDJProcessor::crossfaderChanged);
 
         connect(pLeftDeck,
-                &DeckAttributes::playPositionChanged,
+                &DeckAttributes::positionChanged,
                 this,
                 &AutoDJProcessor::playerPositionChanged);
         connect(pRightDeck,
-                &DeckAttributes::playPositionChanged,
+                &DeckAttributes::positionChanged,
                 this,
                 &AutoDJProcessor::playerPositionChanged);
 
@@ -669,42 +669,6 @@ AutoDJProcessor::AutoDJError AutoDJProcessor::toggleAutoDJ(bool enable) {
                 &DeckAttributes::playChanged,
                 this,
                 &AutoDJProcessor::playerPlayChanged);
-
-        connect(pLeftDeck,
-                &DeckAttributes::introStartPositionChanged,
-                this,
-                &AutoDJProcessor::playerIntroStartChanged);
-        connect(pRightDeck,
-                &DeckAttributes::introStartPositionChanged,
-                this,
-                &AutoDJProcessor::playerIntroStartChanged);
-
-        connect(pLeftDeck,
-                &DeckAttributes::introEndPositionChanged,
-                this,
-                &AutoDJProcessor::playerIntroEndChanged);
-        connect(pRightDeck,
-                &DeckAttributes::introEndPositionChanged,
-                this,
-                &AutoDJProcessor::playerIntroEndChanged);
-
-        connect(pLeftDeck,
-                &DeckAttributes::outroStartPositionChanged,
-                this,
-                &AutoDJProcessor::playerOutroStartChanged);
-        connect(pRightDeck,
-                &DeckAttributes::outroStartPositionChanged,
-                this,
-                &AutoDJProcessor::playerOutroStartChanged);
-
-        connect(pLeftDeck,
-                &DeckAttributes::outroEndPositionChanged,
-                this,
-                &AutoDJProcessor::playerOutroEndChanged);
-        connect(pRightDeck,
-                &DeckAttributes::outroEndPositionChanged,
-                this,
-                &AutoDJProcessor::playerOutroEndChanged);
 
         connect(pLeftDeck,
                 &DeckAttributes::trackLoaded,
@@ -875,7 +839,37 @@ void AutoDJProcessor::crossfaderChanged(double value) {
 }
 
 void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
-                                            double thisPlayPosition) {
+        TrackPosition which,
+        double position) {
+    switch (which) {
+    case TrackPosition::PLAY_POSITION: {
+        playerPlayPositionChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::INTRO_START: {
+        playerIntroStartChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::INTRO_END: {
+        playerIntroEndChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::OUTRO_START: {
+        playerOutroStartChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::OUTRO_END: {
+        playerOutroEndChanged(pAttributes, position);
+        break;
+    }
+    default: {
+        break;
+    }
+    }
+}
+
+void AutoDJProcessor::playerPlayPositionChanged(DeckAttributes* pAttributes,
+        double thisPlayPosition) {
     // qDebug() << "player" << pAttributes->group << "PositionChanged(" << value << ")";
     if (m_eState == ADJ_DISABLED) {
         // nothing to do

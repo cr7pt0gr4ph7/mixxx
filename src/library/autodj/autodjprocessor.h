@@ -153,11 +153,7 @@ class DeckAttributes : public FadeableTrackOrDeckAttributes {
 
   signals:
     void playChanged(DeckAttributes* pDeck, bool playing);
-    void playPositionChanged(DeckAttributes* pDeck, double playPosition);
-    void introStartPositionChanged(DeckAttributes* pDeck, double introStartPosition);
-    void introEndPositionChanged(DeckAttributes* pDeck, double introEndPosition);
-    void outroStartPositionChanged(DeckAttributes* pDeck, double outtroStartPosition);
-    void outroEndPositionChanged(DeckAttributes* pDeck, double outroEndPosition);
+    void positionChanged(DeckAttributes* pDeck, TrackPosition which, double position);
     void trackLoaded(DeckAttributes* pDeck, TrackPointer pTrack);
     void loadingTrack(DeckAttributes* pDeck, TrackPointer pNewTrack, TrackPointer pOldTrack);
     void playerEmpty(DeckAttributes* pDeck);
@@ -264,14 +260,17 @@ class AutoDJProcessor : public QObject {
     void transitionTimeChanged(int time);
     void randomTrackRequested(int tracksToAdd);
 
-  private slots:
-    void crossfaderChanged(double value);
-    void playerPositionChanged(DeckAttributes* pDeck, double position);
-    void playerPlayChanged(DeckAttributes* pDeck, bool playing);
+  private:
+    void playerPlayPositionChanged(DeckAttributes* pDeck, double position);
     void playerIntroStartChanged(DeckAttributes* pDeck, double position);
     void playerIntroEndChanged(DeckAttributes* pDeck, double position);
     void playerOutroStartChanged(DeckAttributes* pDeck, double position);
     void playerOutroEndChanged(DeckAttributes* pDeck, double position);
+
+  private slots:
+    void crossfaderChanged(double value);
+    void playerPositionChanged(DeckAttributes* pDeck, TrackPosition which, double position);
+    void playerPlayChanged(DeckAttributes* pDeck, bool playing);
     void playerTrackLoaded(DeckAttributes* pDeck, TrackPointer pTrack);
     void playerLoadingTrack(DeckAttributes* pDeck, TrackPointer pNewTrack, TrackPointer pOldTrack);
     void playerEmpty(DeckAttributes* pDeck);
