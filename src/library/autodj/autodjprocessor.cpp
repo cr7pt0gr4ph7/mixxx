@@ -838,36 +838,6 @@ void AutoDJProcessor::crossfaderChanged(double value) {
     }
 }
 
-void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
-        TrackPosition which,
-        double position) {
-    switch (which) {
-    case TrackPosition::PLAY_POSITION: {
-        playerPlayPositionChanged(pAttributes, position);
-        break;
-    }
-    case TrackPosition::INTRO_START: {
-        playerIntroStartChanged(pAttributes, position);
-        break;
-    }
-    case TrackPosition::INTRO_END: {
-        playerIntroEndChanged(pAttributes, position);
-        break;
-    }
-    case TrackPosition::OUTRO_START: {
-        playerOutroStartChanged(pAttributes, position);
-        break;
-    }
-    case TrackPosition::OUTRO_END: {
-        playerOutroEndChanged(pAttributes, position);
-        break;
-    }
-    default: {
-        break;
-    }
-    }
-}
-
 void AutoDJProcessor::playerPlayPositionChanged(DeckAttributes* pAttributes,
         double thisPlayPosition) {
     // qDebug() << "player" << pAttributes->group << "PositionChanged(" << value << ")";
@@ -1248,6 +1218,36 @@ void AutoDJProcessor::playerPlayChanged(DeckAttributes* thisDeck, bool playing) 
                 thisDeck->setPlayPosition(thisDeck->startPos);
             }
         }
+    }
+}
+
+void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
+        TrackPosition which,
+        double position) {
+    switch (which) {
+    case TrackPosition::PLAY_POSITION: {
+        playerPlayPositionChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::INTRO_START: {
+        playerIntroStartChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::INTRO_END: {
+        playerIntroEndChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::OUTRO_START: {
+        playerOutroStartChanged(pAttributes, position);
+        break;
+    }
+    case TrackPosition::OUTRO_END: {
+        playerOutroEndChanged(pAttributes, position);
+        break;
+    }
+    default: {
+        break;
+    }
     }
 }
 
