@@ -1210,94 +1210,46 @@ void AutoDJProcessor::playerPlayChanged(DeckAttributes* thisDeck, bool playing) 
 void AutoDJProcessor::playerPositionChanged(DeckAttributes* pAttributes,
         TrackPosition which,
         double position) {
+    if constexpr (sDebug) {
+        if (which != TrackPosition::PLAY_POSITION) {
+            qDebug() << this << "playerPositionChanged" << pAttributes->group
+                     << int(which) << position;
+        }
+    }
+
     switch (which) {
     case TrackPosition::PLAY_POSITION: {
         playerPlayPositionChanged(pAttributes, position);
         break;
     }
     case TrackPosition::INTRO_START: {
-        playerIntroStartChanged(pAttributes, position);
+        // nothing to do, because we want not to re-cue the toDeck
+        // and the fromDeck has already passed the intro
         break;
     }
-    case TrackPosition::INTRO_END: {
-        playerIntroEndChanged(pAttributes, position);
-        break;
-    }
-    case TrackPosition::OUTRO_START: {
-        playerOutroStartChanged(pAttributes, position);
-        break;
-    }
+    case TrackPosition::INTRO_END:
+    case TrackPosition::OUTRO_START:
     case TrackPosition::OUTRO_END: {
-        playerOutroEndChanged(pAttributes, position);
+        if (m_eState != ADJ_IDLE) {
+            // We don't want to recalculate a running transition
+            return;
+        }
+        if (which == TrackPosition::INTRO_END && pAttributes->isFromDeck) {
+            // We have already passed the intro on fromDeck,
+            // so changes to the intro shouldn't have any effect.
+            return;
+        }
+        DeckAttributes* fromDeck = getFromDeck();
+        if (!fromDeck) {
+            return;
+        }
+        calculateTransition(fromDeck, getOtherDeck(fromDeck), false);
         break;
     }
     default: {
         break;
     }
     }
-}
-
-void AutoDJProcessor::playerIntroStartChanged(DeckAttributes* pAttributes, double position) {
-    if constexpr (sDebug) {
-        qDebug() << this << "playerIntroStartChanged" << pAttributes->group << position;
-    }
-    // nothing to do, because we want not to re-cue the toDeck and the from
-    // Deck has already passed the intro
-}
-
-void AutoDJProcessor::playerIntroEndChanged(DeckAttributes* pAttributes, double position) {
-    if constexpr (sDebug) {
-        qDebug() << this << "playerIntroEndChanged" << pAttributes->group << position;
-    }
-
-    if (m_eState != ADJ_IDLE) {
-        // We don't want to recalculate a running transition
-        return;
-    }
-
-    if (pAttributes->isFromDeck) {
-        // We have already passed the intro
-        return;
-    }
-    DeckAttributes* fromDeck = getFromDeck();
-    if (!fromDeck) {
-        return;
-    }
-    calculateTransition(fromDeck, getOtherDeck(fromDeck), false);
-}
-
-void AutoDJProcessor::playerOutroStartChanged(DeckAttributes* pAttributes, double position) {
-    if constexpr (sDebug) {
-        qDebug() << this << "playerOutroStartChanged" << pAttributes->group << position;
-    }
-
-    if (m_eState != ADJ_IDLE) {
-        // We don't want to recalculate a running transition
-        return;
-    }
-
-    DeckAttributes* fromDeck = getFromDeck();
-    if (!fromDeck) {
-        return;
-    }
-    calculateTransition(fromDeck, getOtherDeck(fromDeck), false);
-}
-
-void AutoDJProcessor::playerOutroEndChanged(DeckAttributes* pAttributes, double position) {
-    if constexpr (sDebug) {
-        qDebug() << this << "playerOutroEndChanged" << pAttributes->group << position;
-    }
-
-    if (m_eState != ADJ_IDLE) {
-        // We don't want to recalculate a running transition
-        return;
-    }
-
-    DeckAttributes* fromDeck = getFromDeck();
-    if (!fromDeck) {
-        return;
-    }
-    calculateTransition(fromDeck, getOtherDeck(fromDeck), false);
 }
 
 double AutoDJProcessor::getIntroStartSecond(const TrackOrDeckAttributes& track) {

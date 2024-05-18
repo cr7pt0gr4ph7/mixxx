@@ -314,10 +314,6 @@ class AutoDJProcessor : public QObject {
 
   private:
     void playerPlayPositionChanged(DeckAttributes* pDeck, double position);
-    void playerIntroStartChanged(DeckAttributes* pDeck, double position);
-    void playerIntroEndChanged(DeckAttributes* pDeck, double position);
-    void playerOutroStartChanged(DeckAttributes* pDeck, double position);
-    void playerOutroEndChanged(DeckAttributes* pDeck, double position);
 
   private slots:
     void crossfaderChanged(double value);
