@@ -19,19 +19,81 @@ class BaseTrackPlayer;
 class PlaylistTableModel;
 typedef QList<QModelIndex> QModelIndexList;
 
+class FrameRange final {
+  public:
+    inline constexpr FrameRange() {
+    }
+    inline constexpr FrameRange(Cue::StartAndEndPositions range)
+            : FrameRange(range.startPosition, range.endPosition) {
+    }
+    inline constexpr FrameRange(mixxx::audio::FramePos start, mixxx::audio::FramePos end)
+            : m_startPosition(start), m_endPosition(end) {
+    }
+
+    inline constexpr mixxx::audio::FramePos startPosition() const {
+        return m_startPosition;
+    }
+
+    inline constexpr mixxx::audio::FramePos endPosition() const {
+        return m_endPosition;
+    }
+
+    static inline FrameRange fromRange(const ControlProxy& start, const ControlProxy& end) {
+        return FrameRange(getFramePos(start), getFramePos(end));
+    }
+
+    static inline FrameRange fromLength(const ControlProxy& length) {
+        return FrameRange(mixxx::audio::kStartFramePos, getFramePos(length));
+    }
+
+  private:
+    mixxx::audio::FramePos m_startPosition;
+    mixxx::audio::FramePos m_endPosition;
+
+    static inline mixxx::audio::FramePos getFramePos(const ControlProxy& control) {
+        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(
+                control.get());
+    }
+};
+
+enum class TrackPosition {
+    NONE = 0,
+    INTRO_START,
+    INTRO_END,
+    OUTRO_START,
+    OUTRO_END,
+    PLAY_POSITION,
+    TRACK_START,
+    TRACK_END
+};
+
 class TrackOrDeckAttributes : public QObject {
     Q_OBJECT
   public:
     virtual ~TrackOrDeckAttributes();
 
-    virtual mixxx::audio::FramePos introStartPosition() const = 0;
-    virtual mixxx::audio::FramePos introEndPosition() const = 0;
-    virtual mixxx::audio::FramePos outroStartPosition() const = 0;
-    virtual mixxx::audio::FramePos outroEndPosition() const = 0;
+    virtual FrameRange intro() const = 0;
+    virtual FrameRange outro() const = 0;
+    virtual FrameRange track() const = 0;
     virtual mixxx::audio::SampleRate sampleRate() const = 0;
-    virtual mixxx::audio::FramePos trackEndPosition() const = 0;
     virtual double playPosition() const = 0;
     virtual double rateRatio() const = 0;
+
+    mixxx::audio::FramePos introStartPosition() const {
+        return intro().startPosition();
+    };
+    mixxx::audio::FramePos introEndPosition() const {
+        return intro().endPosition();
+    };
+    mixxx::audio::FramePos outroStartPosition() const {
+        return outro().startPosition();
+    }
+    mixxx::audio::FramePos outroEndPosition() const {
+        return outro().endPosition();
+    }
+    mixxx::audio::FramePos trackEndPosition() const {
+        return track().endPosition();
+    }
 
     virtual TrackPointer getLoadedTrack() const = 0;
 
@@ -60,12 +122,10 @@ class TrackAttributes : public FadeableTrackOrDeckAttributes {
     TrackAttributes(TrackPointer pTrack);
     virtual ~TrackAttributes();
 
-    virtual mixxx::audio::FramePos introStartPosition() const override;
-    virtual mixxx::audio::FramePos introEndPosition() const override;
-    virtual mixxx::audio::FramePos outroStartPosition() const override;
-    virtual mixxx::audio::FramePos outroEndPosition() const override;
+    virtual FrameRange intro() const override;
+    virtual FrameRange outro() const override;
+    virtual FrameRange track() const override;
     virtual mixxx::audio::SampleRate sampleRate() const override;
-    virtual mixxx::audio::FramePos trackEndPosition() const override;
     virtual double playPosition() const override;
     virtual double rateRatio() const override;
 
@@ -121,28 +181,20 @@ class DeckAttributes : public FadeableTrackOrDeckAttributes {
         m_repeat.set(enabled ? 1.0 : 0.0);
     }
 
-    mixxx::audio::FramePos introStartPosition() const override {
-        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(m_introStartPos.get());
+    FrameRange intro() const override {
+        return FrameRange::fromRange(m_introStartPos, m_introEndPos);
     }
 
-    mixxx::audio::FramePos introEndPosition() const override {
-        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(m_introEndPos.get());
+    FrameRange outro() const override {
+        return FrameRange::fromRange(m_outroStartPos, m_outroEndPos);
     }
 
-    mixxx::audio::FramePos outroStartPosition() const override {
-        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(m_outroStartPos.get());
-    }
-
-    mixxx::audio::FramePos outroEndPosition() const override {
-        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(m_outroEndPos.get());
+    FrameRange track() const override {
+        return FrameRange::fromLength(m_trackSamples);
     }
 
     mixxx::audio::SampleRate sampleRate() const override {
         return mixxx::audio::SampleRate::fromDouble(m_sampleRate.get());
-    }
-
-    mixxx::audio::FramePos trackEndPosition() const override {
-        return mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(m_trackSamples.get());
     }
 
     double rateRatio() const override {

@@ -52,36 +52,34 @@ TrackAttributes::TrackAttributes(TrackPointer pTrack)
 TrackAttributes::~TrackAttributes() {
 }
 
-mixxx::audio::FramePos TrackAttributes::introStartPosition() const {
+FrameRange TrackAttributes::intro() const {
     auto pIntro = m_pTrack->findCueByType(mixxx::CueType::Intro);
     if (pIntro) {
-        return pIntro->getPosition();
+        return pIntro->getStartAndEndPosition();
     }
-    return mixxx::audio::FramePos();
+    return FrameRange();
 }
 
-mixxx::audio::FramePos TrackAttributes::introEndPosition() const {
-    auto pIntro = m_pTrack->findCueByType(mixxx::CueType::Intro);
+FrameRange TrackAttributes::outro() const {
+    auto pIntro = m_pTrack->findCueByType(mixxx::CueType::Outro);
     if (pIntro) {
-        return pIntro->getEndPosition();
+        return pIntro->getStartAndEndPosition();
     }
-    return mixxx::audio::FramePos();
+    return FrameRange();
 }
 
-mixxx::audio::FramePos TrackAttributes::outroStartPosition() const {
-    auto pOutro = m_pTrack->findCueByType(mixxx::CueType::Outro);
-    if (pOutro) {
-        return pOutro->getPosition();
-    }
-    return mixxx::audio::FramePos();
-}
+FrameRange TrackAttributes::outro() const {
+    // Instead of actually loading the file, we simply infer
+    // the number of frames from duration and sample rate stored
+    // in the database. This isn't entirely accurate due to
+    // rounding errors, but more than accurate enough for
+    // estimating the remaining play time of the AutoDJ queue.
+    double approxNumSamples =
+            m_pTrack->getSampleRate() * m_pTrack->getDuration();
 
-mixxx::audio::FramePos TrackAttributes::outroEndPosition() const {
-    auto pOutro = m_pTrack->findCueByType(mixxx::CueType::Outro);
-    if (pOutro) {
-        return pOutro->getEndPosition();
-    }
-    return mixxx::audio::FramePos();
+    return FrameRange(
+            mixxx::audio::kStartFramePos,
+            mixxx::audio::FramePos(approxNumSamples));
 }
 
 mixxx::audio::SampleRate TrackAttributes::sampleRate() const {
@@ -94,18 +92,6 @@ double TrackAttributes::playPosition() const {
 
 double TrackAttributes::rateRatio() const {
     return 1.0;
-}
-
-mixxx::audio::FramePos TrackAttributes::trackEndPosition() const {
-    // Instead of actually loading the file, we simply infer
-    // the number of frames from duration and sample rate stored
-    // in the database. This isn't entirely accurate due to
-    // rounding errors, but more than accurate enough for
-    // estimating the remaining play time of the AutoDJ queue.
-    double approxNumSamples =
-            m_pTrack->getSampleRate() * m_pTrack->getDuration();
-
-    return mixxx::audio::FramePos(approxNumSamples);
 }
 
 DeckAttributes::DeckAttributes(int index,
