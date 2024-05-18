@@ -6,6 +6,7 @@
 
 #include "library/library_decl.h"
 #include "widget/wbasewidget.h"
+#include "widget/wlonghovertracker.h"
 
 class LibraryFeature;
 class QPoint;
@@ -18,7 +19,9 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     void contextMenuEvent(QContextMenuEvent * event) override;
     void dragMoveEvent(QDragMoveEvent * event) override;
     void dragEnterEvent(QDragEnterEvent * event) override;
+    void dragLeaveEvent(QDragLeaveEvent* event) override;
     void dropEvent(QDropEvent * event) override;
+    void paintEvent(QPaintEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void focusInEvent(QFocusEvent* event) override;
@@ -44,26 +47,13 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     bool event(QEvent* pEvent) override;
 
   private:
+    void paintDropIndicator(QPainter& painter);
+    QRect m_dropIndicatorRect;
+
     void focusSelectedIndex();
     QModelIndex selectedIndex();
 
     QBasicTimer m_expandTimer;
     QModelIndex m_hoverIndex;
-
-    class LongHoverData {
-      public:
-        LongHoverData()
-                : isValid(false), isReady(false) {
-        }
-
-        QBasicTimer activationTimer;
-        QBasicTimer expirationTimer;
-        QModelIndex modelIndex;
-        QPoint position;
-        bool isValid;
-        bool isReady;
-    };
-
-    LongHoverData m_longHoverNew;
-    LongHoverData m_longHoverOld;
+    WLongHoverTracker<QModelIndex> m_longHover;
 };

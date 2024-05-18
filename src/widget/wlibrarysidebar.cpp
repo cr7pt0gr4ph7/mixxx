@@ -1,6 +1,8 @@
 #include "widget/wlibrarysidebar.h"
 
+#include <QApplication>
 #include <QHeaderView>
+#include <QPainter>
 #include <QUrl>
 #include <QtDebug>
 
@@ -8,6 +10,7 @@
 #include "moc_wlibrarysidebar.cpp"
 #include "util/defs.h"
 #include "util/dnd.h"
+#include "wlibrarysidebar.h"
 
 constexpr int expand_time = 250;
 
@@ -17,7 +20,11 @@ static constexpr int LongHoverMaxDistanceManhattan = 10;
 
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
-          WBaseWidget(this) {
+          WBaseWidget(this),
+          m_longHover(this,
+                  QApplication::startDragTime() * 4,
+                  QApplication::startDragTime(),
+                  QApplication::startDragDistance()) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
@@ -47,7 +54,7 @@ void WLibrarySidebar::contextMenuEvent(QContextMenuEvent *event) {
     //}
 }
 
-// Drag enter event, happens when a dragged item enters the track sources view
+/// Drag enter event, happens when a dragged item enters the track sources view
 void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
     qDebug() << "WLibrarySidebar::dragEnterEvent" << event->mimeData()->formats();
     if (event->mimeData()->hasUrls()) {
@@ -58,15 +65,53 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
         QList<mixxx::FileInfo> fileInfos = DragAndDropHelper::supportedTracksFromUrls(
                 event->mimeData()->urls(), false, true);
         if (!fileInfos.isEmpty()) {
+            setState(QAbstractItemView::DraggingState);
             event->acceptProposedAction();
             return;
         }
     }
+
     event->ignore();
-    //QTreeView::dragEnterEvent(event);
+
+    // Note(cr7pt0gr4ph7): Do NOT call the base class method here.
+    // We want to fully replace the reject/accept logic. Note that
+    // this means we have to manually call setState() ourselves.
+    //
+    // QTreeView::dragEnterEvent(event);
 }
 
-// Drag move event, happens when a dragged item hovers over the track sources view...
+/// Drag leave event, happens when the dragged item leaves the track sources view
+/// or when the drag is aborted through Escape or other means.
+void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
+    m_longHover.clearState();
+    m_expandTimer.stop();
+    m_hoverIndex = QModelIndex();
+
+    // Note(cr7pt0gr4ph7): We have to use the base class method here,
+    // because it will stop any in-progress autoscroll, which we
+    // cannot do otherwise via the public Qt API.
+    //
+    // The base class method will also call setState(NoState).
+    QTreeView::dragLeaveEvent(event);
+}
+
+void WLibrarySidebar::paintEvent(QPaintEvent* event) {
+    QTreeView::paintEvent(event);
+    QPainter painter(viewport());
+    paintDropIndicator(painter);
+}
+
+void WLibrarySidebar::paintDropIndicator(QPainter& painter) {
+    if (showDropIndicator() && state() == QAbstractItemView::DraggingState &&
+            viewport()->cursor().shape() != Qt::ForbiddenCursor) {
+        QStyleOption option;
+        option.initFrom(this);
+        option.rect = m_dropIndicatorRect;
+        style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+    }
+}
+
+/// Drag move event, happens when a dragged item hovers over the track sources view...
 void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     //qDebug() << "dragMoveEvent" << event->mimeData()->formats();
     // Start a timer to auto-expand sections the user hovers on.
@@ -82,83 +127,7 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
         m_expandTimer.start(expand_time, this);
     }
 
-    // --------------------------------------------------------------------
-    //
-    // The mouse cursor has moved to a new item, either
-    // intentionally or unintentionally.
-    //
-    // The latter may happen e.g. with laptop touchpads when a
-    // double-tap-and-hold gesture was used to initiate the drag:
-    //
-    // Releasing the finger from the trackpad always causes an
-    // unintentional movement of at least a few pixels, often causing
-    // the mouse cursor to move away from the intended drop target
-    // when the latter is very small.
-    //
-    // --------------------------------------------------------------------
-    //
-    // We try to detect & repair such unintentional movements using
-    // the following heuristic to detect the user's intent:
-    //
-    // 1) The cursor was held over a drop target for at least
-    //    ActivationTimeMs while the DnD was in progress, and:
-    //
-    // 2) At the time of dropAccept, the cursor is over a different
-    //    item, and:
-    //
-    // 3) The time since last hovering over the 'intended' drop
-    //    target from step (1) is less than ExpirationTimeMs.
-    //
-    //    ExpirationTimeMs should be just enough to cover the time
-    //    between beginning to release and fully releasing the
-    //    finger from the touchpad.
-    //
-    // 4) The distance between the current cursor position and the last
-    //    position that was over the 'intended' drop target is less
-    //    than MaxDistancePx.
-    //
-    //    Large mouse movements are very likely intentional, so this
-    //    is a precaution to avoid interfering with the user.
-    //
-
-    // Mouse has moved to a new item:
-    // - Store the last position where the mouse cursor was over the previous item,
-    //   as well as the previous item itself.
-    // - Start the expiration timer on the previous item.
-    //   The heuristic only kicks in when the item is dropped before
-    //   the expiration timer expires.
-    // - Start the activation timer on the new item.
-    //   It will become the "new" intended item when the activation
-    //   timer expires before the cursor leaves the item.
-    if (m_longHoverNew.modelIndex != index) {
-        // The new "old" / the old "new" item is the "intended" item
-        // because its activation timer elapsed. Start the expiration timer
-        if (m_longHoverNew.isReady) {
-            m_longHoverOld.modelIndex = m_longHoverNew.modelIndex;
-            m_longHoverOld.position = m_longHoverNew.position;
-            m_longHoverOld.isValid = m_longHoverNew.isValid;
-            m_longHoverOld.isReady = m_longHoverNew.isReady;
-        } else {
-            m_longHoverOld.modelIndex = QModelIndex();
-            m_longHoverOld.position = QPoint();
-            m_longHoverOld.isValid = false;
-            m_longHoverOld.isReady = false;
-        }
-
-        // Wait for the new item to become active
-        m_longHoverNew.modelIndex = index;
-        m_longHoverNew.position = pos;
-        m_longHoverNew.isValid = true;
-        m_longHoverNew.isReady = false; // only becomes true once activationTimer expires
-        m_longHoverNew.activationTimer.start(LongHoverActivationTimeMs, this);
-
-        if (m_longHoverOld.isValid && m_longHoverOld.isReady) {
-            m_longHoverOld.expirationTimer.start(LongHoverExpirationTimeMs, this);
-        }
-    } else {
-        // Continuously update the "last position"
-        m_longHoverNew.position = pos;
-    }
+    m_longHover.hoveringOnItem(index, pos);
 
     // This has to be here instead of after, otherwise all drags will be
     // rejected -- rryan 3/2011
@@ -176,25 +145,25 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
             if (sidebarModel) {
                 accepted = false;
                 for (const QUrl& url : urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                     QPoint pos = event->position().toPoint();
-#else
-                    QPoint pos = event->pos();
-#endif
-                    QModelIndex destIndex = indexAt(pos);
+                    QModelIndex possibleDestIndex = indexAt(pos);
+                    QModelIndex destIndex = m_longHover.tryGuessTarget(possibleDestIndex, pos);
                     if (sidebarModel->dragMoveAccept(destIndex, url)) {
                         // We only need one URL to be valid for us
                         // to accept the whole drag...
-                        // consider we have a long list of valid files, checking all will
-                        // take a lot of time that stales Mixxx and this makes the drop feature useless
-                        // Eg. you may have tried to drag two MP3's and an EXE, the drop is accepted here,
-                        // but the EXE is sorted out later after dropping
+                        // consider we have a long list of valid files, checking
+                        // all will take a lot of time that stalls Mixxx and
+                        // this makes the drop feature useless Eg. you may have
+                        // tried to drag two MP3's and an EXE, the drop is
+                        // accepted here, but the EXE is sorted out later after
+                        // dropping
                         accepted = true;
                         break;
                     }
                 }
             }
             if (accepted) {
+                m_dropIndicatorRect = visualRect(index);
                 event->acceptProposedAction();
             } else {
                 event->ignore();
@@ -218,29 +187,10 @@ void WLibrarySidebar::timerEvent(QTimerEvent *event) {
         return;
     }
 
-    if (event->timerId() == m_longHoverOld.expirationTimer.timerId()) {
-        // ExpirationTimeMs elapsed before a dropEvent could take place.
-        // "old" will not be the "intended" item anymore
-        m_longHoverOld.expirationTimer.stop();
-        m_longHoverOld.isValid = false;
-        m_longHoverOld.modelIndex = QModelIndex();
-        m_longHoverOld.position = QPoint();
+    if (m_longHover.timerEvent(event)) {
         return;
     }
 
-    if (event->timerId() == m_longHoverNew.activationTimer.timerId()) {
-        // "new" becomes the "intended" item
-        m_longHoverNew.activationTimer.stop();
-        m_longHoverNew.isReady = m_longHoverNew.isValid;
-
-        // No need to remember the "old" "intended" item
-        m_longHoverOld.expirationTimer.stop();
-        m_longHoverOld.modelIndex = QModelIndex();
-        m_longHoverOld.position = QPoint();
-        m_longHoverOld.isValid = false;
-        m_longHoverOld.isReady = false;
-        return;
-    }
     QTreeView::timerEvent(event);
 }
 
@@ -259,35 +209,9 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
             //eg. dragging a track from Windows Explorer onto the sidebar
             SidebarModel* sidebarModel = qobject_cast<SidebarModel*>(model());
             if (sidebarModel) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                 QPoint pos = event->position().toPoint();
-#else
-                QPoint pos = event->pos();
-#endif
-
                 QModelIndex possibleDestIndex = indexAt(pos);
                 QModelIndex destIndex = possibleDestIndex;
-
-                // Heuristic activated, use replacement item instead
-                if (m_longHoverNew.isReady &&
-                        (pos - m_longHoverNew.position).manhattanLength() <
-                                LongHoverMaxDistanceManhattan) {
-                    destIndex = m_longHoverNew.modelIndex;
-
-                    // Forget everything.
-                    m_longHoverOld.expirationTimer.stop();
-                    m_longHoverNew.activationTimer.stop();
-
-                    m_longHoverOld.modelIndex = QModelIndex();
-                    m_longHoverOld.position = QPoint();
-                    m_longHoverOld.isValid = false;
-                    m_longHoverOld.isReady = false;
-
-                    m_longHoverNew.modelIndex = QModelIndex();
-                    m_longHoverNew.position = QPoint();
-                    m_longHoverNew.isValid = false;
-                    m_longHoverNew.isReady = false;
-                }
 
                 // event->source() will return NULL if something is dropped from
                 // a different application
@@ -305,19 +229,8 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
         event->ignore();
     }
 
-    // Forget everything.
-    m_longHoverOld.expirationTimer.stop();
-    m_longHoverNew.activationTimer.stop();
-
-    m_longHoverOld.modelIndex = QModelIndex();
-    m_longHoverOld.position = QPoint();
-    m_longHoverOld.isValid = false;
-    m_longHoverOld.isReady = false;
-
-    m_longHoverNew.modelIndex = QModelIndex();
-    m_longHoverNew.position = QPoint();
-    m_longHoverNew.isValid = false;
-    m_longHoverNew.isReady = false;
+    m_longHover.clearState();
+    setState(QAbstractItemView::NoState);
 }
 
 void WLibrarySidebar::renameSelectedItem() {
