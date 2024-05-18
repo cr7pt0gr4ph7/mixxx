@@ -1785,7 +1785,7 @@ void AutoDJProcessor::playerTrackLoaded(DeckAttributes* pDeck, TrackPointer pTra
         // we are her in the relative domain 0..1
         if (!fromDeck->isPlaying() && fromDeck->playPosition() >= 1.0) {
             // repeat a probably missed update
-            playerPositionChanged(fromDeck, 1.0);
+            playerPlayPositionChanged(fromDeck, 1.0);
         }
     } else if (m_eState == ADJ_LEFT_FADING) {
         if (pDeck == getRightDeck()) {
