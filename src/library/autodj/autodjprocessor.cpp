@@ -332,6 +332,10 @@ void AutoDJProcessor::multipleTracksChanged() {
     updateRemainingTime();
 }
 
+int AutoDJProcessor::getRemainingTracks() const {
+    return m_pAutoDJTableModel->rowCount();
+}
+
 void AutoDJProcessor::updateRemainingTime() {
     // The following data points are used as inputs for the "remaining time"
     // calculation, and should therefore trigger a recalculation:
@@ -357,11 +361,10 @@ void AutoDJProcessor::updateRemainingTime() {
     //       and simply trigger a recalculation when ANY
     //       track has changed.
     //
-    int remainingTracks = m_pAutoDJTableModel->rowCount();
     mixxx::Duration remainingTime = calculateRemainingTime();
     m_pTimeRemaining->set(remainingTime.toDoubleSeconds());
     m_timeRemaining = remainingTime;
-    emit remainingTimeChanged(remainingTracks, remainingTime);
+    emit remainingTimeChanged(getRemainingTracks(), remainingTime);
 }
 
 mixxx::Duration AutoDJProcessor::calculateRemainingTime() {

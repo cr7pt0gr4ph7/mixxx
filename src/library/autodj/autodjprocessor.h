@@ -299,6 +299,8 @@ class AutoDJProcessor : public QObject {
         return m_timeRemaining;
     }
 
+    int getRemainingTracks() const;
+
     bool nextTrackLoaded();
 
     void setTransitionTime(int seconds);
