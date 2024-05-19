@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QPushButton>
 #include <QStyle>
 #include <QWidget>
 
@@ -7,11 +8,31 @@
 #include "util/parented_ptr.h"
 
 class QGridLayout;
-class QPushButton;
+class WColorPicker;
+
+/// Customized button used internally by WColorPicker
+class WColorGridButton : public QPushButton {
+    Q_OBJECT
+  public:
+    WColorGridButton(mixxx::RgbColor color, int row, int column, QWidget* parent = nullptr);
+
+  protected:
+    void keyPressEvent(QKeyEvent* event) override;
+
+  private:
+    bool handleNavigation(QKeyEvent* event);
+
+    mixxx::RgbColor m_color;
+    int m_row;
+    int m_column;
+    WColorPicker* m_pColorPicker;
+};
 
 class WColorPicker : public QWidget {
     Q_OBJECT
   public:
+    friend class WColorPickerItemButton;
+
     enum class Option {
         NoOptions = 0,
         AllowNoColor = 1,

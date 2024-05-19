@@ -37,6 +37,44 @@ inline int idealColumnCount(int numItems) {
     return numColumns;
 }
 
+WColorGridButton::WColorGridButton(mixxx::RgbColor color, int row, int column, QWidget* parent)
+        : QPushButton(parent),
+          m_color(color),
+          m_row(row),
+          m_column(column) {
+    // Set the background color of the button.
+    /// This can't be overridden in skin stylesheets.
+    setStyleSheet(
+            QString("QPushButton { background-color: %1; }")
+                    .arg(mixxx::RgbColor::toQString(color)));
+    setToolTip(mixxx::RgbColor::toQString(color));
+    setCheckable(true);
+
+    // Without this the button might shrink when setting the checkmark icon,
+    // both here or via external stylesheets.
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+}
+
+void WColorGridButton::keyPressEvent(QKeyEvent* event) {
+    if (!handleNavigation(event)) {
+        QPushButton::keyPressEvent(event);
+    }
+}
+
+bool WColorGridButton::handleNavigation(QKeyEvent* event) {
+    auto* pParent = qobject_cast<QWidget*>(parent());
+    if (!pParent) {
+        return false;
+    }
+
+    auto* pLayout = qobject_cast<QGridLayout*>(pParent->layout());
+    if (!pLayout) {
+        return false;
+    }
+
+    return false;
+}
+
 WColorPicker::WColorPicker(Options options, const ColorPalette& palette, QWidget* parent)
         : QWidget(parent),
           m_options(options),
@@ -141,19 +179,11 @@ void WColorPicker::addColorButtons() {
 }
 
 void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, int row, int column) {
-    parented_ptr<QPushButton> pButton = make_parented<QPushButton>("", this);
+    auto pButton = make_parented<WColorGridButton>(color, row, column, this);
     if (m_pStyle) {
         pButton->setStyle(m_pStyle);
     }
 
-    // Set the background color of the button. This can't be overridden in skin stylesheets.
-    pButton->setStyleSheet(
-            QString("QPushButton { background-color: %1; }").arg(mixxx::RgbColor::toQString(color)));
-    pButton->setToolTip(mixxx::RgbColor::toQString(color));
-    pButton->setCheckable(true);
-    // Without this the button might shrink when setting the checkmark icon,
-    // both here or via external stylesheets.
-    pButton->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
     m_colorButtons.append(pButton);
 
     connect(pButton,
@@ -162,6 +192,7 @@ void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, i
             [this, color]() {
                 emit colorPicked(mixxx::RgbColor::optional(color));
             });
+
     pLayout->addWidget(pButton, row, column);
 }
 
