@@ -1,5 +1,6 @@
 #include "widget/wlibrarysidebar.h"
 
+#include <QApplication>
 #include <QHeaderView>
 #include <QUrl>
 #include <QtDebug>
@@ -12,9 +13,39 @@
 constexpr int expand_time = 250;
 constexpr int collapse_time = 750;
 
+std::shared_ptr<QDropEvent> newSyntheticEvent(QPoint position, const QDropEvent* event) {
+    auto syntheticEvent = std::make_shared<QDropEvent>(
+            position,
+            event->possibleActions(),
+            event->mimeData(),
+            event->buttons(),
+            event->modifiers(),
+            event->type());
+
+    // Copy mutable state from original event
+    syntheticEvent->setAccepted(event->isAccepted());
+    syntheticEvent->setDropAction(event->dropAction());
+
+    return syntheticEvent;
+
+    return syntheticEvent;
+}
+
+void finishSyntheticEvent(std::shared_ptr<QDropEvent> syntheticEvent, QDropEvent* event) {
+    // Mirror modifications back to the original event
+    event->setAccepted(syntheticEvent->isAccepted());
+    event->setDropAction(syntheticEvent->dropAction());
+}
+
+} // namespace
+
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
-          WBaseWidget(this) {
+          WBaseWidget(this),
+          m_longHover(this,
+                  300,
+                  100,
+                  20) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
@@ -68,6 +99,7 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
 /// or when the drag is aborted through Escape or other means.
 void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
     m_autoExpandIndex = QModelIndex();
+    m_longHover.clearState();
     QTreeView::dragLeaveEvent(event);
 }
 
@@ -77,6 +109,10 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
+
+    auto pos = event->position().toPoint();
+    auto index = indexAt(pos);
+    m_longHover.hoveringOnItem(index, pos);
 
     if (m_autoExpandIndex != index) {
         m_autoExpandIndex = index;
@@ -103,6 +139,9 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
 }
 
 void WLibrarySidebar::timerEvent(QTimerEvent *event) {
+    if (m_longHover.timerEvent(event)) {
+        return;
+    }
     QTreeView::timerEvent(event);
 }
 
@@ -116,9 +155,45 @@ void WLibrarySidebar::dropEvent(QDropEvent* event) {
         // from a different application. This knowledge is used
         // inside the LibraryFeature implementations.
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
+    }
+
+    auto pos = event->position().toPoint();
+    auto index = indexAt(pos);
+    auto probableTarget = m_longHover.tryGuessIntendedTarget(index, pos);
+
+    if (probableTarget.item != index) {
+        // Use the target item that the user likely intended to hit,
+        // instead of the one that is currently under the mouse cursor
+        QDropEvent syntheticEvent(
+                probableTarget.position,
+                event->possibleActions(),
+                event->mimeData(),
+                event->buttons(),
+                event->modifiers(),
+                event->type());
+
+        // Copy mutable state from original event
+        syntheticEvent.setAccepted(event->isAccepted());
+        syntheticEvent.setDropAction(event->dropAction());
+
+        // Execute the original handling logic,
+        // but with the synthetic event instead
+        QTreeView::dropEvent(&syntheticEvent);
+
+        // Mirror modifications back to the original event
+        event->setAccepted(syntheticEvent.isAccepted());
+        event->setDropAction(syntheticEvent.dropAction());
+    } else {
+        QTreeView::dropEvent(event);
+    }
+
+    if (event->isAccepted()) {
+        event->acceptProposedAction();
+    }
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
     }
+    m_longHover.clearState();
 }
 
 void WLibrarySidebar::toggleSelectedItem() {

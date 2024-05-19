@@ -48,4 +48,6 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     QModelIndex selectedIndex();
 
     QModelIndex m_autoExpandIndex;
+
+    WLongHoverTracker<QModelIndex> m_longHover;
 };
