@@ -8,6 +8,7 @@
 #include "moc_sidebarmodel.cpp"
 #include "util/assert.h"
 #include "util/cmdlineargs.h"
+#include "util/dnd.h"
 
 namespace {
 
@@ -27,6 +28,7 @@ SidebarModel::SidebarModel(
         : QAbstractItemModel(parent),
           m_iDefaultSelectedIndex(0),
           m_pressedUntilClickedTimer(new QTimer(this)) {
+    m_mimeTypes << QStringLiteral("text/uri-list");
     m_pressedUntilClickedTimer->setSingleShot(true);
     connect(m_pressedUntilClickedTimer,
             &QTimer::timeout,
@@ -434,6 +436,70 @@ void SidebarModel::deleteItem(const QModelIndex& index) {
             pFeature->deleteItem(index);
         }
     }
+}
+
+QStringList SidebarModel::mimeTypes() const {
+    return m_mimeTypes;
+}
+
+Qt::ItemFlags SidebarModel::flags(const QModelIndex& index) const {
+    return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
+}
+
+QModelIndex SidebarModel::resolveDropIndex(int row, int column, const QModelIndex& parent) const {
+    return parent;
+}
+
+bool SidebarModel::canDropMimeData(const QMimeData* data,
+        Qt::DropAction action,
+        int row,
+        int column,
+        const QModelIndex& parent) const {
+    Q_UNUSED(action);
+    const QModelIndex index = resolveDropIndex(row, column, parent);
+
+    if (data->hasUrls()) {
+        const QList<QUrl> urls = data->urls();
+        for (const QUrl& url : urls) {
+            if (dragMoveAccept(index, url)) {
+                // We only need one URL to be valid for us
+                // to accept the whole drag...
+                // Considering that we might have a long list of files,
+                // checking all would take a lot of time, which would
+                // stall Mixxx and make the drop feature useless.
+                // E.g. you may have tried to drag two MP3's and an EXE,
+                // the drop is accepted here, but the EXE is filtered
+                // out later after dropping
+                qDebug() << "accepted";
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool SidebarModel::dropMimeData(const QMimeData* data,
+        Qt::DropAction action,
+        int row,
+        int column,
+        const QModelIndex& parent) {
+    Q_UNUSED(action);
+    QModelIndex index = resolveDropIndex(row, column, parent);
+
+    if (data->hasUrls()) {
+        const QList<QUrl> urls = data->urls();
+
+        // m_sourceOfCurrentDragDropEvent will be NULL if
+        // something is dropped from a different application
+        return dropAccept(index, urls, m_sourceOfCurrentDragDropEvent);
+    }
+
+    return false;
+}
+
+void SidebarModel::setSourceOfCurrentDragDropEvent(QObject* source) {
+    m_sourceOfCurrentDragDropEvent = source;
 }
 
 bool SidebarModel::dropAccept(const QModelIndex& index, const QList<QUrl>& urls, QObject* pSource) {
