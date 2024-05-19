@@ -4,10 +4,10 @@
 
 #include "moc_wbasiclabel.cpp"
 
-WBasicLabel::WBasicLabel(QWidget* parent = nullptr, Qt::WindowFlags f)
+WBasicLabel::WBasicLabel(QWidget* parent, Qt::WindowFlags f)
         : QLabel(parent, f) {
 }
-WBasicLabel::WBasicLabel(const QString& text, QWidget* parent = nullptr, Qt::WindowFlags f)
+WBasicLabel::WBasicLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
         : QLabel(text, parent, f) {
 }
 
