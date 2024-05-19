@@ -46,9 +46,9 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
           WBaseWidget(this),
           m_longHover(this,
-                  QApplication::startDragTime() * 2,
-                  QApplication::startDragTime(),
-                  QApplication::startDragDistance()) {
+                  300,
+                  100,
+                  20) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
