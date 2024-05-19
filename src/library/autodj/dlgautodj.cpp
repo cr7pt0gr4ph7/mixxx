@@ -400,14 +400,12 @@ void DlgAutoDJ::updateSelectionInfo() {
     // Selected tracks
     QString label;
     if (!indices.isEmpty()) {
-        label.append(tr("Selected: "));
         label.append(mixxx::DurationBase::formatTime(selectedDuration.toDoubleSeconds()));
         label.append(QString(" (%1)").arg(selectedTracks));
-        label.append(" | ");
+        label.append(tr(" / "));
     }
 
     // Total tracks
-    label.append(tr("Total: "));
     label.append(mixxx::DurationBase::formatTime(totalDuration.toDoubleSeconds()));
     label.append(QString(" (%1)").arg(totalTracks));
 
