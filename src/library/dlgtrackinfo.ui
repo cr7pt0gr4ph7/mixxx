@@ -1081,10 +1081,10 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-    <class>WBasicPushButton</class>
-    <extends>QPushButton</extends>
-    <header>widget/wbasicpushbutton.h</header>
-   </customwidget>
+   <class>WBasicPushButton</class>
+   <extends>QPushButton</extends>
+   <header>widget/wbasicpushbutton.h</header>
+  </customwidget>
   <customwidget>
    <class>WMultiLineTextEdit</class>
    <extends>QLineEdit</extends>
