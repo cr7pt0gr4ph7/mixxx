@@ -328,6 +328,12 @@ void DlgAutoDJ::transitionSliderChanged(int value) {
     m_pAutoDJProcessor->setTransitionTime(value);
 }
 
+void DlgAutoDJ::remainingTimeChanged(int numTracks, mixxx::Duration duration) {
+    Q_UNUSED(numTracks);
+    Q_UNUSED(duration);
+    updateSelectionInfo();
+}
+
 void DlgAutoDJ::autoDJStateChanged(AutoDJProcessor::AutoDJState state) {
     if (state == AutoDJProcessor::ADJ_DISABLED) {
         pushButtonAutoDJ->setChecked(false);
@@ -375,21 +381,31 @@ void DlgAutoDJ::slotRepeatPlaylistChanged(bool checked) {
 void DlgAutoDJ::updateSelectionInfo() {
     QModelIndexList indices = m_pTrackTableView->selectionModel()->selectedRows();
 
-    // Derive total duration from the table model. This is much faster than
-    // getting the duration from individual track objects.
-    mixxx::Duration duration = m_pAutoDJTableModel->getTotalDuration(indices);
-
-    QString label;
-
     if (!indices.isEmpty()) {
+        // Derive total duration from the table model. This is much faster than
+        // getting the duration from individual track objects.
+        mixxx::Duration duration = m_pAutoDJTableModel->getTotalDuration(indices);
+
+        QString label;
         label.append(mixxx::DurationBase::formatTime(duration.toDoubleSeconds()));
         label.append(QString(" (%1)").arg(indices.size()));
         labelSelectionInfo->setToolTip(tr("Displays the duration and number of selected tracks."));
         labelSelectionInfo->setText(label);
         labelSelectionInfo->setEnabled(true);
     } else {
-        labelSelectionInfo->setText("");
-        labelSelectionInfo->setEnabled(false);
+        int tracksCount = m_pAutoDJTableModel->rowCount();
+        ;
+        mixxx::Duration duration = m_pAutoDJProcessor->getRemainingTime();
+
+        QString label;
+        label.append(tr("Total: "));
+        label.append(mixxx::DurationBase::formatTime(duration.toDoubleSeconds()));
+        label.append(QString(" (%1)").arg(tracksCount));
+        labelSelectionInfo->setToolTip(
+                tr("Displays the duration and number of tracks in the Auto DJ "
+                   "queue."));
+        labelSelectionInfo->setText(label);
+        labelSelectionInfo->setEnabled(true);
     }
 }
 
