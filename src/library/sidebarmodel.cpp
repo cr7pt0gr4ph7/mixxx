@@ -470,7 +470,6 @@ bool SidebarModel::canDropMimeData(const QMimeData* data,
                 // E.g. you may have tried to drag two MP3's and an EXE,
                 // the drop is accepted here, but the EXE is filtered
                 // out later after dropping
-                qDebug() << "accepted";
                 return true;
             }
         }
