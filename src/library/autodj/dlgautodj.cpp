@@ -392,18 +392,19 @@ void DlgAutoDJ::updateSelectionInfo() {
     mixxx::Duration selectedDuration = m_pAutoDJTableModel->getTotalDuration(indices);
     int selectedTracks = indices.size();
 
-    // Total tracks
+    // Selected tracks
     QString label;
+    if (!indices.isEmpty()) {
+        label.append(tr("Selected: "));
+        label.append(mixxx::DurationBase::formatTime(selectedDuration.toDoubleSeconds()));
+        label.append(QString(" (%1)").arg(selectedTracks));
+        label.append(" | ");
+    }
+
+    // Total tracks
     label.append(tr("Total: "));
     label.append(mixxx::DurationBase::formatTime(totalDuration.toDoubleSeconds()));
     label.append(QString(" (%1)").arg(totalTracks));
-
-    // Selected tracks
-    if (!indices.isEmpty()) {
-        label.append(tr(" | Selected: "));
-        label.append(mixxx::DurationBase::formatTime(selectedDuration.toDoubleSeconds()));
-        label.append(QString(" (%1)").arg(selectedTracks));
-    }
 
     labelSelectionInfo->setToolTip(tr("Displays the duration and number of selected tracks."));
     labelSelectionInfo->setText(label);
