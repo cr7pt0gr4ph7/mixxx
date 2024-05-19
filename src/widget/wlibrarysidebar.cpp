@@ -115,6 +115,10 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     m_longHover.hoveringOnItem(index, pos);
 
     if (m_autoExpandIndex != index) {
+        if (m_activationTimer.isValid()) {
+            qDebug() << "Last timer" << m_activationTimer.elapsed() << m_autoExpandIndex;
+        }
+        m_activationTimer.start();
         m_autoExpandIndex = index;
         if (isExpanded(index)) {
             setAutoExpandDelay(collapse_time);
@@ -160,6 +164,8 @@ void WLibrarySidebar::dropEvent(QDropEvent* event) {
     auto pos = event->position().toPoint();
     auto index = indexAt(pos);
     auto probableTarget = m_longHover.tryGuessIntendedTarget(index, pos);
+    qDebug() << "Dropping after" << m_activationTimer.elapsed() << index << probableTarget.item;
+    m_activationTimer.invalidate();
 
     if (probableTarget.item != index) {
         // Use the target item that the user likely intended to hit,
