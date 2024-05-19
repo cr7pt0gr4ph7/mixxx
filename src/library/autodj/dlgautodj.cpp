@@ -219,6 +219,11 @@ DlgAutoDJ::DlgAutoDJ(WLibrary* parent,
             &DlgAutoDJ::transitionTimeChanged);
 
     connect(m_pAutoDJProcessor,
+            &AutoDJProcessor::remainingTimeChanged,
+            this,
+            &DlgAutoDJ::remainingTimeChanged);
+
+    connect(m_pAutoDJProcessor,
             &AutoDJProcessor::autoDJError,
             this,
             &DlgAutoDJ::autoDJError);
