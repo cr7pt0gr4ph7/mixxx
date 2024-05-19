@@ -33,29 +33,7 @@ std::shared_ptr<QDropEvent> newSyntheticEvent(QPoint position, const QDropEvent*
     return syntheticEvent;
 }
 
-std::shared_ptr<QDragMoveEvent> newSyntheticEvent(QPoint position, const QDragMoveEvent* event) {
-    auto syntheticEvent = std::make_shared<QDragMoveEvent>(
-            position,
-            event->possibleActions(),
-            event->mimeData(),
-            event->buttons(),
-            event->modifiers(),
-            event->type());
-
-    // Copy mutable state from original event
-    syntheticEvent->setAccepted(event->isAccepted());
-    syntheticEvent->setDropAction(event->dropAction());
-
-    return syntheticEvent;
-}
-
 void finishSyntheticEvent(std::shared_ptr<QDropEvent> syntheticEvent, QDropEvent* event) {
-    // Mirror modifications back to the original event
-    event->setAccepted(syntheticEvent->isAccepted());
-    event->setDropAction(syntheticEvent->dropAction());
-}
-
-void finishSyntheticEvent(std::shared_ptr<QDragMoveEvent> syntheticEvent, QDropEvent* event) {
     // Mirror modifications back to the original event
     event->setAccepted(syntheticEvent->isAccepted());
     event->setDropAction(syntheticEvent->dropAction());
@@ -136,17 +114,8 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     auto pos = event->position().toPoint();
     auto index = indexAt(pos);
     m_longHover.hoveringOnItem(index, pos);
-    auto probableTarget = m_longHover.tryGuessIntendedTarget(index, pos);
 
-    if (probableTarget.item != index) {
-        // Use the target item that the user likely intended to hit,
-        // instead of the one that is currently under the mouse cursor
-        auto syntheticEvent = newSyntheticEvent(probableTarget.position, event);
-        QTreeView::dragMoveEvent(syntheticEvent.get());
-        finishSyntheticEvent(syntheticEvent, event);
-    } else {
-        QTreeView::dragMoveEvent(event);
-    }
+    QTreeView::dragMoveEvent(event);
 
     if (event->isAccepted()) {
         event->acceptProposedAction();
