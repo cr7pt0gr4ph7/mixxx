@@ -4,13 +4,64 @@
 #include <QHeaderView>
 #include <QUrl>
 #include <QtDebug>
+#include <memory>
 
 #include "library/sidebarmodel.h"
 #include "moc_wlibrarysidebar.cpp"
 #include "util/defs.h"
 #include "util/dnd.h"
 
+namespace {
+
 constexpr int expand_time = 250;
+
+std::shared_ptr<QDropEvent> newSyntheticEvent(QPoint position, const QDropEvent* event) {
+    auto syntheticEvent = std::make_shared<QDropEvent>(
+            position,
+            event->possibleActions(),
+            event->mimeData(),
+            event->buttons(),
+            event->modifiers(),
+            event->type());
+
+    // Copy mutable state from original event
+    syntheticEvent->setAccepted(event->isAccepted());
+    syntheticEvent->setDropAction(event->dropAction());
+
+    return syntheticEvent;
+
+    return syntheticEvent;
+}
+
+std::shared_ptr<QDragMoveEvent> newSyntheticEvent(QPoint position, const QDragMoveEvent* event) {
+    auto syntheticEvent = std::make_shared<QDragMoveEvent>(
+            position,
+            event->possibleActions(),
+            event->mimeData(),
+            event->buttons(),
+            event->modifiers(),
+            event->type());
+
+    // Copy mutable state from original event
+    syntheticEvent->setAccepted(event->isAccepted());
+    syntheticEvent->setDropAction(event->dropAction());
+
+    return syntheticEvent;
+}
+
+void finishSyntheticEvent(std::shared_ptr<QDropEvent> syntheticEvent, QDropEvent* event) {
+    // Mirror modifications back to the original event
+    event->setAccepted(syntheticEvent->isAccepted());
+    event->setDropAction(syntheticEvent->dropAction());
+}
+
+void finishSyntheticEvent(std::shared_ptr<QDragMoveEvent> syntheticEvent, QDropEvent* event) {
+    // Mirror modifications back to the original event
+    event->setAccepted(syntheticEvent->isAccepted());
+    event->setDropAction(syntheticEvent->dropAction());
+}
+
+} // namespace
 
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
@@ -90,28 +141,13 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     if (probableTarget.item != index) {
         // Use the target item that the user likely intended to hit,
         // instead of the one that is currently under the mouse cursor
-        QDragMoveEvent syntheticEvent(
-                probableTarget.position,
-                event->possibleActions(),
-                event->mimeData(),
-                event->buttons(),
-                event->modifiers(),
-                event->type());
-
-        // Copy mutable state from original event
-        syntheticEvent.setAccepted(event->isAccepted());
-        syntheticEvent.setDropAction(event->dropAction());
-
-        // Execute the original handling logic,
-        // but with the synthetic event instead
-        QTreeView::dragMoveEvent(&syntheticEvent);
-
-        // Mirror modifications back to the original event
-        event->setAccepted(syntheticEvent.isAccepted());
-        event->setDropAction(syntheticEvent.dropAction());
+        auto syntheticEvent = newSyntheticEvent(probableTarget.position, event);
+        QTreeView::dragMoveEvent(syntheticEvent.get());
+        finishSyntheticEvent(syntheticEvent, event);
     } else {
         QTreeView::dragMoveEvent(event);
     }
+
     if (event->isAccepted()) {
         event->acceptProposedAction();
     }
@@ -144,25 +180,9 @@ void WLibrarySidebar::dropEvent(QDropEvent* event) {
     if (probableTarget.item != index) {
         // Use the target item that the user likely intended to hit,
         // instead of the one that is currently under the mouse cursor
-        QDropEvent syntheticEvent(
-                probableTarget.position,
-                event->possibleActions(),
-                event->mimeData(),
-                event->buttons(),
-                event->modifiers(),
-                event->type());
-
-        // Copy mutable state from original event
-        syntheticEvent.setAccepted(event->isAccepted());
-        syntheticEvent.setDropAction(event->dropAction());
-
-        // Execute the original handling logic,
-        // but with the synthetic event instead
-        QTreeView::dropEvent(&syntheticEvent);
-
-        // Mirror modifications back to the original event
-        event->setAccepted(syntheticEvent.isAccepted());
-        event->setDropAction(syntheticEvent.dropAction());
+        auto syntheticEvent = newSyntheticEvent(probableTarget.position, event);
+        QTreeView::dropEvent(syntheticEvent.get());
+        finishSyntheticEvent(syntheticEvent, event);
     } else {
         QTreeView::dropEvent(event);
     }
