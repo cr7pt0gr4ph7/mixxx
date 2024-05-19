@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QBasicTimer>
+#include <QElapsedTimer>
 #include <QModelIndex>
 #include <QTreeView>
 
@@ -56,6 +57,8 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
 
     int m_hoverExpandDelay;
     int m_hoverCollapseDelay;
+    QElapsedTimer m_activationTimer;
+    QElapsedTimer m_expirationTimer;
     QModelIndex m_autoExpandIndex;
 
     WLongHoverTracker<QModelIndex> m_longHover;
