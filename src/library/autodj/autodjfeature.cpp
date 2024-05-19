@@ -46,7 +46,7 @@ int findOrCreateAutoDjPlaylistId(PlaylistDAO& playlistDAO) {
 /// Create a title for the Auto DJ node
 QString createAutoDjTitle(const QString& name,
         int count,
-        int duration,
+        mixxx::Duration duration,
         bool showCountRemaining,
         bool showTimeRemaining) {
     QString result(name);
@@ -61,7 +61,8 @@ QString createAutoDjTitle(const QString& name,
     if (count > 0 && showTimeRemaining) {
         result.append(QStringLiteral(" "));
         result.append(mixxx::Duration::formatTime(
-                duration, mixxx::Duration::Precision::SECONDS));
+                duration.toDoubleSeconds(),
+                mixxx::Duration::Precision::SECONDS));
     }
 
     return result;
@@ -93,6 +94,13 @@ AutoDJFeature::AutoDJFeature(Library* pLibrary,
             this,
             &LibraryFeature::loadTrackToPlayer,
             Qt::QueuedConnection);
+
+    // Update the title of the "Auto DJ" node when the
+    // list of queued tracks or their properties have changed.
+    connect(m_pAutoDJProcessor,
+            &AutoDJProcessor::remainingTimeChanged,
+            this,
+            &AutoDJFeature::slotRemainingQueueDurationChanged);
 
     m_playlistDao.setAutoDJProcessor(m_pAutoDJProcessor);
 
@@ -128,13 +136,6 @@ AutoDJFeature::AutoDJFeature(Library* pLibrary,
             this,
             &AutoDJFeature::slotRemoveCrateFromAutoDj);
 
-    // Update the title of the "Auto DJ" node when the
-    // list of queued tracks has changed.
-    connect(&m_playlistDao,
-            &PlaylistDAO::tracksChanged,
-            this,
-            &AutoDJFeature::slotPlaylistContentChanged);
-
     m_pActivateShortcut = new QShortcut(QKeySequence("Ctrl+Shift+A"), this);
     connect(m_pActivateShortcut,
             &QShortcut::activated,
@@ -148,23 +149,20 @@ AutoDJFeature::~AutoDJFeature() {
 }
 
 QVariant AutoDJFeature::title() {
-    PlaylistStatsDAO& playlistStatsDAO =
-            m_pLibrary->trackCollectionManager()->internalCollection()->getPlaylistStatsDAO();
-    auto playlistInfo = playlistStatsDAO.getPlaylistSummary(m_iAutoDJPlaylistId);
-
     return createAutoDjTitle(tr("Auto DJ"),
-            playlistInfo.count,
-            playlistInfo.duration,
+            m_pAutoDJProcessor->getRemainingTracks(),
+            m_pAutoDJProcessor->getRemainingTime(),
             true,
             true);
 }
 
-void AutoDJFeature::slotPlaylistContentChanged(const QSet<int>& playlistIds) {
-    if (playlistIds.contains(m_iAutoDJPlaylistId)) {
-            // As documented by the code docs for featureIsLoading,
-            // it is intended to indicate when the title() has changed.
-            emit featureIsLoading(this, false);
-    }
+void AutoDJFeature::slotRemainingQueueDurationChanged(int numTracks, mixxx::Duration duration) {
+    Q_UNUSED(numTracks);
+    Q_UNUSED(duration);
+
+    // As documented by the code docs for featureIsLoading,
+    // it is intended to indicate when the title() has changed.
+    emit featureIsLoading(this, false);
 }
 
 void AutoDJFeature::bindLibraryWidget(

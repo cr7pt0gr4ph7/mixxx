@@ -11,6 +11,7 @@
 #include "library/libraryfeature.h"
 #include "library/trackset/crate/crate.h"
 #include "preferences/usersettings.h"
+#include "util/duration.h"
 #include "util/parented_ptr.h"
 
 class DlgAutoDJ;
@@ -113,5 +114,5 @@ class AutoDJFeature : public LibraryFeature {
     // Updates the title of the "Auto DJ" node with the number of tracks
     // and remaining duration when tracks are added to or removed from
     // the Auto DJ queue.
-    void slotPlaylistContentChanged(const QSet<int>& playlistIds);
+    void slotRemainingQueueDurationChanged(int len, mixxx::Duration duration);
 };
