@@ -1889,6 +1889,7 @@ void AutoDJProcessor::setTransitionTime(int time) {
             // User has changed the orientation, disable Auto DJ
             toggleAutoDJ(false);
             emit autoDJError(ADJ_NOT_TWO_DECKS);
+            updateRemainingTime();
             return;
         }
         if (pLeftDeck->isPlaying()) {
@@ -1910,7 +1911,9 @@ void AutoDJProcessor::setTransitionMode(TransitionMode newMode) {
     m_transitionMode = newMode;
 
     if (m_eState != ADJ_IDLE) {
-        // We don't want to recalculate a running transition
+        // We don't want to recalculate a running transition,
+        // only the remaining queue play time
+        updateRemainingTime();
         return;
     }
 
@@ -1922,6 +1925,7 @@ void AutoDJProcessor::setTransitionMode(TransitionMode newMode) {
         // User has changed the orientation, disable Auto DJ
         toggleAutoDJ(false);
         emit autoDJError(ADJ_NOT_TWO_DECKS);
+        updateRemainingTime();
         return;
     }
 
