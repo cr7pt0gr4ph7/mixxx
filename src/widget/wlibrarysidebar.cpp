@@ -10,6 +10,7 @@
 #include "util/dnd.h"
 
 constexpr int expand_time = 250;
+constexpr int collapse_time = 750;
 
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
@@ -79,6 +80,11 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
 
     if (m_autoExpandIndex != index) {
         m_autoExpandIndex = index;
+        if (isExpanded(index)) {
+            setAutoExpandDelay(collapse_time);
+        } else {
+            setAutoExpandDelay(expand_time);
+        }
         // QTreeView::dragMoveEvent just restarts the autoExpand timer
         // and then calls QAbstractItemView::dragMoveEvent
         QTreeView::dragMoveEvent(event);
