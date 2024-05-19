@@ -1,5 +1,7 @@
 #include "widget/wmultilinetextedit.h"
 
+#include <QSizeF>
+
 #include "moc_wmultilinetextedit.cpp"
 
 WMultiLineTextEdit::WMultiLineTextEdit(QWidget* parent)
@@ -21,5 +23,5 @@ QSize WMultiLineTextEdit::sizeHintImpl(const int minLines) const {
     const auto h = 2 * frameWidth() + 2 * document()->documentMargin() +
             QFontMetrics(font()).lineSpacing() * minLines;
 
-    return QSize(w, h);
+    return QSizeF(w, h).toSize();
 }
