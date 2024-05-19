@@ -6,6 +6,7 @@
 
 #include "library/library_decl.h"
 #include "widget/wbasewidget.h"
+#include "widget/wlonghovertracker.h"
 
 class LibraryFeature;
 class QPoint;
@@ -46,4 +47,5 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
   private:
     void focusSelectedIndex();
     QModelIndex selectedIndex();
+    WLongHoverTracker<QModelIndex> m_longHover;
 };
