@@ -59,9 +59,9 @@ void WBeatSpinBox::stepBy(int steps) {
         if (!m_useFineSteps) {
             newValue = newValue * pow(2, steps);
         } else if (steps < 0) {
-            newValue = std::ceil(newValue) - steps;
+            newValue = std::ceil(newValue) + steps;
         } else if (steps > 0) {
-            newValue = std::floor(newValue) - steps;
+            newValue = std::floor(newValue) + steps;
         }
     } else {
         // here we have an unacceptable edit, going back to the old value first
