@@ -379,34 +379,35 @@ void DlgAutoDJ::slotRepeatPlaylistChanged(bool checked) {
 }
 
 void DlgAutoDJ::updateSelectionInfo() {
+    // Obtain the total duration of the whole remaining Auto DJ queue
+    // from the Auto DJ processor. The calculated time is exact and
+    // takes transition times, intros, outros etc. into account.
+    mixxx::Duration totalDuration = m_pAutoDJProcessor->getRemainingTime();
+    int totalTracks = m_pAutoDJTableModel->rowCount();
+
+    // Derive total duration of the selected tracks from the table model.
+    // This is much faster than getting the duration from individual track
+    // objects (but does not take transition times into account...)
     QModelIndexList indices = m_pTrackTableView->selectionModel()->selectedRows();
+    mixxx::Duration selectedDuration = m_pAutoDJTableModel->getTotalDuration(indices);
+    int selectedTracks = indices.size();
 
+    // Total tracks
+    QString label;
+    label.append(tr("Total: "));
+    label.append(mixxx::DurationBase::formatTime(totalDuration.toDoubleSeconds()));
+    label.append(QString(" (%1)").arg(totalTracks));
+
+    // Selected tracks
     if (!indices.isEmpty()) {
-        // Derive total duration from the table model. This is much faster than
-        // getting the duration from individual track objects.
-        mixxx::Duration duration = m_pAutoDJTableModel->getTotalDuration(indices);
-
-        QString label;
-        label.append(mixxx::DurationBase::formatTime(duration.toDoubleSeconds()));
-        label.append(QString(" (%1)").arg(indices.size()));
-        labelSelectionInfo->setToolTip(tr("Displays the duration and number of selected tracks."));
-        labelSelectionInfo->setText(label);
-        labelSelectionInfo->setEnabled(true);
-    } else {
-        int tracksCount = m_pAutoDJTableModel->rowCount();
-        ;
-        mixxx::Duration duration = m_pAutoDJProcessor->getRemainingTime();
-
-        QString label;
-        label.append(tr("Total: "));
-        label.append(mixxx::DurationBase::formatTime(duration.toDoubleSeconds()));
-        label.append(QString(" (%1)").arg(tracksCount));
-        labelSelectionInfo->setToolTip(
-                tr("Displays the duration and number of tracks in the Auto DJ "
-                   "queue."));
-        labelSelectionInfo->setText(label);
-        labelSelectionInfo->setEnabled(true);
+        label.append(tr(" | Selected: "));
+        label.append(mixxx::DurationBase::formatTime(selectedDuration.toDoubleSeconds()));
+        label.append(QString(" (%1)").arg(selectedTracks));
     }
+
+    labelSelectionInfo->setToolTip(tr("Displays the duration and number of selected tracks."));
+    labelSelectionInfo->setText(label);
+    labelSelectionInfo->setEnabled(true);
 }
 
 bool DlgAutoDJ::hasFocus() const {
