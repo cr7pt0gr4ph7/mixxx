@@ -1,5 +1,6 @@
 #include "library/dlgtrackinfo.h"
 
+#include <QShortcut>
 #include <QSignalBlocker>
 #include <QStyleFactory>
 #include <QtDebug>
