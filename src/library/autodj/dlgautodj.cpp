@@ -264,6 +264,10 @@ void DlgAutoDJ::onSearch(const QString& text) {
     m_pTrackTableView->onSearch(text);
 }
 
+const QString DlgAutoDJ::currentSearch() const {
+    return m_pProxyTableModel->currentSearch();
+}
+
 void DlgAutoDJ::activateSelectedTrack() {
     m_pTrackTableView->activateSelectedTrack();
 }
