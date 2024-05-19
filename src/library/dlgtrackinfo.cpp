@@ -80,7 +80,7 @@ void DlgTrackInfo::init() {
 
     // Workaround: Align the baseline of the "Comments" label
     // with the baseline of the text inside the comments field
-    const int topMargin = txtComment->frameWidth() + txtComment->document()->documentMargin();
+    const int topMargin = txtComment->frameWidth() + int(txtComment->document()->documentMargin());
     lblTrackComment->setContentsMargins(0, topMargin, 0, 0);
 
     if (m_pTrackModel) {
