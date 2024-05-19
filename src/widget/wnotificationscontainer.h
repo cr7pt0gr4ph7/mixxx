@@ -19,7 +19,8 @@ class WNotificationsContainer : public QWidget {
     virtual void setup(const QDomNode& node, const SkinContext& context);
 
   protected:
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent* event) override;
+    bool eventFilter(QObject* target, QEvent* event) override;
 
   private slots:
     void slotShowNotification(WNotificationEvent event);
