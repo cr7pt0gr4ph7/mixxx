@@ -131,7 +131,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="txtArtist">
+             <widget class="WBasicLineEdit" name="txtArtist">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -163,7 +163,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="txtAlbum">
+             <widget class="WBasicLineEdit" name="txtAlbum">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -195,7 +195,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLineEdit" name="txtAlbumArtist">
+             <widget class="WBasicLineEdit" name="txtAlbumArtist">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -255,7 +255,7 @@
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QLineEdit" name="txtComposer">
+             <widget class="WBasicLineEdit" name="txtComposer">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -278,7 +278,7 @@
              </widget>
             </item>
             <item row="4" column="3">
-             <widget class="QLineEdit" name="txtYear">
+             <widget class="WBasicLineEdit" name="txtYear">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -298,7 +298,7 @@
              </widget>
             </item>
             <item row="5" column="1">
-             <widget class="QLineEdit" name="txtGenre">
+             <widget class="WBasicLineEdit" name="txtGenre">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -321,7 +321,7 @@
              </widget>
             </item>
             <item row="5" column="3">
-             <widget class="QLineEdit" name="txtKey">
+             <widget class="WBasicLineEdit" name="txtKey">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -347,7 +347,7 @@
              </widget>
             </item>
             <item row="6" column="1">
-             <widget class="QLineEdit" name="txtGrouping">
+             <widget class="WBasicLineEdit" name="txtGrouping">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -370,7 +370,7 @@
              </widget>
             </item>
             <item row="6" column="3">
-             <widget class="QLineEdit" name="txtTrackNumber">
+             <widget class="WBasicLineEdit" name="txtTrackNumber">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -449,7 +449,7 @@
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>40</width>
+                  <width>0</width>
                   <height>10</height>
                  </size>
                 </property>
@@ -521,7 +521,7 @@
              </widget>
             </item>
             <item row="0" column="3">
-             <widget class="QLabel" name="txtType">
+             <widget class="WBasicLabel" name="txtType">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -547,7 +547,7 @@
              </widget>
             </item>
             <item row="4" column="1" colspan="3">
-             <widget class="QLabel" name="txtLocation">
+             <widget class="WBasicLabel" name="txtLocation">
               <property name="text">
                <string/>
               </property>
@@ -598,7 +598,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="txtBpm">
+             <widget class="WBasicLabel" name="txtBpm">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -614,7 +614,7 @@
              </widget>
             </item>
             <item row="1" column="3">
-             <widget class="QLabel" name="txtBitrate">
+             <widget class="WBasicLabel" name="txtBitrate">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -630,7 +630,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLabel" name="txtDuration">
+             <widget class="WBasicLabel" name="txtDuration">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -653,7 +653,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLabel" name="txtDateLastPlayed">
+             <widget class="WBasicLabel" name="txtDateLastPlayed">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -683,7 +683,7 @@
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QLabel" name="txtReplayGain">
+             <widget class="WBasicLabel" name="txtReplayGain">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -699,7 +699,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLabel" name="txtDateAdded">
+             <widget class="WBasicLabel" name="txtDateAdded">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -722,7 +722,7 @@
              </widget>
             </item>
             <item row="2" column="3">
-             <widget class="QLabel" name="txtSamplerate">
+             <widget class="WBasicLabel" name="txtSamplerate">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -1080,6 +1080,16 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>WBasicLabel</class>
+   <extends>QLabel</extends>
+   <header>widget/wbasiclabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>WBasicLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widget/wbasiclineedit.h</header>
+  </customwidget>
   <customwidget>
    <class>WBasicPushButton</class>
    <extends>QPushButton</extends>
