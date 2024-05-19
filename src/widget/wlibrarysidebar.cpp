@@ -66,6 +66,7 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
 /// Drag leave event, happens when the dragged item leaves the track sources view
 /// or when the drag is aborted through Escape or other means.
 void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
+    m_autoExpandIndex = QModelIndex();
     QTreeView::dragLeaveEvent(event);
 }
 
@@ -75,7 +76,18 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
-    QTreeView::dragMoveEvent(event);
+
+    if (m_autoExpandIndex != index) {
+        m_autoExpandIndex = index;
+        // QTreeView::dragMoveEvent just restarts the autoExpand timer
+        // and then calls QAbstractItemView::dragMoveEvent
+        QTreeView::dragMoveEvent(event);
+    } else {
+        // Skip resetting the autoExpand timer (see above)
+        // because we are still hovering over the same item
+        QAbstractItemView::dragMoveEvent(event);
+    }
+
     if (event->isAccepted()) {
         event->acceptProposedAction();
     }
@@ -86,17 +98,14 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
 
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
 void WLibrarySidebar::dropEvent(QDropEvent* event) {
+    m_autoExpandIndex = QModelIndex();
+
     auto* sidebarModel = qobject_cast<SidebarModel*>(model());
     if (sidebarModel) {
         // event->source() will be NULL if something is dropped
         // from a different application. This knowledge is used
         // inside the LibraryFeature implementations.
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
-    }
-    QTreeView::dropEvent(event);
-    if (event->isAccepted()) {
-        event->acceptProposedAction();
-    }
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
     }
