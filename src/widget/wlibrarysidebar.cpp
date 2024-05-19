@@ -14,6 +14,7 @@
 namespace {
 
 constexpr int expand_time = 250;
+constexpr int collapse_time = 750;
 
 std::shared_ptr<QDropEvent> newSyntheticEvent(QPoint position, const QDropEvent* event) {
     auto syntheticEvent = std::make_shared<QDropEvent>(
@@ -118,6 +119,11 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
 
     if (m_autoExpandIndex != index) {
         m_autoExpandIndex = index;
+        if (isExpanded(index)) {
+            setAutoExpandDelay(collapse_time);
+        } else {
+            setAutoExpandDelay(expand_time);
+        }
         // QTreeView::dragMoveEvent just restarts the autoExpand timer
         // and then calls QAbstractItemView::dragMoveEvent
         QTreeView::dragMoveEvent(event);
