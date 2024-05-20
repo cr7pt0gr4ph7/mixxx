@@ -108,6 +108,22 @@ void WStarRating::keyPressEvent(QKeyEvent* event) {
         newRating--;
         break;
     }
+    case Qt::Key_Up: {
+        if (m_upDownChangesFocus && focusPreviousChild()) {
+            event->accept();
+        } else {
+            event->ignore();
+        }
+        return;
+    }
+    case Qt::Key_Down: {
+        if (m_upDownChangesFocus && focusNextChild()) {
+            event->accept();
+        } else {
+            event->ignore();
+        }
+        return;
+    }
     default: {
         event->ignore();
         return;
