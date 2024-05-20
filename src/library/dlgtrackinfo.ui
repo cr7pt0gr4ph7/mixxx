@@ -1102,6 +1102,11 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
    <header>widget/wbasicpushbutton.h</header>
   </customwidget>
   <customwidget>
+   <class>WBasicTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>widget/wbasictabwidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>WMultiLineTextEdit</class>
    <extends>QLineEdit</extends>
    <header>widget/wmultilinetextedit.h</header>
