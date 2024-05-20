@@ -128,6 +128,13 @@ WSearchLineEdit::WSearchLineEdit(QWidget* pParent, UserSettingsPointer pConfig)
             this,
             &WSearchLineEdit::slotSetShortcutFocus);
 
+    QShortcut* switchToTracksAndSetFocusShortcut =
+            new QShortcut(QKeySequence("Ctrl+Shift+F"), this);
+    connect(switchToTracksAndSetFocusShortcut,
+            &QShortcut::activated,
+            this,
+            &WSearchLineEdit::slotSwitchToTracksAndSetFocusShortcut);
+
     // Set up a timer to search after a few hundred milliseconds timeout.  This
     // stops us from thrashing the database if you type really fast.
     m_debouncingTimer.setSingleShot(true);
@@ -799,6 +806,12 @@ void WSearchLineEdit::slotSetShortcutFocus() {
     } else {
         setFocus(Qt::ShortcutFocusReason);
     }
+}
+
+void WSearchLineEdit::slotSwitchToTracksAndSetFocusShortcut() {
+    emit switchToLibraryFeature(LibraryFeatureName::Tracks);
+    setFocus(Qt::ShortcutFocusReason);
+    lineEdit()->selectAll();
 }
 
 // Use the same font as the library table and the sidebar
