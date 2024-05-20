@@ -12,16 +12,18 @@ WBasicLabel::WBasicLabel(const QString& text, QWidget* parent, Qt::WindowFlags f
 }
 
 void WBasicLabel::keyPressEvent(QKeyEvent* event) {
-    bool noModifiersPressed = event->modifiers() &
+    bool noModifiersPressed = !(event->modifiers() &
             (Qt::ControlModifier | Qt::AltModifier |
-                    Qt::ShiftModifier | Qt::MetaModifier);
+                    Qt::ShiftModifier | Qt::MetaModifier));
 
     if (event->key() == Qt::Key_Up && noModifiersPressed) {
         if (focusPreviousChild()) {
+            event->accept();
             return;
         }
     } else if (event->key() == Qt::Key_Down && noModifiersPressed) {
         if (focusNextChild()) {
+            event->accept();
             return;
         }
     }
