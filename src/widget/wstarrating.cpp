@@ -5,6 +5,7 @@
 #include <QStylePainter>
 
 #include "moc_wstarrating.cpp"
+#include "skin/legacy/skincontext.h"
 
 class QEvent;
 class QWidgets;
@@ -22,7 +23,12 @@ void WStarRating::setup(const QDomNode& node, const SkinContext& context) {
     Q_UNUSED(node);
     Q_UNUSED(context);
     setMouseTracking(true);
-    setFocusPolicy(Qt::NoFocus);
+
+    if (context.selectBool(node, "Focusable", false)) {
+        setFocusPolicy(Qt::StrongFocus);
+    } else {
+        setFocusPolicy(Qt::NoFocus);
+    }
 }
 
 QSize WStarRating::sizeHint() const {
