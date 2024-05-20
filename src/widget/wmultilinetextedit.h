@@ -14,6 +14,9 @@ class WMultiLineTextEdit : public QPlainTextEdit {
     QSize minimumSizeHint() const override;
     QSize sizeHint() const override;
 
+  protected:
+    bool event(QEvent* e) override;
+
   private:
     QSize sizeHintImpl(const int minLines) const;
 };
