@@ -12,6 +12,7 @@ class QWidgets;
 
 WStarRating::WStarRating(QWidget* pParent)
         : WWidget(pParent),
+          m_upDownChangesFocus(false),
           m_starCount(0),
           m_visualStarRating(m_starCount) {
     setAttribute(Qt::WA_Hover);
