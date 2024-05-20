@@ -864,9 +864,14 @@ void MixxxMainWindow::connectMenuBar() {
 
     if (m_pCoreServices->getLibrary()) {
         connect(m_pMenuBar,
-                &WMainMenuBar::createCrate,
+                &WMainMenuBar::searchInCurrentView,
                 m_pCoreServices->getLibrary().get(),
-                &Library::slotCreateCrate,
+                &Library::slotSearchInCurrentView,
+                Qt::UniqueConnection);
+        connect(m_pMenuBar,
+                &WMainMenuBar::searchInInternalDatabase,
+                m_pCoreServices->getLibrary().get(),
+                &Library::slotSearchInInternalDatabase,
                 Qt::UniqueConnection);
         connect(m_pMenuBar,
                 &WMainMenuBar::createPlaylist,

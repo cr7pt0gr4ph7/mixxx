@@ -94,6 +94,10 @@ class Library: public QObject {
     void setRowHeight(int rowHeight);
     void setEditMetadataSelectedClick(bool enable);
 
+    /// Switches to the internal track collection view
+    /// and focuses the search box.
+    void searchTracksInCollection();
+
     /// Triggers a new search in the internal track collection
     /// and shows the results by switching the view.
     void searchTracksInCollection(const QString& query);
@@ -115,6 +119,8 @@ class Library: public QObject {
     void slotRequestAddDir(const QString& directory);
     void slotRequestRemoveDir(const QString& directory, LibraryRemovalType removalType);
     void slotRequestRelocateDir(const QString& previousDirectory, const QString& newDirectory);
+    void slotSearchInCurrentView();
+    void slotSearchInInternalDatabase();
     void onSkinLoadFinished();
 
   signals:
