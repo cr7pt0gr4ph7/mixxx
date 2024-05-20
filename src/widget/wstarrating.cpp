@@ -5,6 +5,7 @@
 #include <QStylePainter>
 
 #include "moc_wstarrating.cpp"
+#include "skin/legacy/skincontext.h"
 
 class QEvent;
 class QWidgets;
@@ -13,6 +14,7 @@ WStarRating::WStarRating(QWidget* pParent)
         : WWidget(pParent),
           m_starCount(0),
           m_visualStarRating(m_starCount) {
+    setAttribute(Qt::WA_Hover);
 }
 
 void WStarRating::setup(const QDomNode& node, const SkinContext& context) {
@@ -41,14 +43,18 @@ void WStarRating::paintEvent(QPaintEvent * /*unused*/) {
     QStylePainter painter(this);
 
     // Center rating horizontally and vertically
-    QSize ratingHint = m_visualStarRating.sizeHint();
-    QRect contentRect(
-            (size().width() - ratingHint.width()) / 2,
-            (size().height() - ratingHint.height()) / 2,
-            ratingHint.width(),
-            ratingHint.height());
+    QRect contentRect(QPoint(0, 0), m_visualStarRating.sizeHint());
+    contentRect.moveCenter(option.rect.center());
 
     painter.drawPrimitive(QStyle::PE_Widget, option);
+
+    if (focusPolicy() != Qt::NoFocus &&
+            ((option.state & QStyle::State_HasFocus) ||
+                    (option.state & QStyle::State_MouseOver))) {
+        painter.setBrush(option.palette.highlight().color());
+    } else {
+        painter.setBrush(option.palette.text().color());
+    }
 
     m_visualStarRating.paint(&painter, contentRect);
 }
