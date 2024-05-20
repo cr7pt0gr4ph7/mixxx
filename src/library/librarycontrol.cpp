@@ -875,12 +875,6 @@ FocusWidget LibraryControl::getFocusedWidget() {
 }
 
 void LibraryControl::setLibraryFocus(FocusWidget newFocusWidget) {
-    if (!QApplication::focusWindow()) {
-        qInfo() << "No Mixxx window, popup or menu has focus."
-                << "Don't attempt to focus a specific widget.";
-        return;
-    }
-
     // ignore no-op
     if (newFocusWidget == m_focusedWidget) {
         return;
