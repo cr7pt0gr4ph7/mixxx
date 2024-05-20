@@ -25,6 +25,7 @@ class WMultiLineTextEdit : public QPlainTextEdit {
     QSize sizeHint() const override;
 
   protected:
+    bool event(QEvent* e) override;
     void keyPressEvent(QKeyEvent* event) override;
 
   private:
