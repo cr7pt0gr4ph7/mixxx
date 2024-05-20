@@ -31,7 +31,7 @@ inline int idealColumnCount(int numItems) {
             break;
         }
         if (remainder > numColumnsRemainder) {
-            numColumnsRemainder = numColumnsCandidate;
+            numColumnsRemainder = remainder;
             numColumns = numColumnsCandidate;
         }
     }
