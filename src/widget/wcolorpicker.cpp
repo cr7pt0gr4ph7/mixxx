@@ -2,11 +2,13 @@
 
 #include <QColorDialog>
 #include <QGridLayout>
+#include <QKeyEvent>
 #include <QPushButton>
 #include <QStyle>
 #include <QStyleFactory>
 
 #include "moc_wcolorpicker.cpp"
+#include "util/optional.h"
 #include "util/parented_ptr.h"
 
 namespace {
@@ -37,17 +39,23 @@ inline int idealColumnCount(int numItems) {
     return numColumns;
 }
 
-WColorGridButton::WColorGridButton(mixxx::RgbColor color, int row, int column, QWidget* parent)
-        : QPushButton(parent),
-          m_color(color),
-          m_row(row),
-          m_column(column) {
-    // Set the background color of the button.
-    /// This can't be overridden in skin stylesheets.
-    setStyleSheet(
-            QString("QPushButton { background-color: %1; }")
-                    .arg(mixxx::RgbColor::toQString(color)));
-    setToolTip(mixxx::RgbColor::toQString(color));
+WColorGridButton::WColorGridButton(const mixxx::RgbColor::optional_t& color,
+        int row,
+        int column,
+        QWidget* parent)
+        : QPushButton(parent), m_color(color), m_row(row), m_column(column) {
+    if (color) {
+        // Set the background color of the button.
+        // This can't be overridden in skin stylesheets.
+        setStyleSheet(
+                QString("QPushButton { background-color: %1; }")
+                        .arg(mixxx::RgbColor::toQString(color.value())));
+        setToolTip(mixxx::RgbColor::toQString(color.value()));
+    } else {
+        setProperty("noColor", true);
+        setToolTip(tr("No color"));
+    }
+
     setCheckable(true);
 
     // Without this the button might shrink when setting the checkmark icon,
@@ -56,23 +64,79 @@ WColorGridButton::WColorGridButton(mixxx::RgbColor color, int row, int column, Q
 }
 
 void WColorGridButton::keyPressEvent(QKeyEvent* event) {
-    if (!handleNavigation(event)) {
+    qDebug() << "WColorGridButton::keyPressEvent()" << event;
+    if (handleNavigation(event)) {
+        // Already handled completely
+    } else if (event->key() == Qt::Key_Return) {
+        // Key_Return should act the same as Key_Space
+        setDown(true);
+    } else {
         QPushButton::keyPressEvent(event);
     }
 }
 
+void WColorGridButton::keyReleaseEvent(QKeyEvent* event) {
+    qDebug() << "WColorGridButton::keyReleaseEvent()" << event;
+
+    if (event->key() == Qt::Key_Return && !event->isAutoRepeat() && isDown()) {
+        click();
+    } else {
+        QPushButton::keyReleaseEvent(event);
+    }
+}
+
 bool WColorGridButton::handleNavigation(QKeyEvent* event) {
-    auto* pParent = qobject_cast<QWidget*>(parent());
+    QWidget* pParent = qobject_cast<QWidget*>(parent());
     if (!pParent) {
         return false;
     }
 
-    auto* pLayout = qobject_cast<QGridLayout*>(pParent->layout());
-    if (!pLayout) {
+    QGridLayout* pGridLayout = qobject_cast<QGridLayout*>(pParent->layout());
+    if (!pGridLayout) {
         return false;
     }
 
-    return false;
+    const int maxRow = pGridLayout->rowCount() - 1;
+    const int maxColumn = pGridLayout->columnCount() - 1;
+    int newRow = m_row;
+    int newColumn = m_column;
+
+    switch (event->key()) {
+    case Qt::Key_Up: {
+        newRow = qBound(0, newRow - 1, maxRow);
+        break;
+    }
+    case Qt::Key_Down: {
+        newRow = qBound(0, newRow + 1, maxRow);
+        break;
+    }
+    case Qt::Key_Left: {
+        newColumn = qBound(0, newColumn - 1, maxColumn);
+        break;
+    }
+    case Qt::Key_Right: {
+        newColumn = qBound(0, newColumn + 1, maxColumn);
+        break;
+    }
+    default: {
+        return false;
+    }
+    }
+
+    QLayoutItem* pNewItem = pGridLayout->itemAtPosition(newRow, newColumn);
+    if (!pNewItem) {
+        // May happen when itemCount < (rowCount * columnCount),
+        // i.e. when some cells in the grid are empty.
+        return false;
+    }
+
+    QWidget* pNewFocus = pNewItem->widget();
+    if (!pNewFocus) {
+        return false;
+    }
+
+    pNewFocus->setFocus();
+    return true;
 }
 
 WColorPicker::WColorPicker(Options options, const ColorPalette& palette, QWidget* parent)
@@ -190,6 +254,7 @@ void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, i
             &QPushButton::clicked,
             this,
             [this, color]() {
+                qDebug() << "WColorGridButton::clicked()" << color;
                 emit colorPicked(mixxx::RgbColor::optional(color));
             });
 
@@ -197,25 +262,23 @@ void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, i
 }
 
 void WColorPicker::addNoColorButton(QGridLayout* pLayout, int row, int column) {
-    QPushButton* pButton = m_pNoColorButton;
-    if (!pButton) {
-        pButton = make_parented<QPushButton>("", this);
-        if (m_pStyle) {
-            pButton->setStyle(m_pStyle);
-        }
-
-        pButton->setProperty("noColor", true);
-        pButton->setToolTip(tr("No color"));
-        pButton->setCheckable(true);
-        pButton->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-        connect(pButton,
-                &QPushButton::clicked,
-                this,
-                [this]() {
-                    emit colorPicked(std::nullopt);
-                });
-        m_pNoColorButton = pButton;
+    VERIFY_OR_DEBUG_ASSERT(!m_pNoColorButton) {
+        return;
     }
+
+    auto pButton = make_parented<WColorGridButton>(std::nullopt, row, column, this);
+    if (m_pStyle) {
+        pButton->setStyle(m_pStyle);
+    }
+
+    connect(pButton,
+            &QPushButton::clicked,
+            this,
+            [this]() {
+                emit colorPicked(std::nullopt);
+            });
+
+    m_pNoColorButton = pButton;
     pLayout->addWidget(pButton, row, column);
 }
 
@@ -269,10 +332,12 @@ void WColorPicker::setColorButtonChecked(const mixxx::RgbColor::optional_t& colo
 }
 
 void WColorPicker::resetSelectedColor() {
+    qDebug() << "WColorPicker::resetSelectedColor()";
     setColorButtonChecked(m_selectedColor, false);
 }
 
 void WColorPicker::setSelectedColor(const mixxx::RgbColor::optional_t& color) {
+    qDebug() << "WColorPicker::setSelectedColor()";
     resetSelectedColor();
 
     m_selectedColor = color;
@@ -291,5 +356,6 @@ void WColorPicker::setColorPalette(const ColorPalette& palette) {
 }
 
 void WColorPicker::slotColorPicked(const mixxx::RgbColor::optional_t& color) {
+    qDebug() << "WColorPicker::slotColorPicked()" << color;
     setSelectedColor(color);
 }

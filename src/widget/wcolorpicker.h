@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QMenu>
 #include <QPushButton>
 #include <QStyle>
 #include <QWidget>
@@ -14,15 +15,19 @@ class WColorPicker;
 class WColorGridButton : public QPushButton {
     Q_OBJECT
   public:
-    WColorGridButton(mixxx::RgbColor color, int row, int column, QWidget* parent = nullptr);
+    WColorGridButton(const mixxx::RgbColor::optional_t& color,
+            int row,
+            int column,
+            QWidget* parent = nullptr);
 
   protected:
     void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
 
   private:
     bool handleNavigation(QKeyEvent* event);
 
-    mixxx::RgbColor m_color;
+    mixxx::RgbColor::optional_t m_color;
     int m_row;
     int m_column;
     WColorPicker* m_pColorPicker;
@@ -31,8 +36,6 @@ class WColorGridButton : public QPushButton {
 class WColorPicker : public QWidget {
     Q_OBJECT
   public:
-    friend class WColorPickerItemButton;
-
     enum class Option {
         NoOptions = 0,
         AllowNoColor = 1,
