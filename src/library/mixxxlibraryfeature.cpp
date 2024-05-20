@@ -172,7 +172,7 @@ void MixxxLibraryFeature::searchAndActivate(const QString& query) {
         return;
     }
     m_pLibraryTableModel->search(query);
-    activate();
+    selectAndActivate();
 }
 
 #ifdef __ENGINEPRIME__
