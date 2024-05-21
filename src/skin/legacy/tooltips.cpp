@@ -692,6 +692,15 @@ void Tooltips::addStandardTooltips() {
     add("autodj_status")
             << tr("Auto DJ is active");
 
+    add("autodj_queue_remaining_time")
+            << tr("Auto DJ: %1 remaining");
+
+    add("autodj_queue_remaining_tracks")
+            << tr("Auto DJ: %1 tracks in queue");
+
+    add("autodj_queue_remaining_tracks_and_time")
+            << tr("Auto DJ: %1 tracks in queue, %2 remaining");
+
     add("passthrough_enabled")
             << tr("Enable Passthrough")
             << tr("When enabled, the deck directly plays the audio arriving on the vinyl input.");
