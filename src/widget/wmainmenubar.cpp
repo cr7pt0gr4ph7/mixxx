@@ -169,8 +169,7 @@ void WMainMenuBar::initialize() {
     QString searchHereText = tr("Search in current view...");
     auto* pSearchHere = new QAction(searchHereTitle, this);
     pSearchHere->setShortcut(
-            QKeySequence(m_pKbd->registerMenuBarActionGetKeySeqString(
-                    pSearchHere,
+            QKeySequence(m_pKbdConfig->getValue(
                     ConfigKey("[KeyboardShortcuts]", "LibraryMenu_SearchHere"),
                     tr("Ctrl+f"))));
     pSearchHere->setShortcutContext(Qt::ApplicationShortcut);
@@ -183,8 +182,7 @@ void WMainMenuBar::initialize() {
     QString searchAllText = tr("Search in the internal track collection");
     auto* pSearchAll = new QAction(searchAllTitle, this);
     pSearchAll->setShortcut(
-            QKeySequence(m_pKbd->registerMenuBarActionGetKeySeqString(
-                    pSearchAll,
+            QKeySequence(m_pKbdConfig->getValue(
                     ConfigKey("[KeyboardShortcuts]", "LibraryMenu_SearchAll"),
                     tr("Ctrl+Shift+F"))));
     pSearchAll->setShortcutContext(Qt::ApplicationShortcut);
