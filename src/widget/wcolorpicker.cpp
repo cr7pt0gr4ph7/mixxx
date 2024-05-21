@@ -244,16 +244,13 @@ void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, i
     if (m_pStyle) {
         pButton->setStyle(m_pStyle);
     }
-
     m_colorButtons.append(pButton);
-
     connect(pButton,
             &QPushButton::clicked,
             this,
             [this, color]() {
                 emit colorPicked(mixxx::RgbColor::optional(color));
             });
-
     pLayout->addWidget(pButton, row, column);
 }
 
@@ -266,14 +263,12 @@ void WColorPicker::addNoColorButton(QGridLayout* pLayout, int row, int column) {
     if (m_pStyle) {
         pButton->setStyle(m_pStyle);
     }
-
     connect(pButton,
             &QPushButton::clicked,
             this,
             [this]() {
                 emit colorPicked(std::nullopt);
             });
-
     m_pNoColorButton = pButton;
     pLayout->addWidget(pButton, row, column);
 }
