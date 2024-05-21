@@ -6,7 +6,7 @@
 #         in parallel, but should be integrated into the main branch
 #         in a linearized fashion.
 #
-# RERERE: The script asumes that https://git-scm.com/book/en/v2/Git-Tools-Rerere
+# RERERE: The script assumes that https://git-scm.com/book/en/v2/Git-Tools-Rerere
 #         is enabled to allow for automatic conflict resolution, but should also
 #         work if it isn't. To enable it, run:
 #
@@ -42,6 +42,7 @@ function merge_branch() {
     local source_branch=origin/$feature_branch
     local target_branch=staging
     local message_prefix=""
+    local conflict_message_prefix=""
 
     case $branch_type in
     "")
@@ -49,31 +50,50 @@ function merge_branch() {
         origin/ready-for-merge/*)
             local branch_type=ready
             local message_prefix="[Preview] "
+            local conflict_message_prefix="[Preview/Conflicts] "
             ;;
         origin/wip/*)
             local branch_type=wip
             local message_prefix="[WIP] "
+            local conflict_message_prefix="[WIP/Conflicts] "
             ;;
         "")
             local branch_type=unknown
             local message_prefix="[Preview/WIP] "
+            local conflict_message_prefix="[Preview/WIP/Conflicts] "
             ;;
         esac
         ;;
 
     ready-for-merge)
         local message_prefix="[Preview] "
+        local conflict_message_prefix="[WIP/Conflicts] "
         ;;
     wip)
         local message_prefix="[WIP] "
+        local conflict_message_prefix="[WIP/Conflicts] "
         ;;
     esac
 
     if git merge-base --is-ancestor "$source_branch" HEAD; then
         echo "[Skipped] $source_branch has already been merged into the target branch"
     else
-        echo "[Merging] $source_branch is being merged"
-        git merge --rerere-autoupdate -m "${message_prefix}Merge remote-tracking branch '$source_branch' into '$target_branch'" $source_branch
+        echo "[Merging] $source_branch (type: $branch_type) is being merged"
+        local commit_message="Merge remote-tracking branch '$source_branch' into '$target_branch'"
+
+        git merge --rerere-autoupdate -m "${message_prefix}$commit_message" "$source_branch" && git_merge_exitcode=$? || git_merge_exitcode=$?
+        if [ "$git_merge_exitcode" -ne 0 ]; then
+            # There was a conflict, but rerere might have already resolved it.
+            # Check if the working directory is clean to see if that is the case.
+            git diff --quiet && git_diff_exitcode=$? || git_diff_exitcode=$?
+            if [ "$git_diff_exitcode" -eq 0 ]; then
+                echo "It seems like all conflicts could be automatically resolved. Committing the result and continuing."
+                git commit -m "${conflict_message_prefix}$commit_message"
+            else
+                echo "[Warning] Merge failed. Please resolve all merge conflicts, commit the result and rerun this script."
+                exit 1
+            fi
+        fi
     fi
 }
 
