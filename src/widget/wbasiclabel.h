@@ -14,6 +14,10 @@ class WBasicLabel : public QLabel {
             QWidget* parent = nullptr,
             Qt::WindowFlags f = Qt::WindowFlags());
 
+    /// Select all text in this widget.
+    void selectAll();
+
   protected:
+    void focusInEvent(QFocusEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
 };
