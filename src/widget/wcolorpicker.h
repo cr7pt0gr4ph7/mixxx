@@ -30,7 +30,6 @@ class WColorGridButton : public QPushButton {
     mixxx::RgbColor::optional_t m_color;
     int m_row;
     int m_column;
-    WColorPicker* m_pColorPicker;
 };
 
 class WColorPicker : public QWidget {
