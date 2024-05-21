@@ -10,6 +10,15 @@
 [Mixxx] is Free DJ software that gives you everything you need to perform live
 DJ mixes. Mixxx works on GNU/Linux, Windows, and macOS.
 
+## Foreword: `staging` branch
+
+This is a CI branch that integrates the changes from my
+[various feature branches](https://github.com/cr7pt0gr4ph7/mixxx/branches)
+on top of the current Mixxx [`main`](https://github.com/mixxxdj/mixxx/tree/main) branch.
+
+It is subject to be rebased without notice, because it simulates how the main
+branch would look after merging the changes from the feature branches.
+
 ## Quick Start
 
 To get started with Mixxx:
