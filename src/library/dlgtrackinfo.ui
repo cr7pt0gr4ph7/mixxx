@@ -515,7 +515,7 @@
              </widget>
             </item>
             <item row="0" column="3">
-             <widget class="QLabel" name="txtType">
+             <widget class="WBasicLabel" name="txtType">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -541,7 +541,7 @@
              </widget>
             </item>
             <item row="4" column="1" colspan="3">
-             <widget class="QLabel" name="txtLocation">
+             <widget class="WBasicLabel" name="txtLocation">
               <property name="text">
                <string/>
               </property>
@@ -592,7 +592,7 @@
              </layout>
             </item>
             <item row="1" column="1">
-             <widget class="QLabel" name="txtBpm">
+             <widget class="WBasicLabel" name="txtBpm">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -608,7 +608,7 @@
              </widget>
             </item>
             <item row="1" column="3">
-             <widget class="QLabel" name="txtBitrate">
+             <widget class="WBasicLabel" name="txtBitrate">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -624,7 +624,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLabel" name="txtDuration">
+             <widget class="WBasicLabel" name="txtDuration">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -647,7 +647,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QLabel" name="txtDateLastPlayed">
+             <widget class="WBasicLabel" name="txtDateLastPlayed">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -677,7 +677,7 @@
              </widget>
             </item>
             <item row="3" column="3">
-             <widget class="QLabel" name="txtReplayGain">
+             <widget class="WBasicLabel" name="txtReplayGain">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -693,7 +693,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLabel" name="txtDateAdded">
+             <widget class="WBasicLabel" name="txtDateAdded">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -716,7 +716,7 @@
              </widget>
             </item>
             <item row="2" column="3">
-             <widget class="QLabel" name="txtSamplerate">
+             <widget class="WBasicLabel" name="txtSamplerate">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -1077,6 +1077,11 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
+  <customwidget>
+   <class>WBasicLabel</class>
+   <extends>QLabel</extends>
+   <header>widget/wbasiclabel.h</header>
+  </customwidget>
   <customwidget>
    <class>WBasicLineEdit</class>
    <extends>QLineEdit</extends>
