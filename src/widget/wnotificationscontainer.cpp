@@ -43,6 +43,8 @@ WNotificationsContainer::WNotificationsContainer(QWidget* pParent, WNotification
 }
 
 void WNotificationsContainer::setup(const QDomNode& node, const SkinContext& context) {
+    Q_UNUSED(node);
+    Q_UNUSED(context);
 }
 
 void WNotificationsContainer::slotShowNotification(WNotificationEvent event) {
