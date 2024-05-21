@@ -16,12 +16,6 @@ class WColorPickerActionMenu : public QMenu {
             const ColorPalette& palette,
             QWidget* parent = nullptr);
 
-    /// Sets whether the color picker should be able to get keyboard focus.
-    void setAllowKeyboardFocus(bool enable);
-    bool allowKeyboardFocus() const {
-        return m_allowKeyboardFocus;
-    }
-
     /// Set a new color palette for the underlying color picker.
     void setColorPalette(const ColorPalette& palette);
     void setSelectedColor(const mixxx::RgbColor::optional_t& color);
@@ -36,5 +30,4 @@ class WColorPickerActionMenu : public QMenu {
 
   private:
     parented_ptr<WColorPickerAction> m_pColorPickerAction;
-    bool m_allowKeyboardFocus;
 };

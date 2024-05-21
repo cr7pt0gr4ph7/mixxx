@@ -21,9 +21,6 @@ WColorPickerActionMenu::WColorPickerActionMenu(
     m_pColorPickerAction->setInitialFocus();
 }
 
-void WColorPickerActionMenu::setAllowKeyboardFocus(bool enable) {
-}
-
 void WColorPickerActionMenu::setColorPalette(const ColorPalette& palette) {
     m_pColorPickerAction->setColorPalette(palette);
     updateGeometry();
