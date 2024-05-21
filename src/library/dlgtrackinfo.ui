@@ -500,22 +500,15 @@
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
            <layout class="QGridLayout" name="gridLayout_4" rowstretch="0,0,0,0,0,0" columnstretch="0,1,0,1">
-            <item row="1" column="0">
-             <widget class="QLabel" name="lblBpm">
+            <item row="0" column="0">
+             <widget class="QLabel" name="lblDuration">
               <property name="text">
-               <string>BPM:</string>
+               <string>Duration:</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLabel" name="lblType">
-              <property name="text">
-               <string>Filetype:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="WBasicLabel" name="txtType">
+            <item row="0" column="1">
+             <widget class="WBasicLabel" name="txtDuration">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -530,66 +523,12 @@
               </property>
              </widget>
             </item>
-            <item row="4" column="0">
-             <widget class="QLabel" name="lblLocation">
+            <item row="1" column="0">
+             <widget class="QLabel" name="lblBpm">
               <property name="text">
-               <string>Location:</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+               <string>BPM:</string>
               </property>
              </widget>
-            </item>
-            <item row="4" column="1" colspan="3">
-             <widget class="WBasicLabel" name="txtLocation">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLabel" name="lblBitrate">
-              <property name="text">
-               <string>Bitrate:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="lblDuration">
-              <property name="text">
-               <string>Duration:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1" colspan="3">
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <widget class="QPushButton" name="btnOpenFileBrowser">
-                <property name="text">
-                 <string>Open in File Browser</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>10</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
             </item>
             <item row="1" column="1">
              <widget class="WBasicLabel" name="txtBpm">
@@ -607,24 +546,15 @@
               </property>
              </widget>
             </item>
-            <item row="1" column="3">
-             <widget class="WBasicLabel" name="txtBitrate">
-              <property name="font">
-               <font>
-                <weight>75</weight>
-                <bold>true</bold>
-               </font>
-              </property>
+            <item row="2" column="0">
+             <widget class="QLabel" name="lblDateAdded">
               <property name="text">
-               <string/>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+               <string>Date added:</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="1">
-             <widget class="WBasicLabel" name="txtDuration">
+            <item row="2" column="1">
+             <widget class="WBasicLabel" name="txtDateAdded">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -662,22 +592,15 @@
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
-             <widget class="QLabel" name="lblReplayGain">
+            <item row="0" column="2">
+             <widget class="QLabel" name="lblType">
               <property name="text">
-               <string>ReplayGain:</string>
+               <string>Filetype:</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="lblDateAdded">
-              <property name="text">
-               <string>Date added:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="3">
-             <widget class="WBasicLabel" name="txtReplayGain">
+            <item row="0" column="3">
+             <widget class="WBasicLabel" name="txtType">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -692,8 +615,15 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
-             <widget class="WBasicLabel" name="txtDateAdded">
+            <item row="1" column="2">
+             <widget class="QLabel" name="lblBitrate">
+              <property name="text">
+               <string>Bitrate:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="WBasicLabel" name="txtBitrate">
               <property name="font">
                <font>
                 <weight>75</weight>
@@ -731,6 +661,76 @@
               </property>
              </widget>
             </item>
+            <item row="3" column="2">
+             <widget class="QLabel" name="lblReplayGain">
+              <property name="text">
+               <string>ReplayGain:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <widget class="WBasicLabel" name="txtReplayGain">
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="lblLocation">
+              <property name="text">
+               <string>Location:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" colspan="3">
+             <widget class="WBasicLabel" name="txtLocation">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1" colspan="3">
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <widget class="QPushButton" name="btnOpenFileBrowser">
+                 <property name="text">
+                  <string>Open in File Browser</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="horizontalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
            </layout>
           </item>
          </layout>
