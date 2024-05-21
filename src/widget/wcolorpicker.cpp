@@ -64,7 +64,6 @@ WColorGridButton::WColorGridButton(const mixxx::RgbColor::optional_t& color,
 }
 
 void WColorGridButton::keyPressEvent(QKeyEvent* event) {
-    qDebug() << "WColorGridButton::keyPressEvent()" << event;
     if (handleNavigation(event)) {
         // Already handled completely
     } else if (event->key() == Qt::Key_Return) {
@@ -76,8 +75,6 @@ void WColorGridButton::keyPressEvent(QKeyEvent* event) {
 }
 
 void WColorGridButton::keyReleaseEvent(QKeyEvent* event) {
-    qDebug() << "WColorGridButton::keyReleaseEvent()" << event;
-
     if (event->key() == Qt::Key_Return && !event->isAutoRepeat() && isDown()) {
         click();
     } else {
@@ -254,7 +251,6 @@ void WColorPicker::addColorButton(mixxx::RgbColor color, QGridLayout* pLayout, i
             &QPushButton::clicked,
             this,
             [this, color]() {
-                qDebug() << "WColorGridButton::clicked()" << color;
                 emit colorPicked(mixxx::RgbColor::optional(color));
             });
 
@@ -332,12 +328,10 @@ void WColorPicker::setColorButtonChecked(const mixxx::RgbColor::optional_t& colo
 }
 
 void WColorPicker::resetSelectedColor() {
-    qDebug() << "WColorPicker::resetSelectedColor()";
     setColorButtonChecked(m_selectedColor, false);
 }
 
 void WColorPicker::setSelectedColor(const mixxx::RgbColor::optional_t& color) {
-    qDebug() << "WColorPicker::setSelectedColor()";
     resetSelectedColor();
 
     m_selectedColor = color;
@@ -356,6 +350,5 @@ void WColorPicker::setColorPalette(const ColorPalette& palette) {
 }
 
 void WColorPicker::slotColorPicked(const mixxx::RgbColor::optional_t& color) {
-    qDebug() << "WColorPicker::slotColorPicked()" << color;
     setSelectedColor(color);
 }
