@@ -98,7 +98,7 @@ void WNotificationsContainer::paintEvent(QPaintEvent*) {
     QRect drawArea(QPoint(0, 0), drawAreaSize);
 
     // Calculate the area taken up by the text
-    const int textFlags = Qt::TextWordWrap | Qt::AlignHCenter | Qt::AlignBottom;
+    const int textFlags = int(Qt::TextWordWrap) | int(Qt::AlignHCenter) | int(Qt::AlignBottom);
     QRect textBounds = painter.boundingRect(drawArea, textFlags, m_lastText);
     QRect originalTextBound = textBounds;
     textBounds.moveCenter(QPoint(drawAreaSize.width() / 2, 0));
