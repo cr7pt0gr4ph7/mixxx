@@ -1181,6 +1181,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/util/mac.cpp
   src/util/moc_included_test.cpp
   src/util/movinginterquartilemean.cpp
+  src/util/notifications.cpp
   src/util/rangelist.cpp
   src/util/readaheadsamplebuffer.cpp
   src/util/ringdelaybuffer.cpp
@@ -1298,6 +1299,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/widget/wlibrarytextbrowser.cpp
   src/widget/wmainmenubar.cpp
   src/widget/wmultilinetextedit.cpp
+  src/widget/wnotificationscontainer.cpp
   src/widget/wnumber.cpp
   src/widget/wnumberdb.cpp
   src/widget/wnumberpos.cpp
