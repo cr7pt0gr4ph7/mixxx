@@ -16,7 +16,7 @@ class SoundDeviceNotFound : public SoundDevice {
   public:
     SoundDeviceNotFound(const QString& name)
             : SoundDevice(UserSettingsPointer(), nullptr) {
-        m_deviceId.name = name;
+        m_deviceId = SoundDeviceId::fromName(name);
         m_strDisplayName = name;
     }
 
@@ -34,8 +34,4 @@ class SoundDeviceNotFound : public SoundDevice {
     QString getError() const override {
         return QObject::tr("Device not found");
     };
-
-    mixxx::audio::SampleRate getDefaultSampleRate() const override {
-        return SoundManagerConfig::kMixxxDefaultSampleRate;
-    }
 };
