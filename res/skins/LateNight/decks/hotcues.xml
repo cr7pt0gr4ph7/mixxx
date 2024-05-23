@@ -35,7 +35,7 @@
       <!-- HotCues (3-4 / 5-8) -->
       <WidgetStack currentpage="[Skin],show_8_hotcues" persist="true">
         <Children>
-          <WidgetGroup>
+          <WidgetGroup on_hide_select="1">
             <Layout>horizontal</Layout>
             <Children>
               <Template src="skins:LateNight/controls/button_hotcue.xml">
@@ -47,7 +47,7 @@
             </Children>
           </WidgetGroup>
 
-          <WidgetGroup  trigger="[Skin],show_8_hotcues">
+          <WidgetGroup trigger="[Skin],show_8_hotcues" on_hide_select="0">
             <Layout>horizontal</Layout>
             <Children>
               <Template src="skins:LateNight/controls/button_hotcue.xml">
