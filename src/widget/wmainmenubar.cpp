@@ -169,7 +169,7 @@ void WMainMenuBar::initialize() {
     pLibraryMenu->addSeparator();
 
     QString searchHereTitle = tr("Search in current view...");
-    QString searchHereText = tr("Search in current view...");
+    QString searchHereText = tr("Search for tracks in the current library view");
     auto* pSearchHere = new QAction(searchHereTitle, this);
     pSearchHere->setShortcut(
             QKeySequence(m_pKbdConfig->getValue(
@@ -182,7 +182,9 @@ void WMainMenuBar::initialize() {
     pLibraryMenu->addAction(pSearchHere);
 
     QString searchAllTitle = tr("Search in internal database...");
-    QString searchAllText = tr("Search in the internal track collection");
+    QString searchAllText =
+            tr("Search in the internal track collection under \"Tracks\" in "
+               "the library");
     auto* pSearchAll = new QAction(searchAllTitle, this);
     pSearchAll->setShortcut(
             QKeySequence(m_pKbdConfig->getValue(
