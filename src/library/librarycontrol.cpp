@@ -911,6 +911,10 @@ void LibraryControl::setLibraryFocus(FocusWidget newFocusWidget) {
     // to update [Library],focused_widget
 }
 
+void LibraryControl::focusSearchInputBox(bool forceSelectAll) {
+    m_pSearchbox->setShortcutFocus(forceSelectAll);
+}
+
 void LibraryControl::slotFocusedWidgetChanged(QWidget* oldW, QWidget* newW) {
     Q_UNUSED(newW);
 

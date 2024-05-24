@@ -48,6 +48,11 @@ class LibraryControl : public QObject {
     void setLibraryFocus(FocusWidget newFocusWidget);
     FocusWidget getFocusedWidget();
 
+    /// Gives focus to the searchbar input.
+    /// Also selects all existing search text if the input either
+    /// already had focus, or when forceSelectAll is set to true.
+    void focusSearchInputBox(bool forceSelectAll);
+
   signals:
     void clearSearchIfClearButtonHasFocus();
     void showHideTrackMenu(bool show);

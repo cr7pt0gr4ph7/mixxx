@@ -122,12 +122,6 @@ WSearchLineEdit::WSearchLineEdit(QWidget* pParent, UserSettingsPointer pConfig)
             this,
             &WSearchLineEdit::slotClearSearch);
 
-    QShortcut* setFocusShortcut = new QShortcut(QKeySequence(tr("Ctrl+F", "Search|Focus")), this);
-    connect(setFocusShortcut,
-            &QShortcut::activated,
-            this,
-            &WSearchLineEdit::slotSetShortcutFocus);
-
     // Set up a timer to search after a few hundred milliseconds timeout.  This
     // stops us from thrashing the database if you type really fast.
     m_debouncingTimer.setSingleShot(true);
@@ -793,11 +787,15 @@ void WSearchLineEdit::slotTextChanged(const QString& text) {
     m_saveTimer.start(kSaveTimeoutMillis);
 }
 
-void WSearchLineEdit::slotSetShortcutFocus() {
+void WSearchLineEdit::setShortcutFocus(bool forceSelectAll) {
     if (hasFocus()) {
         lineEdit()->selectAll();
     } else {
         setFocus(Qt::ShortcutFocusReason);
+
+        if (forceSelectAll) {
+            lineEdit()->selectAll();
+        }
     }
 }
 

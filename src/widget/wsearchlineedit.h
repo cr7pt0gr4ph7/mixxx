@@ -37,6 +37,8 @@ class WSearchLineEdit : public QComboBox, public WBaseWidget {
 
     void setup(const QDomNode& node, const SkinContext& context);
 
+    void setShortcutFocus(bool forceSelectAll);
+
   protected:
     void resizeEvent(QResizeEvent*) override;
     void focusInEvent(QFocusEvent*) override;
@@ -65,7 +67,6 @@ class WSearchLineEdit : public QComboBox, public WBaseWidget {
     void slotDeleteCurrentItem();
 
   private slots:
-    void slotSetShortcutFocus();
     void slotTextChanged(const QString& text);
     void slotIndexChanged(int index);
 

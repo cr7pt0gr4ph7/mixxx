@@ -718,7 +718,7 @@ void Library::setEditMetadataSelectedClick(bool enabled) {
 }
 
 void Library::slotSearchInCurrentView() {
-    m_pLibraryControl->setLibraryFocus(FocusWidget::Searchbar);
+    m_pLibraryControl->focusSearchInputBox(false);
 }
 
 void Library::slotSearchInInternalDatabase() {
@@ -730,7 +730,7 @@ void Library::searchTracksInCollection() {
         return;
     }
     m_pMixxxLibraryFeature->selectAndActivate();
-    m_pLibraryControl->setLibraryFocus(FocusWidget::Searchbar);
+    m_pLibraryControl->focusSearchInputBox(true);
 }
 
 void Library::searchTracksInCollection(const QString& query) {
