@@ -7,8 +7,8 @@
 #include "track/keyutils.h"
 #include "control/controlproxy.h"
 
-// Caches the index of frequently used columns and provides a lookup-table of
-// column name to index.
+/// Caches the indices of frequently used columns and provides a lookup-table of
+/// column name to column index.
 class ColumnCache : public QObject {
   Q_OBJECT
   public:

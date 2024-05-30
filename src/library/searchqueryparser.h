@@ -15,6 +15,7 @@ class SearchQueryParser {
   public:
     explicit SearchQueryParser(TrackCollection* pTrackCollection, QStringList searchColumns);
 
+    /// Sets the list of column names that are searched during full-text search.
     void setSearchColumns(QStringList searchColumns);
 
     std::unique_ptr<QueryNode> parseQuery(

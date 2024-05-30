@@ -198,8 +198,8 @@ void WTrackTableViewHeader::setModel(QAbstractItemModel* model) {
 
         // force the section size to be a least WTTVH_MINIMUM_SECTION_SIZE
         if (sectionSize(i) <  WTTVH_MINIMUM_SECTION_SIZE) {
-            // This might happen if  WTTVH_MINIMUM_SECTION_SIZ has changed or
-            // the header state from database was corrupt
+            // This might happen if WTTVH_MINIMUM_SECTION_SIZE has changed
+            // or if the header state from the database was corrupted
             resizeSection(i,WTTVH_MINIMUM_SECTION_SIZE);
         }
     }

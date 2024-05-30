@@ -17,14 +17,14 @@ class TrackCollection;
 class ExternalTrackCollection;
 class RelocatedTrack;
 
-// Manages Mixxx's internal database of tracks as well as external track collections.
-//
-// All modifying operations that might affect external collections
-// must be invoked through this class to keep all track collections
-// synchronized!
-//
-// Both crates and playlists are currently only supported by the internal
-// collection, which needs to be modified directly.
+/// Manages Mixxx's internal database of tracks as well as external track collections.
+///
+/// All modifying operations that might affect external collections
+/// must be invoked through this class to keep all track collections
+/// synchronized!
+///
+/// Both crates and playlists are currently only supported by the internal
+/// collection, which needs to be modified directly.
 class TrackCollectionManager: public QObject,
     public virtual /*implements*/ GlobalTrackCacheSaver {
     Q_OBJECT

@@ -19,7 +19,8 @@ bool isColumnExported(BaseSqlTableModel* pPlaylistTableModel, int column) {
         return false;
     }
     if (pPlaylistTableModel->fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART) == column) {
-        // This is the bas64 encoded image which may hit the maximum line length of spreadsheet applications
+        // This is the base64 encoded image which may hit the
+        // maximum line length of spreadsheet applications
         return false;
     }
     return true;

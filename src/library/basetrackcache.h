@@ -29,12 +29,12 @@ class SortColumn {
     Qt::SortOrder m_order;
 };
 
-// BaseTrackCache is a cache of all of the values in certain table. It supports
-// searching and sorting of tracks by values within the table. The reasoning for
-// this is that previously there was a per-table-model cache which was largely a
-// waste of memory because all the table-models were caching the same data
-// (track properties). Furthermore, the base SQL tables of these table-models
-// involve complicated joins, which are very slow.
+/// BaseTrackCache is a cache of all of the values in certain table. It supports
+/// searching and sorting of tracks by values within the table. The reasoning for
+/// this is that previously there was a per-table-model cache which was largely a
+/// waste of memory because all the table-models were caching the same data
+/// (track properties). Furthermore, the base SQL tables of these table-models
+/// involve complicated joins, which are very slow.
 class BaseTrackCache : public QObject {
     Q_OBJECT
   public:
@@ -136,10 +136,10 @@ class BaseTrackCache : public QObject {
     mutable TrackId m_recentTrackId;
     mutable TrackPointer m_recentTrackPtr;
 
-    // This set is updated by signals from the Track object. It might contain
-    // false positives, i.e. track ids of tracks that are neither cached nor
-    // dirty. Each invocation of getRecentTrack() will take care of updating
-    // this set by inserting and removing entries as required.
+    /// This set is updated by signals from the Track object. It might contain
+    /// false positives, i.e. track ids of tracks that are neither cached nor
+    /// dirty. Each invocation of getRecentTrack() will take care of updating
+    /// this set by inserting and removing entries as required.
     mutable QSet<TrackId> m_dirtyTracks;
 
     bool m_bIndexBuilt;

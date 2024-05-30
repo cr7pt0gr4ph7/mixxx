@@ -55,16 +55,17 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
             const QVariant& value,
             int role = Qt::EditRole) final;
 
-    // Calculate the number of columns from all valid
-    // column headers.
-    // Reimplement in derived classes if a more efficient
-    // implementation is available.
+    /// Calculate the number of columns from all valid column headers.
+    ///
+    /// Reimplement in derived classes if a more efficient
+    /// implementation is available.
     int columnCount(
             const QModelIndex& parent = QModelIndex()) const override;
 
-    // Calls readWriteFlags() by default
-    // Reimplement in derived classes if the table model
-    // should be readOnly
+    /// Calls readWriteFlags() by default.
+    ///
+    /// Reimplement in derived classes if the table model
+    /// should be read-only.
     Qt::ItemFlags flags(
             const QModelIndex& index) const override;
 
@@ -114,8 +115,8 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
     }
     static QStringList defaultTableColumns();
 
-    // Build a map from the column names to their indices
-    // used by fieldIndex(). This function has to be called
+    /// Build a map from the column names to their indices
+    /// used by fieldIndex(). This function has to be called
     void initTableColumnsAndHeaderProperties(
             const QStringList& tableColumns = defaultTableColumns());
 
@@ -123,9 +124,9 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
         return m_columnCache.columnNameForFieldIndex(index);
     }
 
-    // A simple helper function for initializing header title and width.
-    // Note that the ideal width of a column is based on the width of
-    // its data, not the title string itself.
+    /// A simple helper function for initializing header title and width.
+    /// Note that the ideal width of a column is based on the width of
+    /// its data, not the title string itself.
     void setHeaderProperties(
             ColumnCache::Column column,
             const QString& title,
@@ -139,9 +140,9 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
         }
     }
 
-    // Emit the dataChanged() signal for multiple rows in
-    // a single column. The list of rows must be sorted in
-    // ascending order without duplicates!
+    /// Emit the dataChanged() signal for multiple rows in
+    /// a single column. The list of rows must be sorted in
+    /// ascending order without duplicates!
     void emitDataChangedForMultipleRowsInColumn(
             const QList<int>& rows,
             int column,

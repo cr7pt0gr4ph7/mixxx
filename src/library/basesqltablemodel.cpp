@@ -254,7 +254,7 @@ void BaseSqlTableModel::select() {
         }
 
         // TODO(XXX): Can we get rid of the hard-coded assumption that
-        // the the first column always contains the id?
+        // the first column always contains the id?
         DEBUG_ASSERT(idColumn == kIdColumn);
 
         VERIFY_OR_DEBUG_ASSERT(idColumn >= 0) {
@@ -589,8 +589,8 @@ int BaseSqlTableModel::fieldIndex(ColumnCache::Column column) const {
         return tableIndex;
     }
     if (m_trackSource) {
-        // We need to account for the case where the field name is not a table
-        // column or a source column.
+        // We need to account for the case where the field name
+        // is not a table column or a source column.
         int sourceTableIndex = m_trackSource->fieldIndex(column);
         if (sourceTableIndex > -1) {
             // Subtract one from the fieldIndex() result to account for the id column
