@@ -6,6 +6,7 @@
 #include "library/library_prefs.h"
 #include "moc_track.cpp"
 #include "sources/metadatasource.h"
+#include "track/customfieldsparser.h"
 #include "util/assert.h"
 #include "util/logger.h"
 #include "util/time.h"
@@ -15,6 +16,8 @@ namespace {
 const mixxx::Logger kLogger("Track");
 
 constexpr bool kLogStats = false;
+
+const CustomFieldsTextParser kCustomFields;
 
 // Count the number of currently existing instances for detecting
 // memory leaks.
@@ -1489,6 +1492,18 @@ CoverInfoRelative Track::getCoverInfo() const {
 CoverInfo Track::getCoverInfoWithLocation() const {
     const auto locked = lockMutex(&m_qMutex);
     return CoverInfo(m_record.getCoverInfo(), m_fileAccess.info().location());
+}
+
+QString Track::getCustomField(const QString& fieldName) const {
+    auto values = kCustomFields.parse(getComment());
+    return values.getField(CustomFieldName(fieldName));
+}
+
+void Track::setCustomField(const QString& fieldName, const QString& value) {
+    QString oldComment = getComment();
+    auto values = kCustomFields.parse(oldComment);
+    values.setField(CustomFieldName(fieldName), value);
+    setComment(kCustomFields.serializeInto(oldComment, values));
 }
 
 bool Track::exportSeratoMetadata() {

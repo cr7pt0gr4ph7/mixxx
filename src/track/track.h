@@ -269,6 +269,9 @@ class Track : public QObject {
         setRating(mixxx::TrackRecord::kNoRating);
     }
 
+    QString getCustomField(const QString& fieldName) const;
+    void setCustomField(const QString& fieldName, const QString& value);
+
     QString getURL() const;
     void setURL(const QString& url);
 
