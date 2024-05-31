@@ -84,7 +84,8 @@ bool LibraryTableModel::isColumnInternal(int column) {
             column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_LOCATION) ||
             column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_COLOR) ||
             column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_DIGEST) ||
-            column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_HASH);
+            column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_HASH) ||
+            column == fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_CUSTOM_METADATA_JSON);
 }
 
 TrackModel::Capabilities LibraryTableModel::getCapabilities() const {
