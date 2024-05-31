@@ -4,6 +4,7 @@
 #include <QContextMenuEvent>
 #include <QWidgetAction>
 
+#include "library/basetracktablemodel.h"
 #include "library/trackmodel.h"
 #include "moc_wtracktableviewheader.cpp"
 #include "util/math.h"
@@ -86,7 +87,14 @@ void HeaderViewState::restoreState(QHeaderView* headers) {
     for (int vi = 0; vi < max_columns; ++vi) {
         const mixxx::library::HeaderViewState::HeaderState& header =
                 m_view_state.header_state(vi);
-        const int li = header.logical_index();
+        int li = header.logical_index();
+        const QString cn = QString::fromStdString(header.column_name());
+        if (cn.startsWith("__custom__")) {
+            TrackModel* tm = qobject_cast<BaseTrackTableModel*>(headers);
+            if (tm) {
+                li = tm->fieldIndex(cn);
+            }
+        }
         headers->setSectionHidden(li, header.hidden());
         headers->resizeSection(li, header.size());
         headers->moveSection(headers->visualIndex(li), vi);
