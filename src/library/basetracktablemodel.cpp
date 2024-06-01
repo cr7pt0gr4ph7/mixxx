@@ -19,6 +19,7 @@
 #include "mixer/playerinfo.h"
 #include "mixer/playermanager.h"
 #include "moc_basetracktablemodel.cpp"
+#include "track/customfieldsparser.h"
 #include "track/track.h"
 #include "util/assert.h"
 #include "util/clipboard.h"
@@ -268,6 +269,22 @@ void BaseTrackTableModel::initHeaderProperties() {
             ColumnCache::COLUMN_LIBRARYTABLE_YEAR,
             tr("Year"),
             defaultColumnWidth());
+    setHeaderProperties(
+            ColumnCache::COLUMN_CUSTOMFIELDS_FIELD_1,
+            tr("Level"),
+            defaultColumnWidth() * 3);
+    setHeaderProperties(
+            ColumnCache::COLUMN_CUSTOMFIELDS_FIELD_2,
+            tr("Mood"),
+            defaultColumnWidth() * 3);
+    setHeaderProperties(
+            ColumnCache::COLUMN_CUSTOMFIELDS_FIELD_3,
+            tr("Category"),
+            defaultColumnWidth() * 3);
+    setHeaderProperties(
+            ColumnCache::COLUMN_CUSTOMFIELDS_FIELD_4,
+            tr("Topic"),
+            defaultColumnWidth() * 3);
 }
 
 void BaseTrackTableModel::setHeaderProperties(
@@ -279,15 +296,56 @@ void BaseTrackTableModel::setHeaderProperties(
         // Skipping header properties for unsupported column
         return;
     }
-    if (section >= m_columnHeaders.size()) {
-        m_columnHeaders.resize(section + 1);
-    }
+    setHeaderPropertiesByFieldIndex(section, title, defaultWidth);
     m_columnHeaders[section].column = column;
+    if (column >= ColumnCache::COLUMN_CUSTOMFIELDS_FIELD_1 &&
+            column <= ColumnCache::COLUMN_CUSTOMFIELDS_MAX_FIELD) {
+        m_columnHeaders[section].isCustomField = true;
+    }
     setHeaderData(
             section,
             Qt::Horizontal,
             m_columnCache.columnName(column),
             TrackModel::kHeaderNameRole);
+}
+
+void BaseTrackTableModel::setHeaderProperties(
+        const QString& column,
+        const QString& title,
+        int defaultWidth) {
+    int section = fieldIndex(column);
+    if (section < 0) {
+        // Skipping header properties for unsupported column
+        return;
+    }
+    setHeaderPropertiesByFieldIndex(section, title, defaultWidth);
+    m_columnHeaders[section].isCustomField = CustomFieldName::isCustomColumnName(column);
+    setHeaderData(
+            section,
+            Qt::Horizontal,
+            column,
+            TrackModel::kHeaderNameRole);
+}
+
+void BaseTrackTableModel::setHeaderPropertiesByFieldIndex(
+        int section,
+        const QString& title,
+        int defaultWidth) {
+    if (section < 0) {
+        // Skipping header properties for unsupported column
+        return;
+    }
+    if (section >= m_columnHeaders.size()) {
+        m_columnHeaders.resize(section + 1);
+    }
+    m_columnHeaders[section].column = ColumnCache::COLUMN_LIBRARYTABLE_INVALID;
+    m_columnHeaders[section].isCustomField = false;
+    // m_columnHeaders[section].column = column;
+    // setHeaderData(
+    //         section,
+    //         Qt::Horizontal,
+    //         m_columnCache.columnName(column),
+    //         TrackModel::kHeaderNameRole);
     setHeaderData(
             section,
             Qt::Horizontal,

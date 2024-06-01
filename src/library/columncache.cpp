@@ -94,6 +94,31 @@ void ColumnCache::setColumns(const QStringList& columns) {
 
     insertColumnNameByEnum(COLUMN_REKORDBOX_ANALYZE_PATH, REKORDBOX_ANALYZE_PATH);
 
+    const int numCustomFields = COLUMN_CUSTOMFIELDS_MAX_FIELD + 1 - COLUMN_CUSTOMFIELDS_FIELD_1;
+    for (int i = 0; i < numCustomFields; i++) {
+        if (i == 0) {
+            insertColumnNameByEnum(
+                    ColumnCache::Column(int(COLUMN_CUSTOMFIELDS_FIELD_1)),
+                    QStringLiteral("__custom__level"));
+        } else if (i == 1) {
+            insertColumnNameByEnum(
+                    ColumnCache::Column(int(COLUMN_CUSTOMFIELDS_FIELD_2)),
+                    QStringLiteral("__custom__mood"));
+        } else if (i == 2) {
+            insertColumnNameByEnum(
+                    ColumnCache::Column(int(COLUMN_CUSTOMFIELDS_FIELD_3)),
+                    QStringLiteral("__custom__category"));
+        } else if (i == 3) {
+            insertColumnNameByEnum(
+                    ColumnCache::Column(int(COLUMN_CUSTOMFIELDS_FIELD_4)),
+                    QStringLiteral("__custom__topic"));
+        } else {
+            insertColumnNameByEnum(
+                    ColumnCache::Column(i + int(COLUMN_CUSTOMFIELDS_FIELD_1)),
+                    QStringLiteral("%1").arg(i + 1));
+        }
+    }
+
     for (int i = 0; i < NUM_COLUMNS; ++i) {
         m_columnIndexByEnum[i] = -1;
     }

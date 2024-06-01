@@ -482,7 +482,7 @@ void TrackDAO::addTracksPrepare() {
             ":coverart_color,"
             ":coverart_digest,"
             ":coverart_hash,"
-            "jsonb(:custom_metadata),"
+            ":custom_metadata,"
             ":datetime_added"
             ")");
 
@@ -631,8 +631,13 @@ void bindTrackLibraryValues(
     pTrackLibraryQuery->bindValue(":key_id", static_cast<int>(key));
     pTrackLibraryQuery->bindValue(":key", keyText);
 
+    CustomFieldsTextParser textParser;
+    auto extractedMetadata = textParser.parse(trackInfo.getComment());
+    // trackInfo.setCustomFields(extractedMetadata);
+
     CustomFieldsJsonParser p;
-    const CustomFieldValues customMetadata = trackInfo.getCustomFields();
+    // const CustomFieldValues customMetadata = trackInfo.getCustomFields();
+    const CustomFieldValues customMetadata = extractedMetadata;
     QString customMetadataJson = p.serialize(customMetadata);
     pTrackLibraryQuery->bindValue(":custom_metadata", customMetadataJson);
 }
@@ -1667,7 +1672,7 @@ bool TrackDAO::updateTrack(const Track& track) const {
             "coverart_color=:coverart_color,"
             "coverart_digest=:coverart_digest,"
             "coverart_hash=:coverart_hash,"
-            "custom_metadata=jsonb(:custom_metadata) "
+            "custom_metadata=:custom_metadata "
             "WHERE id=:track_id");
 
     query.bindValue(":track_id", trackId.toVariant());

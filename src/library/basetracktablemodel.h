@@ -132,6 +132,19 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
             const QString& title,
             int defaultWidth = 0);
 
+    /// A simple helper function for initializing header title and width.
+    /// Note that the ideal width of a column is based on the width of
+    /// its data, not the title string itself.
+    void setHeaderProperties(
+            const QString& column,
+            const QString& title,
+            int defaultWidth = 0);
+
+    void setHeaderPropertiesByFieldIndex(
+            int section,
+            const QString& title,
+            int defaultWidth = 0);
+
     ColumnCache::Column mapColumn(int column) const {
         if (column >= 0 && column < m_columnHeaders.size()) {
             return m_columnHeaders[column].column;
@@ -285,6 +298,7 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
     struct ColumnHeader {
         ColumnCache::Column column = ColumnCache::COLUMN_LIBRARYTABLE_INVALID;
         QHash</*role*/ int, QVariant> header;
+        bool isCustomField = false;
     };
     QVector<ColumnHeader> m_columnHeaders;
 

@@ -88,6 +88,17 @@ MixxxLibraryFeature::MixxxLibraryFeature(Library* pLibrary,
                 QLatin1Char('.') + col);
     }
 
+    qualifiedTableColumns << "json_extract(library.custom_metadata, '$.level') AS __custom__level";
+    qualifiedTableColumns << "json_extract(library.custom_metadata, '$.mood') AS __custom__mood";
+    qualifiedTableColumns << "json_extract(library.custom_metadata, "
+                             "'$.category') AS __custom__category";
+    qualifiedTableColumns << "json_extract(library.custom_metadata, '$.topic') AS __custom__topic";
+
+    columns << "__custom__level";
+    columns << "__custom__mood";
+    columns << "__custom__category";
+    columns << "__custom__topic";
+
     QSqlQuery query(m_pTrackCollection->database());
     QString tableName = "library_cache_view";
     QString queryString = QString(

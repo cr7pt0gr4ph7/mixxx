@@ -5,6 +5,7 @@
 #include "library/searchqueryparser.h"
 #include "library/trackcollection.h"
 #include "moc_basetrackcache.cpp"
+#include "track/customfieldsparser.h"
 #include "track/globaltrackcache.h"
 #include "track/keyutils.h"
 #include "track/track.h"
@@ -402,6 +403,11 @@ void BaseTrackCache::getTrackValueForColumn(TrackPointer pTrack,
         trackValue.setValue(static_cast<int>(pTrack->getCoverInfo().source));
     } else if (fieldIndex(ColumnCache::COLUMN_LIBRARYTABLE_COVERART_TYPE) == column) {
         trackValue.setValue(static_cast<int>(pTrack->getCoverInfo().type));
+    } else {
+        auto customField = CustomFieldName::fromColumnName(columnNameForFieldIndex(column));
+        if (customField.isValid()) {
+            trackValue.setValue(pTrack->getCustomField(customField.normalizedName()));
+        }
     }
 }
 
