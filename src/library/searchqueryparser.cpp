@@ -72,6 +72,7 @@ SearchQueryParser::SearchQueryParser(TrackCollection* pTrackCollection, QStringL
           m_searchCrates(false) {
     setSearchColumns(std::move(searchColumns));
 
+    // TODO: Add custom fields to the list of text filters
     m_textFilters << "artist"
                   << "album_artist"
                   << "album"
