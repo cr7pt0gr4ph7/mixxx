@@ -22,3 +22,10 @@ class CustomFieldsTextParser : public CustomFieldsParser {
   private:
     QRegularExpression m_regex;
 };
+
+class CustomFieldsJsonParser : public CustomFieldsParser {
+  public:
+    CustomFieldValues parse(const QString& text) const override;
+    QString serializeInto(const QString& oldText, const CustomFieldValues& data) const override;
+    QString serialize(const CustomFieldValues& data) const override;
+};
