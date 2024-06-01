@@ -5,6 +5,7 @@
 
 #include "sources/audiosource.h"
 #include "track/bpm.h"
+#include "track/customfieldsparser.h"
 #include "track/replaygain.h"
 #include "track/serato/tags.h"
 #include "util/duration.h"
@@ -54,6 +55,7 @@ class TrackInfo final {
     MIXXX_DECL_PROPERTY(QString, work, Work)
 #endif // __EXTRA_METADATA__
     MIXXX_DECL_PROPERTY(QString, year, Year) // = release date
+    MIXXX_DECL_PROPERTY(CustomFieldValues, customFields, CustomFields)
 
   public:
     TrackInfo() = default;

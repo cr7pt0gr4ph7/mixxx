@@ -20,6 +20,7 @@
 #include "moc_trackdao.cpp"
 #include "sources/soundsourceproxy.h"
 #include "track/beats.h"
+#include "track/customfieldsparser.h"
 #include "track/globaltrackcache.h"
 #include "track/keyfactory.h"
 #include "track/keyutils.h"
@@ -432,6 +433,7 @@ void TrackDAO::addTracksPrepare() {
             "coverart_color,"
             "coverart_digest,"
             "coverart_hash,"
+            "custom_metadata,"
             "datetime_added"
             ") VALUES ("
             ":artist,"
@@ -480,6 +482,7 @@ void TrackDAO::addTracksPrepare() {
             ":coverart_color,"
             ":coverart_digest,"
             ":coverart_hash,"
+            "jsonb(:custom_metadata),"
             ":datetime_added"
             ")");
 
@@ -627,6 +630,11 @@ void bindTrackLibraryValues(
     pTrackLibraryQuery->bindValue(":keys_sub_version", keysSubVersion);
     pTrackLibraryQuery->bindValue(":key_id", static_cast<int>(key));
     pTrackLibraryQuery->bindValue(":key", keyText);
+
+    CustomFieldsJsonParser p;
+    const CustomFieldValues customMetadata = trackInfo.getCustomFields();
+    QString customMetadataJson = p.serialize(customMetadata);
+    pTrackLibraryQuery->bindValue(":custom_metadata", customMetadataJson);
 }
 
 bool insertTrackLibrary(
@@ -1658,7 +1666,8 @@ bool TrackDAO::updateTrack(const Track& track) const {
             "coverart_location=:coverart_location,"
             "coverart_color=:coverart_color,"
             "coverart_digest=:coverart_digest,"
-            "coverart_hash=:coverart_hash "
+            "coverart_hash=:coverart_hash,"
+            "custom_metadata=jsonb(:custom_metadata) "
             "WHERE id=:track_id");
 
     query.bindValue(":track_id", trackId.toVariant());
