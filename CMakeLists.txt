@@ -1121,6 +1121,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/track/cueinfoimporter.cpp
   src/track/customfield.cpp
   src/track/customfields.cpp
+  src/track/customfieldsparser.cpp
   src/track/globaltrackcache.cpp
   src/track/keyfactory.cpp
   src/track/keys.cpp

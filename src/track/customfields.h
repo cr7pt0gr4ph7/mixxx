@@ -7,8 +7,10 @@
 #include "track/customfield.h"
 #include "util/assert.h"
 
+class CustomFieldsTextParser;
 
 class CustomFieldValues {
+    friend class CustomFieldsTextParser;
     friend QDebug operator<<(QDebug dbg, CustomFieldValues arg);
 
   public:
