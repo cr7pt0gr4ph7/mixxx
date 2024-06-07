@@ -88,7 +88,8 @@ WSearchLineEdit::WSearchLineEdit(QWidget* pParent, UserSettingsPointer pConfig)
           m_pConfig(pConfig),
           m_completer(make_parented<QCompleter>(this)),
           m_clearButton(make_parented<QToolButton>(this)),
-          m_queryEmitted(false) {
+          m_queryEmitted(false),
+          m_queryEmpty(true) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     setAcceptDrops(false);
     setEditable(true);
@@ -483,6 +484,7 @@ void WSearchLineEdit::setTextBlockSignals(const QString& text) {
             << text;
 #endif // ENABLE_TRACE_LOG
     blockSignals(true);
+    m_queryEmpty = text.isEmpty();
     setCurrentText(text);
     blockSignals(false);
 }
@@ -690,6 +692,18 @@ void WSearchLineEdit::updateClearAndDropdownButton(const QString& text) {
         return;
     }
 
+    // Stylesheets from skins may choose to visually highlight the
+    // WSearchLineEdit when it is not focused but contains a search
+    // term using the following CSS/QSS selector:
+    //
+    //    WSearchLineEdit[isEmpty="false"]:!focus {
+    //        /* border: ...; */
+    //    }
+    if (m_queryEmpty != text.isEmpty()) {
+        m_queryEmpty = text.isEmpty();
+        update();
+    }
+
     // Hide clear button if the text is empty and while placeholder is shown,
     // see disableSearch()
     m_clearButton->setVisible(!text.isEmpty());
@@ -779,14 +793,15 @@ void WSearchLineEdit::slotTextChanged(const QString& text) {
             << text;
 #endif // ENABLE_TRACE_LOG
     m_queryEmitted = false;
+
     if (!isEnabled()) {
         m_debouncingTimer.stop();
         setTextBlockSignals(kDisabledText);
-        return;
+    } else {
+        updateClearAndDropdownButton(text);
+        triggerSearchDebounced();
+        m_saveTimer.start(kSaveTimeoutMillis);
     }
-    updateClearAndDropdownButton(text);
-    triggerSearchDebounced();
-    m_saveTimer.start(kSaveTimeoutMillis);
 }
 
 void WSearchLineEdit::slotSetShortcutFocus() {
