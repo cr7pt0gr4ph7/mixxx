@@ -76,9 +76,9 @@ bool MidiController::matchMapping(const MappingInfo& mapping) {
     return false;
 }
 
-bool MidiController::applyMapping() {
+bool MidiController::applyMapping(const QString& resourcePath) {
     // Handles the engine
-    bool result = Controller::applyMapping();
+    bool result = Controller::applyMapping(resourcePath);
 
     // Only execute this code if this is an output device
     if (isOutputDevice()) {
@@ -301,7 +301,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
     MidiOpCode opCode = MidiUtils::opCodeFromStatus(status);
 
     if (mapping.options.testFlag(MidiOption::Script)) {
-        ControllerScriptEngineLegacy* pEngine = getScriptEngine();
+        auto pEngine = getScriptEngine();
         if (pEngine == nullptr) {
             return;
         }
@@ -595,7 +595,7 @@ void MidiController::processInputMapping(const MidiInputMapping& mapping,
                                          mixxx::Duration timestamp) {
     // Custom script handler
     if (mapping.options.testFlag(MidiOption::Script)) {
-        ControllerScriptEngineLegacy* pEngine = getScriptEngine();
+        auto pEngine = getScriptEngine();
         if (pEngine == nullptr) {
             return;
         }
@@ -625,14 +625,29 @@ QJSValue MidiController::makeInputHandler(int status, int midino, const QJSValue
         auto mStatusError = QStringLiteral(
                 "Invalid status or midino passed to midi.makeInputHandler. "
                 "Please pass a strictly positive integer. status=%1,midino=%2")
-                                    .arg(status, midino);
+                                    .arg(status)
+                                    .arg(midino);
 
         getScriptEngine()->throwJSError(mStatusError);
         return QJSValue();
     }
 
+    const auto midiKey = MidiKey(status, midino);
+
+    auto it = m_pMapping->getInputMappings().constFind(midiKey.key);
+    if (it != m_pMapping->getInputMappings().constEnd() &&
+            it.value().options.testFlag(MidiOption::Script) &&
+            std::holds_alternative<ConfigKey>(it.value().control)) {
+        qCWarning(m_logBase) << QStringLiteral(
+                "Ignoring anonymous JS function for status=%1,midino=%2 "
+                "because a previous XML binding exists")
+                                        .arg(status)
+                                        .arg(midino);
+        return QJSValue();
+    }
+
     MidiInputMapping inputMapping(
-            MidiKey(status, midino),
+            midiKey,
             MidiOption::Script,
             std::make_shared<QJSValue>(scriptCode));
 

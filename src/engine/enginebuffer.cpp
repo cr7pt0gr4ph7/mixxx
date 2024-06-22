@@ -651,12 +651,18 @@ void EngineBuffer::notifyTrackLoaded(
     }
 
     if (pNewTrack) {
-        connect(
-                pNewTrack.get(),
+        connect(pNewTrack.get(),
                 &Track::beatsUpdated,
                 this,
                 &EngineBuffer::slotUpdatedTrackBeats,
                 Qt::DirectConnection);
+        connect(pNewTrack.get(),
+                &Track::bpmLockChanged,
+                m_pBpmControl,
+                &BpmControl::trackBpmLockChanged,
+                Qt::DirectConnection);
+        bool bpmLocked = pNewTrack.get()->isBpmLocked();
+        m_pBpmControl->trackBpmLockChanged(bpmLocked);
     }
 
     // Inform BaseTrackPlayer via a queued connection
@@ -838,7 +844,7 @@ void EngineBuffer::slotKeylockEngineChanged(double dIndex) {
 
 void EngineBuffer::processTrackLocked(
         CSAMPLE* pOutput, const int iBufferSize, mixxx::audio::SampleRate sampleRate) {
-    ScopedTimer t(u"EngineBuffer::process_pauselock");
+    ScopedTimer t(QStringLiteral("EngineBuffer::process_pauselock"));
 
     m_trackSampleRateOld = mixxx::audio::SampleRate::fromDouble(m_pTrackSampleRate->get());
     m_trackEndPositionOld = getTrackEndPosition();
