@@ -102,17 +102,17 @@ SoundManager::~SoundManager() {
     delete m_pControlObjectVinylControlGainCO;
 }
 
-QList<SoundDevicePointer> SoundManager::getDeviceList(
+QList<SoundDeviceDescriptorPointer> SoundManager::getDeviceList(
         const QString& filterAPI, bool bOutputDevices, bool bInputDevices) const {
     //qDebug() << "SoundManager::getDeviceList";
 
     if (filterAPI == SoundManagerConfig::kDefaultAPI) {
-        return QList<SoundDevicePointer>();
+        return QList<SoundDeviceDescriptorPointer>();
     }
 
     // Create a list of sound devices filtered to match given API and
     // input/output.
-    QList<SoundDevicePointer> filteredDeviceList;
+    QList<SoundDeviceDescriptorPointer> filteredDeviceList;
 
     for (const auto& pDevice: m_devices) {
         // Skip devices that don't match the API, don't have input channels when

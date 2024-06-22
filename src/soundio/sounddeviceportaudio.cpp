@@ -2,7 +2,6 @@
 
 #include <float.h>
 
-#include <QRegularExpression>
 #include <QThread>
 #include <QtDebug>
 
@@ -71,16 +70,23 @@ int paV19CallbackClkRef(const void *inputBuffer, void *outputBuffer,
             (const CSAMPLE*) inputBuffer, timeInfo, statusFlags);
 }
 
-const QRegularExpression kAlsaHwDeviceRegex("(.*) \\((plug)?(hw:(\\d)+(,(\\d)+))?\\)");
-
 const QString kAppGroup = QStringLiteral("[App]");
+
+SoundDeviceId buildPortAudioDeviceId(const PaDeviceInfo* deviceInfo,
+        const PaHostApiTypeId deviceTypeId,
+        const unsigned int deviceIndex) {
+    if (deviceTypeId == paALSA) {
+        return SoundDeviceId::fromAlsaHwName(deviceInfo->name, deviceIndex);
+    }
+    return SoundDeviceId::fromName(deviceInfo->name, deviceIndex);
+}
 } // anonymous namespace
 
 SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
         SoundManager* sm,
         const PaDeviceInfo* deviceInfo,
         PaHostApiTypeId deviceTypeId,
-        unsigned int devIndex)
+        unsigned int deviceIndex)
         : SoundDevice(config, sm),
           m_pStream(nullptr),
           m_deviceInfo(deviceInfo),
@@ -97,29 +103,12 @@ SoundDevicePortAudio::SoundDevicePortAudio(UserSettingsPointer config,
           m_lastCallbackEntrytoDacSecs(0) {
     // Setting parent class members:
     m_hostAPI = Pa_GetHostApiInfo(deviceInfo->hostApi)->name;
-    m_sampleRate = mixxx::audio::SampleRate::fromDouble(deviceInfo->defaultSampleRate);
-    if (m_deviceTypeId == paALSA) {
-        // PortAudio gives the device name including the ALSA hw device. The
-        // ALSA hw device is an only somewhat reliable identifier; it may change
-        // when an audio interface is unplugged or Linux is restarted. Separating
-        // the name from the hw device allows for making the use of both pieces
-        // of information in SoundManagerConfig::readFromDisk to minimize how
-        // often users need to reconfigure their sound hardware.
-        QRegularExpressionMatch match = kAlsaHwDeviceRegex.match(deviceInfo->name);
-        if (match.hasMatch()) {
-            m_deviceId.name = match.captured(1);
-            m_deviceId.alsaHwDevice = match.captured(3);
-        } else {
-            // Special ALSA devices like "default" and "pulse" do not match the regex
-            m_deviceId.name = deviceInfo->name;
-        }
-    } else {
-        m_deviceId.name = deviceInfo->name;
-    }
-    m_deviceId.portAudioIndex = devIndex;
     m_strDisplayName = QString::fromUtf8(deviceInfo->name);
+    m_deviceId = buildPortAudioDeviceId(deviceInfo, deviceTypeId, deviceIndex);
     m_numInputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxInputChannels);
     m_numOutputChannels = mixxx::audio::ChannelCount(m_deviceInfo->maxOutputChannels);
+    m_defaultSampleRate = mixxx::audio::SampleRate::fromDouble(deviceInfo->defaultSampleRate);
+    m_sampleRate = m_defaultSampleRate;
 
     m_inputParams.device = 0;
     m_inputParams.channelCount = 0;
@@ -706,17 +695,17 @@ int SoundDevicePortAudio::callbackProcessDrift(
     // Crystal clock, a drift correction is required
     //
     // There is a delay of up to one latency between composing a chunk in the Clock
-    // Reference callback and write it to the device. So we need at lest one buffer.
-    // Unfortunately this delay is somehow random, an WILL produce a delay slow
-    // shift without we can avoid it. (That's the price for using a cheap USB soundcard).
+    // Reference callback and writing it to the device. So we need at least one buffer.
+    // Unfortunately this delay is somehow random, and WILL produce a delay slow
+    // shift that cannot be avoided. (That's the price for using a cheap USB soundcard).
     //
-    // Additional we need an filled chunk and an empty chunk. These are used when on
-    // sound card overtakes the other. This always happens, if they are driven form
+    // Additional we need a filled chunk and an empty chunk. These are used when one
+    // sound card overtakes the other. This always happens when they are driven from
     // two crystals. In a test case every 30 s @ 23 ms. After they are consumed,
     // the drift correction takes place and fills or clears the reserve buffers.
     // If this is finished before another overtake happens, we do not face any
     // dropouts or clicks.
-    // So that's why we need a Fifo of 3 chunks.
+    // So that's why we need a FIFO of 3 chunks.
     //
     // In addition there is a jitter effect. It happens that one callback is delayed,
     // in this case the second one fires two times and then the first one fires two
@@ -1026,7 +1015,7 @@ void SoundDevicePortAudio::updateCallbackEntryToDacTime(
     double timeSinceLastCbSecs = m_clkRefTimer.restart().toDoubleSeconds();
 
     // Plausibility check:
-    // We have the DAC timing as reference with almost no jitter
+    // We have the DAC timing as a reference with almost no jitter
     // (else the sound would be distorted)
     // The Callback is called with the same rate, but with a portion
     // of jitter.

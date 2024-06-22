@@ -20,7 +20,7 @@ class SoundDevicePortAudio : public SoundDevice {
             SoundManager* sm,
             const PaDeviceInfo* deviceInfo,
             PaHostApiTypeId deviceTypeId,
-            unsigned int devIndex);
+            unsigned int deviceIndex);
     ~SoundDevicePortAudio() override;
 
     SoundDeviceStatus open(bool isClkRefDevice, int syncBuffers) override;
@@ -46,12 +46,6 @@ class SoundDevicePortAudio : public SoundDevice {
                         CSAMPLE *output, const CSAMPLE* in,
                         const PaStreamCallbackTimeInfo *timeInfo,
                         PaStreamCallbackFlags statusFlags);
-
-    mixxx::audio::SampleRate getDefaultSampleRate() const override {
-        return m_deviceInfo ? mixxx::audio::SampleRate::fromDouble(
-                                      m_deviceInfo->defaultSampleRate)
-                            : SoundManagerConfig::kMixxxDefaultSampleRate;
-    }
 
   private:
     void updateCallbackEntryToDacTime(
