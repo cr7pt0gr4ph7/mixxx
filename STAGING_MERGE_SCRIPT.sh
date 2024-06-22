@@ -125,7 +125,6 @@ fi
 # 9893d7510cc60c5922672e1116829993619acbcd.
 merge_branch configurable-edit-item-shortcut ready-for-merge
 merge_branch autodj-time-remaining ready-for-merge
-merge_branch ready-for-merge/autodj-neutral-fader # Conflicts expected
 merge_branch ready-for-merge/fix-star-rating-editor
 merge_branch ready-for-merge/sound-device-reload
 merge_branch search-in-tracks-shortcut ready-for-merge
