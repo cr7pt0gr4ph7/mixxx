@@ -178,6 +178,12 @@ WSearchLineEdit:focus {
 WSearchLineEdit QToolButton:focus {
   image: url(skin:/btn/btn_lib_clear_search_focus_green.svg);
 }
+WSearchLineEdit[isEmpty="false"] {
+  background-color: #121d02;
+}
+WSearchLineEdit[isEmpty="false"]:!focus {
+  border-color: #6fb80a;
+}
 
 WLibrarySidebar::item:selected,
 WTrackTableView::item:selected,
