@@ -133,3 +133,4 @@ merge_branch wip/better-beatspinbox-usability
 merge_branch wip/more-hotcue-buttons
 merge_branch wip/toast-notifications  # Conflicts expected
 merge_branch wip/style-active-search-control
+merge_branch ready-for-merge/autodj-search
