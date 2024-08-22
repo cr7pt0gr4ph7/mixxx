@@ -409,11 +409,8 @@ WSearchLineEdit {
     selection-color: #222222;
     selection-background-color: #d2d2d2;
   }
-  WSearchLineEdit[isEmpty="false"] {
-    background-color: #1f0c00;
-  }
   WSearchLineEdit[isEmpty="false"]:!focus {
-    border-color: #ee6100;
+    border-color: #cc5200;
   }
   /* Clear button: see /skins/default.qss */
 

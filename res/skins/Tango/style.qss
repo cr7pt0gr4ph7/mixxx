@@ -3164,9 +3164,6 @@ WSearchLineEdit {
   WSearchLineEdit:focus {
     color: #eeeeee;
   }
-  WSearchLineEdit[isEmpty="false"] {
-    background-color: #1f0c00;
-  }
   WSearchLineEdit[isEmpty="false"]:!focus {
     border-color: #ee6100;
   }
