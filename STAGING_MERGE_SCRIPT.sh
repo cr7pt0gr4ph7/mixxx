@@ -135,3 +135,4 @@ merge_branch wip/toast-notifications  # Conflicts expected
 merge_branch wip/style-active-search-control
 merge_branch ready-for-merge/autodj-search
 merge_branch ready-for-merge/toggle-autodj-via-contextmenu
+merge_branch ready-for-merge/fix-track-search-preferences
