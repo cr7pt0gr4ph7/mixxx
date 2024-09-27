@@ -894,6 +894,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/engine/sync/internalclock.cpp
   src/engine/sync/synccontrol.cpp
   src/errordialoghandler.cpp
+  src/integrations/metadatapushmanager.cpp
   src/library/analysis/analysisfeature.cpp
   src/library/analysis/analysislibrarytablemodel.cpp
   src/library/analysis/dlganalysis.cpp
