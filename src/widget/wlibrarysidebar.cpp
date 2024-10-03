@@ -321,7 +321,8 @@ void WLibrarySidebar::keyPressEvent(QKeyEvent* event) {
         // Focus tracks table
         emit setLibraryFocus(FocusWidget::TracksTable);
         return;
-    case kRenameSidebarItemShortcutKey: { // F2
+    case kRenameSidebarItemShortcutKey:              // F2
+    case kRenameSidebarItemAlternativeShortcutKey: { // R
         renameSelectedItem();
         return;
     }

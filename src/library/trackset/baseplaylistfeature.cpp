@@ -74,7 +74,9 @@ void BasePlaylistFeature::initActions() {
             &BasePlaylistFeature::slotCreatePlaylist);
 
     m_pRenamePlaylistAction = new QAction(tr("Rename"), this);
-    m_pRenamePlaylistAction->setShortcut(kRenameSidebarItemShortcutKey);
+    m_pRenamePlaylistAction->setShortcuts(QList<QKeySequence>{
+            QKeySequence(kRenameSidebarItemShortcutKey),
+            QKeySequence(kRenameSidebarItemAlternativeShortcutKey)});
     connect(m_pRenamePlaylistAction,
             &QAction::triggered,
             this,
