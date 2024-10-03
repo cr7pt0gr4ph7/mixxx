@@ -8,7 +8,7 @@ class ActionUtils {
             const QString& baseText, const QList<QKeySequence>& shortcuts) {
         QString textAndAccel = baseText;
         bool first = true;
-        for (auto shortcut : shortcuts) {
+        for (const auto& shortcut : shortcuts) {
             if (!shortcut.isEmpty()) {
                 if (first) {
                     textAndAccel += u'\t';
