@@ -3,7 +3,7 @@
 #include <QList>
 #include <QSet>
 
-#include "library/trackset/crate/crateid.h"
+#include "library/trackset/crate/crateorfolderid.h"
 #include "track/trackid.h"
 #include "util/db/fwdsqlqueryselectresult.h"
 #include "util/db/sqlstorage.h"
@@ -277,6 +277,7 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
             CrateId id,
             Crate* pCrate = nullptr) const;
     bool readCrateByName(
+            CrateFolderId folder,
             const QString& name,
             Crate* pCrate = nullptr) const;
 

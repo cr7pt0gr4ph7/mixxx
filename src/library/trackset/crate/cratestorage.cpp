@@ -273,11 +273,13 @@ bool CrateStorage::readCrateById(CrateId id, Crate* pCrate) const {
     return false;
 }
 
-bool CrateStorage::readCrateByName(const QString& name, Crate* pCrate) const {
+bool CrateStorage::readCrateByName(
+        CrateFolderId folderId, const QString& name, Crate* pCrate) const {
     FwdSqlQuery query(m_database,
-            QStringLiteral("SELECT * FROM %1 WHERE %2=:name")
-                    .arg(CRATE_TABLE, CRATETABLE_NAME));
+            QStringLiteral("SELECT * FROM %1 WHERE %2=:name AND %3=:folder")
+                    .arg(CRATE_TABLE, CRATETABLE_NAME, CRATETABLE_FOLDERID));
     query.bindValue(":name", name);
+    query.bindValue(":folder", folderId);
     if (query.execPrepared()) {
         CrateSelectResult crates(std::move(query));
         if ((pCrate != nullptr) ? crates.populateNext(pCrate) : crates.next()) {

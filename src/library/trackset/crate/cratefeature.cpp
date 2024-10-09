@@ -40,6 +40,8 @@ QString formatLabel(
 const ConfigKey kConfigKeyLastImportExportCrateDirectoryKey(
         "[Library]", "LastImportExportCrateDirectory");
 
+const CrateFolderId kRootFolderId = CrateFolderId();
+
 } // anonymous namespace
 
 using namespace mixxx::library::prefs;
@@ -416,7 +418,7 @@ void CrateFeature::onRightClickChild(
 void CrateFeature::slotCreateCrate() {
     CrateId crateId =
             CrateFeatureHelper(m_pTrackCollection, m_pConfig)
-                    .createEmptyCrate();
+                    .createEmptyCrate(kRootFolderId);
     if (crateId.isValid()) {
         // expand Crates and scroll to new crate
         m_pSidebarWidget->selectChildIndex(indexFromCrateId(crateId), false);
@@ -490,7 +492,7 @@ void CrateFeature::slotRenameCrate() {
                         tr("A crate cannot have a blank name."));
                 continue;
             }
-            if (m_pTrackCollection->crates().readCrateByName(newName)) {
+            if (m_pTrackCollection->crates().readCrateByName(crate.getFolderId(), newName)) {
                 QMessageBox::warning(nullptr,
                         tr("Renaming Crate Failed"),
                         tr("A crate by that name already exists."));
@@ -704,6 +706,9 @@ void CrateFeature::slotCreateImportCrate() {
     m_pConfig->set(kConfigKeyLastImportExportCrateDirectoryKey,
             ConfigValue(fileDirectory));
 
+    // Set crate folder where the imported crates should be created
+    CrateFolderId importedIntoFolder = kRootFolderId;
+
     CrateId lastCrateId;
 
     // For each selected file create a new crate
@@ -711,6 +716,7 @@ void CrateFeature::slotCreateImportCrate() {
         const QFileInfo fileInfo(playlistFile);
 
         Crate crate;
+        crate.setFolderId(importedIntoFolder);
 
         // Get a valid name
         const QString baseName = fileInfo.baseName();
@@ -721,7 +727,7 @@ void CrateFeature::slotCreateImportCrate() {
             }
             name = name.trimmed();
             if (!name.isEmpty()) {
-                if (!m_pTrackCollection->crates().readCrateByName(name)) {
+                if (!m_pTrackCollection->crates().readCrateByName(importedIntoFolder, name)) {
                     // unused crate name found
                     crate.setName(std::move(name));
                     DEBUG_ASSERT(crate.hasName());
