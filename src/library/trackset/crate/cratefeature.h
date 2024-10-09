@@ -8,6 +8,7 @@
 
 #include "library/trackset/basetracksetfeature.h"
 #include "library/trackset/crate/crate.h"
+#include "library/trackset/crate/cratefolder.h"
 #include "library/trackset/crate/crateorfolderid.h"
 #include "library/trackset/crate/cratetablemodel.h"
 #include "preferences/usersettings.h"
@@ -110,6 +111,10 @@ class CrateFeature : public BaseTrackSetFeature {
     QModelIndex indexFromCrateId(CrateOrFolderId crateId) const;
 
     bool isChildIndexSelectedInSidebar(const QModelIndex& index);
+
+    typedef enum CrateOrFolderId::ItemType ItemType;
+
+    ItemType readLastRightClickedItem(Crate* pCrate, CrateFolder* pFolder) const;
     bool readLastRightClickedCrate(Crate* pCrate) const;
 
     QString formatRootViewHtml() const;

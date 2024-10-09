@@ -418,6 +418,36 @@ bool CrateFeature::activateItemImpl(CrateOrFolderId itemId, const QModelIndex& i
     return true;
 }
 
+CrateFeature::ItemType CrateFeature::readLastRightClickedItem(
+        Crate* pCrate, CrateFolder* pFolder) const {
+    CrateOrFolderId selectionId(crateIdFromIndex(m_lastRightClickedIndex));
+    VERIFY_OR_DEBUG_ASSERT(selectionId.isValid()) {
+        qWarning() << "Failed to determine id of selected item";
+        return ItemType::Invalid;
+    }
+    if (selectionId.isCrate()) {
+        CrateId crateId = selectionId.toCrateId();
+        VERIFY_OR_DEBUG_ASSERT(
+                m_pTrackCollection->crates().readCrateById(crateId, pCrate)) {
+            qWarning() << "Failed to read selected crate with id" << crateId;
+            return ItemType::Invalid;
+        }
+        return ItemType::Crate;
+    } else if (selectionId.isFolder()) {
+        CrateFolderId folderId = selectionId.toFolderId();
+        VERIFY_OR_DEBUG_ASSERT(
+                m_pTrackCollection->crates().readFolderById(folderId, pFolder)) {
+            qWarning() << "Failed to read selected folder with id" << folderId;
+            return ItemType::Invalid;
+        }
+        return ItemType::Folder;
+    } else {
+        DEBUG_ASSERT(!selectionId.isValid() || selectionId.isCrate() || selectionId.isFolder());
+        qWarning() << "Failed to determine type of selected item";
+        return ItemType::Invalid;
+    }
+}
+
 bool CrateFeature::readLastRightClickedCrate(Crate* pCrate) const {
     CrateOrFolderId selectionId(crateIdFromIndex(m_lastRightClickedIndex));
     CrateId crateId = selectionId.toCrateId();
