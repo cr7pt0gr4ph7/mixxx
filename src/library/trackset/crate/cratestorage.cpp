@@ -463,10 +463,12 @@ bool CrateStorage::readFolderById(CrateFolderId id, CrateFolder* pFolder) const 
 bool CrateStorage::readFolderByName(
         CrateFolderId parentId, const QString& name, CrateFolder* pFolder) const {
     FwdSqlQuery query(m_database,
-            QStringLiteral("SELECT * FROM %1 WHERE %2=:name AND %3=:parent")
+            QStringLiteral(
+                    "SELECT * FROM %1 WHERE %2=:name AND "
+                    "CASE WHEN :parent IS NULL THEN %3 IS NULL ELSE %3=:parent END")
                     .arg(CRATEFOLDER_TABLE, CRATEFOLDERTABLE_NAME, CRATEFOLDERTABLE_PARENTID));
     query.bindValue(":name", name);
-    query.bindValue(":parent", parentId);
+    query.bindValue(":parent", parentId.toVariantOrNull());
     if (query.execPrepared()) {
         CrateFolderSelectResult crates(std::move(query));
         if ((pFolder != nullptr) ? crates.populateNext(pFolder) : crates.next()) {
@@ -613,10 +615,12 @@ bool CrateStorage::readCrateById(CrateId id, Crate* pCrate) const {
 bool CrateStorage::readCrateByName(
         CrateFolderId folderId, const QString& name, Crate* pCrate) const {
     FwdSqlQuery query(m_database,
-            QStringLiteral("SELECT * FROM %1 WHERE %2=:name AND %3=:folder")
+            QStringLiteral(
+                    "SELECT * FROM %1 WHERE %2=:name AND "
+                    "CASE WHEN :folder IS NULL THEN %3 IS NULL ELSE %3=:folder END")
                     .arg(CRATE_TABLE, CRATETABLE_NAME, CRATETABLE_FOLDERID));
     query.bindValue(":name", name);
-    query.bindValue(":folder", folderId);
+    query.bindValue(":folder", folderId.toVariantOrNull());
     if (query.execPrepared()) {
         CrateSelectResult crates(std::move(query));
         if ((pCrate != nullptr) ? crates.populateNext(pCrate) : crates.next()) {

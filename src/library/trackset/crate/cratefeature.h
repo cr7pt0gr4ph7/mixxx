@@ -8,6 +8,7 @@
 
 #include "library/trackset/basetracksetfeature.h"
 #include "library/trackset/crate/crate.h"
+#include "library/trackset/crate/crateorfolderid.h"
 #include "library/trackset/crate/cratetablemodel.h"
 #include "preferences/usersettings.h"
 #include "track/trackid.h"
@@ -81,7 +82,8 @@ class CrateFeature : public BaseTrackSetFeature {
     void connectLibrary(Library* pLibrary);
     void connectTrackCollection();
 
-    bool activateCrate(CrateId crateId);
+    bool selectAndActivateItem(CrateOrFolderId itemId);
+    bool activateItemImpl(CrateOrFolderId itemId, const QModelIndex& index);
 
     std::unique_ptr<TreeItem> newTreeItemForCrateSummary(
             const CrateSummary& crateSummary);
@@ -92,8 +94,8 @@ class CrateFeature : public BaseTrackSetFeature {
     QModelIndex rebuildChildModel(CrateId selectedCrateId = CrateId());
     void updateChildModel(const QSet<CrateId>& updatedCrateIds);
 
-    CrateId crateIdFromIndex(const QModelIndex& index) const;
-    QModelIndex indexFromCrateId(CrateId crateId) const;
+    CrateOrFolderId crateIdFromIndex(const QModelIndex& index) const;
+    QModelIndex indexFromCrateId(CrateOrFolderId crateId) const;
 
     bool isChildIndexSelectedInSidebar(const QModelIndex& index);
     bool readLastRightClickedCrate(Crate* pCrate) const;
@@ -106,10 +108,10 @@ class CrateFeature : public BaseTrackSetFeature {
 
     CrateTableModel m_crateTableModel;
 
-    // Stores the id of a crate in the sidebar that is adjacent to the crate(crateId).
-    void storePrevSiblingCrateId(CrateId crateId);
+    // Stores the id of a crate/folder in the sidebar that is adjacent to the crate/folder(itemId).
+    void storePrevSiblingItemId(CrateOrFolderId itemId);
     // Can be used to restore a similar selection after the sidebar model was rebuilt.
-    CrateId m_prevSiblingCrate;
+    CrateOrFolderId m_prevSiblingItem;
 
     QModelIndex m_lastClickedIndex;
     QModelIndex m_lastRightClickedIndex;
