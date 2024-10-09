@@ -468,6 +468,28 @@ bool CrateFeature::readLastRightClickedCrate(Crate* pCrate) const {
     return true;
 }
 
+CrateFolderId CrateFeature::getLastRightClickedParentFolder() const {
+    Crate crate;
+    CrateFolder folder;
+    switch (readLastRightClickedItem(&crate, &folder)) {
+    case ItemType::Crate: {
+        // Use folder of selected crate as the parent
+        // (may be CrateFolderId() if the crate sits directly
+        //  under the "Crates" root item)
+        return crate.getFolderId();
+    }
+    case ItemType::Folder: {
+        // Use selected folder as the parent
+        return folder.getId();
+    }
+    case ItemType::Invalid:
+    default: {
+        // Use "Crates" root item as parent
+        return kRootFolderId;
+    }
+    }
+}
+
 bool CrateFeature::isChildIndexSelectedInSidebar(const QModelIndex& index) {
     return m_pSidebarWidget && m_pSidebarWidget->isChildIndexSelected(index);
 }

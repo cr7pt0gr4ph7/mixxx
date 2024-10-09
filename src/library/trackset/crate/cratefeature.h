@@ -117,6 +117,7 @@ class CrateFeature : public BaseTrackSetFeature {
     ItemType readItemById(CrateOrFolderId itemId, Crate* pCrate, CrateFolder* pFolder) const;
     ItemType readLastRightClickedItem(Crate* pCrate, CrateFolder* pFolder) const;
     bool readLastRightClickedCrate(Crate* pCrate) const;
+    CrateFolderId getLastRightClickedParentFolder() const;
 
     QString formatRootViewHtml() const;
 
