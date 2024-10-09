@@ -1559,7 +1559,7 @@ void WTrackMenu::updateSelectionCrates(QWidget* pWidget) {
         if (!crateId.isValid()) { // i.e. a new crate is suppose to be created
             crateId = CrateFeatureHelper(
                     m_pLibrary->trackCollectionManager()->internalCollection(), m_pConfig)
-                              .createEmptyCrate();
+                              .createEmptyCrate(CrateFolderId());
         }
         if (crateId.isValid()) {
             m_pLibrary->trackCollectionManager()->unhideTracks(trackIds);
@@ -1580,7 +1580,7 @@ void WTrackMenu::addSelectionToNewCrate() {
 
     CrateId crateId = CrateFeatureHelper(
             m_pLibrary->trackCollectionManager()->internalCollection(), m_pConfig)
-                              .createEmptyCrate();
+                              .createEmptyCrate(CrateFolderId());
 
     if (crateId.isValid()) {
         m_pLibrary->trackCollectionManager()->unhideTracks(trackIds);

@@ -5,6 +5,7 @@
 
 #include "library/trackcollection.h"
 #include "library/trackset/crate/crate.h"
+#include "library/trackset/crate/cratefolder.h"
 #include "library/trackset/crate/cratesummary.h"
 #include "moc_cratefeaturehelper.cpp"
 
@@ -16,7 +17,7 @@ CrateFeatureHelper::CrateFeatureHelper(
 }
 
 QString CrateFeatureHelper::proposeNameForNewCrate(
-        const QString& initialName) const {
+        CrateFolderId folderId, const QString& initialName) const {
     DEBUG_ASSERT(!initialName.isEmpty());
     QString proposedName;
     int suffixCounter = 0;
@@ -28,14 +29,14 @@ QString CrateFeatureHelper::proposeNameForNewCrate(
         } else {
             proposedName = initialName;
         }
-    } while (m_pTrackCollection->crates().readCrateByName(proposedName));
+    } while (m_pTrackCollection->crates().readCrateByName(folderId, proposedName));
     // Found an unused crate name
     return proposedName;
 }
 
-CrateId CrateFeatureHelper::createEmptyCrate() {
+CrateId CrateFeatureHelper::createEmptyCrate(CrateFolderId folderId) {
     const QString proposedCrateName =
-            proposeNameForNewCrate(tr("New Crate"));
+            proposeNameForNewCrate(folderId, tr("New Crate"));
     Crate newCrate;
     for (;;) {
         bool ok = false;
@@ -58,13 +59,14 @@ CrateId CrateFeatureHelper::createEmptyCrate() {
                     tr("A crate cannot have a blank name."));
             continue;
         }
-        if (m_pTrackCollection->crates().readCrateByName(newName)) {
+        if (m_pTrackCollection->crates().readCrateByName(folderId, newName)) {
             QMessageBox::warning(
                     nullptr,
                     tr("Creating Crate Failed"),
                     tr("A crate by that name already exists."));
             continue;
         }
+        newCrate.setFolderId(folderId);
         newCrate.setName(std::move(newName));
         DEBUG_ASSERT(newCrate.hasName());
         break;
@@ -87,9 +89,11 @@ CrateId CrateFeatureHelper::createEmptyCrate() {
     return newCrateId;
 }
 
+
 CrateId CrateFeatureHelper::duplicateCrate(const Crate& oldCrate) {
     const QString proposedCrateName =
             proposeNameForNewCrate(
+                    oldCrate.getFolderId(),
                     QStringLiteral("%1 %2")
                             .arg(oldCrate.getName(), tr("copy", "//:")));
     Crate newCrate;
@@ -114,7 +118,7 @@ CrateId CrateFeatureHelper::duplicateCrate(const Crate& oldCrate) {
                     tr("A crate cannot have a blank name."));
             continue;
         }
-        if (m_pTrackCollection->crates().readCrateByName(newName)) {
+        if (m_pTrackCollection->crates().readCrateByName(oldCrate.getFolderId(), newName)) {
             QMessageBox::warning(
                     nullptr,
                     tr("Duplicating Crate Failed"),

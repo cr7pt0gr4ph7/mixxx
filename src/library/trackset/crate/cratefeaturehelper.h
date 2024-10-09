@@ -2,6 +2,7 @@
 
 #include <QObject>
 
+#include "library/trackset/crate/cratefolderid.h"
 #include "library/trackset/crate/crateid.h"
 #include "preferences/usersettings.h"
 
@@ -17,11 +18,12 @@ class CrateFeatureHelper : public QObject {
             UserSettingsPointer pConfig);
     ~CrateFeatureHelper() override = default;
 
-    CrateId createEmptyCrate();
+    CrateId createEmptyCrate(CrateFolderId folderId);
     CrateId duplicateCrate(const Crate& oldCrate);
 
   private:
     QString proposeNameForNewCrate(
+            CrateFolderId folderId,
             const QString& initialName = QString()) const;
 
     TrackCollection* m_pTrackCollection;
