@@ -521,47 +521,59 @@ void CrateFeature::onRightClick(const QPoint& globalPos) {
 
 void CrateFeature::onRightClickChild(
         const QPoint& globalPos, const QModelIndex& index) {
-    //Save the model index so we can get it in the action slots...
+    // Save the model index so we can get it in the action slots...
     m_lastRightClickedIndex = index;
     CrateOrFolderId selectionId(crateIdFromIndex(index));
-    CrateId crateId = selectionId.toCrateId();
-    if (!crateId.isValid()) {
+    if (!selectionId.isValid()) {
         return;
     }
-
-    Crate crate;
-    if (!m_pTrackCollection->crates().readCrateById(crateId, &crate)) {
-        return;
-    }
-
-    m_pDeleteCrateAction->setEnabled(!crate.isLocked());
-    m_pRenameCrateAction->setEnabled(!crate.isLocked());
-
-    m_pAutoDjTrackSourceAction->setChecked(crate.isAutoDjSource());
-
-    m_pLockCrateAction->setText(crate.isLocked() ? tr("Unlock") : tr("Lock"));
 
     QMenu menu(m_pSidebarWidget);
-    menu.addAction(m_pCreateCrateAction.get());
-    menu.addAction(m_pCreateFolderAction.get());
-    menu.addSeparator();
-    menu.addAction(m_pRenameCrateAction.get());
-    menu.addAction(m_pDuplicateCrateAction.get());
-    menu.addAction(m_pDeleteCrateAction.get());
-    menu.addAction(m_pLockCrateAction.get());
-    menu.addSeparator();
-    menu.addAction(m_pAutoDjTrackSourceAction.get());
-    menu.addSeparator();
-    menu.addAction(m_pAnalyzeCrateAction.get());
-    menu.addSeparator();
-    if (!crate.isLocked()) {
-        menu.addAction(m_pImportPlaylistAction.get());
-    }
-    menu.addAction(m_pExportPlaylistAction.get());
-    menu.addAction(m_pExportTrackFilesAction.get());
+
+    if (selectionId.isCrate()) {
+        CrateId crateId = selectionId.toCrateId();
+        Crate crate;
+        if (!m_pTrackCollection->crates().readCrateById(crateId, &crate)) {
+            return;
+        }
+
+        m_pDeleteCrateAction->setEnabled(!crate.isLocked());
+        m_pRenameCrateAction->setEnabled(!crate.isLocked());
+        m_pAutoDjTrackSourceAction->setChecked(crate.isAutoDjSource());
+        m_pLockCrateAction->setText(crate.isLocked() ? tr("Unlock") : tr("Lock"));
+
+        menu.addAction(m_pCreateCrateAction.get());
+        menu.addAction(m_pCreateFolderAction.get());
+        menu.addSeparator();
+        menu.addAction(m_pRenameCrateAction.get());
+        menu.addAction(m_pDuplicateCrateAction.get());
+        menu.addAction(m_pDeleteCrateAction.get());
+        menu.addAction(m_pLockCrateAction.get());
+        menu.addSeparator();
+        menu.addAction(m_pAutoDjTrackSourceAction.get());
+        menu.addSeparator();
+        menu.addAction(m_pAnalyzeCrateAction.get());
+        menu.addSeparator();
+        if (!crate.isLocked()) {
+            menu.addAction(m_pImportPlaylistAction.get());
+        }
+        menu.addAction(m_pExportPlaylistAction.get());
+        menu.addAction(m_pExportTrackFilesAction.get());
 #ifdef __ENGINEPRIME__
-    menu.addAction(m_pExportCrateAction.get());
+        menu.addAction(m_pExportCrateAction.get());
 #endif
+    } else if (selectionId.isFolder()) {
+        m_pDeleteCrateAction->setEnabled(true);
+        m_pRenameCrateAction->setEnabled(true);
+
+        menu.addAction(m_pCreateCrateAction.get());
+        menu.addAction(m_pCreateFolderAction.get());
+        menu.addSeparator();
+        menu.addAction(m_pRenameCrateAction.get());
+        menu.addAction(m_pDeleteCrateAction.get());
+    } else {
+        return;
+    }
     menu.exec(globalPos);
 }
 
@@ -644,6 +656,10 @@ void CrateFeature::slotDeleteItem() {
         break;
     }
     case ItemType::Folder: {
+        // if (m_pTrackCollection->crates().hasLockedCrates(crate.getId())) {
+        //     qWarning() << "Refusing to delete folder" << folder << "containing locked crates";
+        //     return;
+        // }
         CrateFolderId folderId = folder.getId();
         // Store sibling id to restore selection after crate was deleted
         // to avoid the scroll position being reset to Crate root item.
