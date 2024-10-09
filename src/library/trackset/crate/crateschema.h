@@ -3,6 +3,7 @@
 #include <QString>
 
 #define CRATE_TABLE "crates"
+#define CRATEFOLDER_TABLE "cratefolders"
 #define CRATE_TRACKS_TABLE "crate_tracks"
 
 const QString CRATETABLE_ID = "id";
@@ -18,6 +19,10 @@ const QString CRATETABLE_LOCKED = "locked";
 // ideas of the new design should be documented for verification
 // before starting to code.
 const QString CRATETABLE_AUTODJ_SOURCE = "autodj_source";
+
+const QString CRATEFOLDERTABLE_ID = "id";
+const QString CRATEFOLDERTABLE_NAME = "name";
+const QString CRATEFOLDERTABLE_PARENTID = "parent_id";
 
 const QString CRATETRACKSTABLE_CRATEID = "crate_id";
 const QString CRATETRACKSTABLE_TRACKID = "track_id";
