@@ -717,21 +717,29 @@ CrateOrFolderId CrateFeature::crateIdFromIndex(const QModelIndex& index) const {
     return CrateOrFolderId(item->getData());
 }
 
-QModelIndex CrateFeature::indexFromCrateId(CrateOrFolderId crateId) const {
-    VERIFY_OR_DEBUG_ASSERT(crateId.isValid()) {
+QModelIndex CrateFeature::indexFromCrateId(CrateOrFolderId itemId) const {
+    VERIFY_OR_DEBUG_ASSERT(itemId.isValid()) {
         return QModelIndex();
     }
-    for (int row = 0; row < m_pSidebarModel->rowCount(); ++row) {
-        QModelIndex index = m_pSidebarModel->index(row, 0);
-        TreeItem* pTreeItem = m_pSidebarModel->getItem(index);
-        DEBUG_ASSERT(pTreeItem != nullptr);
-        if (!pTreeItem->hasChildren() && // leaf node
-                (CrateOrFolderId(pTreeItem->getData()) == crateId)) {
-            return index;
+    if (itemId.isCrate()) {
+        CrateId crateId = itemId.toCrateId();
+        auto i = m_idToCrate.find(crateId);
+        if (i == m_idToCrate.end()) {
+            qDebug() << "Tree item for crate not found:" << crateId;
+            return QModelIndex();
         }
+        return m_pSidebarModel->index(i.value());
+    } else if (itemId.isFolder()) {
+        CrateFolderId folderId = itemId.toFolderId();
+        auto i = m_idToFolder.find(folderId);
+        if (i == m_idToFolder.end()) {
+            qDebug() << "Tree item for folder not found:" << folderId;
+            return QModelIndex();
+        }
+        return m_pSidebarModel->index(i.value());
+    } else {
+        return QModelIndex();
     }
-    qDebug() << "Tree item for crate not found:" << crateId;
-    return QModelIndex();
 }
 
 void CrateFeature::slotImportPlaylist() {
