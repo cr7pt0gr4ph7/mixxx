@@ -231,10 +231,54 @@ QString CrateFeature::formatRootViewHtml() const {
     return html;
 }
 
+TreeItem* CrateFeature::getTreeItemForFolder(
+        CrateFolderId folderId) {
+    if (!folderId.isValid()) {
+        // The null value represents the root item
+        return m_pSidebarModel->getRootItem();
+    }
+    auto i = m_idToFolder.find(folderId);
+    if (i != m_idToFolder.end()) {
+        return i.value();
+    } else {
+        // We need to store a non-owning reference in the hash table.
+        // The code makes sure to create exactly one owning std::unique_ptr
+        // per tree item later on.
+        auto* pTreeItem = newTreeItemForFolder(folderId).release();
+        m_idToFolder.insert(folderId, pTreeItem);
+        return pTreeItem;
+    }
+}
+
+std::unique_ptr<TreeItem> CrateFeature::newTreeItemForFolder(
+        CrateFolderId folderId) {
+    auto pTreeItem = TreeItem::newRoot(this);
+    pTreeItem->setData(CrateOrFolderId(folderId).toVariant());
+    // Label will be set later (due to the way we handle the recursive folder structure)
+    return pTreeItem;
+}
+
+void CrateFeature::updateTreeItemForFolder(
+        TreeItem* pTreeItem, const CrateFolder& folder) const {
+    DEBUG_ASSERT(pTreeItem != nullptr);
+    if (pTreeItem->getData().isNull()) {
+        // Initialize a newly created tree item
+        pTreeItem->setData(CrateOrFolderId(folder.getId()).toVariant());
+    } else {
+        // The data (= CrateId) is immutable once it has been set
+        DEBUG_ASSERT(CrateOrFolderId(pTreeItem->getData()) == folder.getId());
+    }
+    // Update mutable properties
+    pTreeItem->setLabel(folder.getName());
+}
+
 std::unique_ptr<TreeItem> CrateFeature::newTreeItemForCrateSummary(
         const CrateSummary& crateSummary) {
     auto pTreeItem = TreeItem::newRoot(this);
     updateTreeItemForCrateSummary(pTreeItem.get(), crateSummary);
+    if (crateSummary.getId().isValid()) {
+        m_idToCrate.insert(crateSummary.getId(), pTreeItem.get());
+    }
     return pTreeItem;
 }
 
@@ -582,43 +626,60 @@ void CrateFeature::slotAutoDjTrackSourceChanged() {
     }
 }
 
-QModelIndex CrateFeature::rebuildChildModel(CrateId selectedCrateId) {
-    qDebug() << "CrateFeature::rebuildChildModel()" << selectedCrateId;
+QModelIndex CrateFeature::rebuildChildModel(CrateOrFolderId selectedItemId) {
+    qDebug() << "CrateFeature::rebuildChildModel()" << selectedItemId;
 
     m_lastRightClickedIndex = QModelIndex();
+    QModelIndex selectedIndex = QModelIndex();
 
     TreeItem* pRootItem = m_pSidebarModel->getRootItem();
     VERIFY_OR_DEBUG_ASSERT(pRootItem != nullptr) {
-        return QModelIndex();
+        return selectedIndex;
     }
+
+    // Remove all existing tree items except for the root
     m_pSidebarModel->removeRows(0, pRootItem->childRows());
+
+    // Create the nested folder structure
+    m_idToCrate.clear();
+    m_idToFolder.clear();
+
+    CrateFolderSelectResult folders(
+            m_pTrackCollection->crates().selectFolders());
+    CrateFolder folder;
+    while (folders.populateNext(&folder)) {
+        auto* pThisItem = getTreeItemForFolder(folder.getId());
+        auto* pParentItem = getTreeItemForFolder(folder.getParentId());
+        updateTreeItemForFolder(pThisItem, folder);
+        pParentItem->insertChild(pParentItem->childRows(), std::unique_ptr<TreeItem>(pThisItem));
+        if (selectedItemId.isFolder() && selectedItemId.toFolderId() == folder.getId()) {
+            // save index for selection
+            selectedIndex = m_pSidebarModel->index(pThisItem);
+        }
+    }
 
     std::vector<std::unique_ptr<TreeItem>> modelRows;
     modelRows.reserve(m_pTrackCollection->crates().countCrates());
 
-    int selectedRow = -1;
     CrateSummarySelectResult crateSummaries(
             m_pTrackCollection->crates().selectCrateSummaries());
     CrateSummary crateSummary;
     while (crateSummaries.populateNext(&crateSummary)) {
-        modelRows.push_back(newTreeItemForCrateSummary(crateSummary));
-        if (selectedCrateId == crateSummary.getId()) {
+        auto pThisItem = newTreeItemForCrateSummary(crateSummary);
+        auto pParentItem = getTreeItemForFolder(crateSummary.getFolderId());
+        auto pThisItemPtr = pThisItem.get();
+        pParentItem->insertChild(pParentItem->childRows(), std::move(pThisItem));
+
+        if (selectedItemId.isCrate() && selectedItemId.toCrateId() == crateSummary.getId()) {
             // save index for selection
-            selectedRow = static_cast<int>(modelRows.size()) - 1;
+            selectedIndex = m_pSidebarModel->index(pThisItemPtr);
         }
     }
-
-    // Append all the newly created TreeItems in a dynamic way to the childmodel
-    m_pSidebarModel->insertTreeItemRows(std::move(modelRows), 0);
 
     // Update rendering of crates depending on the currently selected track
     slotTrackSelected(m_selectedTrackId);
 
-    if (selectedRow >= 0) {
-        return m_pSidebarModel->index(selectedRow, 0);
-    } else {
-        return QModelIndex();
-    }
+    return selectedIndex;
 }
 
 void CrateFeature::updateChildModel(const QSet<CrateId>& updatedCrateIds) {

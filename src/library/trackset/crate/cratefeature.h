@@ -87,13 +87,20 @@ class CrateFeature : public BaseTrackSetFeature {
     bool selectAndActivateItem(CrateOrFolderId itemId);
     bool activateItemImpl(CrateOrFolderId itemId, const QModelIndex& index);
 
+    TreeItem* getTreeItemForFolder(CrateFolderId folderId);
+    std::unique_ptr<TreeItem> newTreeItemForFolder(
+            CrateFolderId folderId);
+    void updateTreeItemForFolder(
+            TreeItem* pTreeItem,
+            const CrateFolder& folder) const;
+
     std::unique_ptr<TreeItem> newTreeItemForCrateSummary(
             const CrateSummary& crateSummary);
     void updateTreeItemForCrateSummary(
             TreeItem* pTreeItem,
             const CrateSummary& crateSummary) const;
 
-    QModelIndex rebuildChildModel(CrateId selectedCrateId = CrateId());
+    QModelIndex rebuildChildModel(CrateOrFolderId selectedCrateId = CrateOrFolderId());
     void updateChildModel(const QSet<CrateId>& updatedCrateIds);
 
     CrateOrFolderId crateIdFromIndex(const QModelIndex& index) const;
@@ -109,6 +116,9 @@ class CrateFeature : public BaseTrackSetFeature {
     TrackCollection* const m_pTrackCollection;
 
     CrateTableModel m_crateTableModel;
+
+    QHash<CrateFolderId, TreeItem*> m_idToFolder;
+    QHash<CrateId, TreeItem*> m_idToCrate;
 
     // Stores the id of a crate/folder in the sidebar that is adjacent to the crate/folder(itemId).
     void storePrevSiblingItemId(CrateOrFolderId itemId);
