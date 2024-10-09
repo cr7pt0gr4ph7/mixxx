@@ -179,6 +179,22 @@ void CrateFeature::connectTrackCollection() {
             &TrackCollection::crateTracksChanged,
             this,
             &CrateFeature::slotCrateContentChanged);
+    connect(m_pTrackCollection, // created new folder
+            &TrackCollection::crateFolderInserted,
+            this,
+            &CrateFeature::slotCrateFolderTableChanged);
+    connect(m_pTrackCollection, // renamed folder, changed the list of children of a folder
+            &TrackCollection::crateFolderUpdated,
+            this,
+            &CrateFeature::slotCrateFolderTableChanged);
+    connect(m_pTrackCollection, // deleted folder
+            &TrackCollection::crateFolderDeleted,
+            this,
+            &CrateFeature::slotCrateFolderTableChanged);
+    connect(m_pTrackCollection, // crate tracks hidden, unhidden or purged
+            &TrackCollection::crateTracksChanged,
+            this,
+            &CrateFeature::slotCrateContentChanged);
     connect(m_pTrackCollection,
             &TrackCollection::crateSummaryChanged,
             this,
@@ -896,8 +912,16 @@ void CrateFeature::storePrevSiblingItemId(CrateOrFolderId itemId) {
     }
 }
 
+void CrateFeature::slotCrateFolderTableChanged(CrateFolderId folderId) {
+    slotCrateOrFolderTableChanged(folderId);
+}
+
 void CrateFeature::slotCrateTableChanged(CrateId crateId) {
-    Q_UNUSED(crateId);
+    slotCrateOrFolderTableChanged(crateId);
+}
+
+void CrateFeature::slotCrateOrFolderTableChanged(CrateOrFolderId itemId) {
+    Q_UNUSED(itemId);
     if (isChildIndexSelectedInSidebar(m_lastClickedIndex)) {
         // If the previously selected crate was loaded to the tracks table and
         // selected in the sidebar try to activate that or a sibling

@@ -70,6 +70,8 @@ class CrateFeature : public BaseTrackSetFeature {
     // Copy all of the tracks in a crate to a new directory (like a thumbdrive).
     void slotExportTrackFiles();
     void slotAnalyzeCrate();
+    void slotCrateOrFolderTableChanged(CrateOrFolderId itemId);
+    void slotCrateFolderTableChanged(CrateFolderId folderId);
     void slotCrateTableChanged(CrateId crateId);
     void slotCrateContentChanged(CrateId crateId);
     void htmlLinkClicked(const QUrl& link);
