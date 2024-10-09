@@ -59,8 +59,8 @@ class CrateFeature : public BaseTrackSetFeature {
 #endif
 
   private slots:
-    void slotDeleteCrate();
-    void slotRenameCrate();
+    void slotDeleteItem();
+    void slotRenameItem();
     void slotDuplicateCrate();
     void slotAutoDjTrackSourceChanged();
     void slotToggleCrateLock();

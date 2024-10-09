@@ -75,7 +75,7 @@ void CrateFeature::initActions() {
     connect(m_pRenameCrateAction.get(),
             &QAction::triggered,
             this,
-            &CrateFeature::slotRenameCrate);
+            &CrateFeature::slotRenameItem);
     m_pDuplicateCrateAction = make_parented<QAction>(tr("Duplicate"), this);
     connect(m_pDuplicateCrateAction.get(),
             &QAction::triggered,
@@ -90,7 +90,7 @@ void CrateFeature::initActions() {
     connect(m_pDeleteCrateAction.get(),
             &QAction::triggered,
             this,
-            &CrateFeature::slotDeleteCrate);
+            &CrateFeature::slotDeleteItem);
     m_pLockCrateAction = make_parented<QAction>(tr("Lock"), this);
     connect(m_pLockCrateAction.get(),
             &QAction::triggered,
@@ -576,12 +576,14 @@ void CrateFeature::createNewCrate(CrateFolderId parent, bool selectAfterCreation
 
 void CrateFeature::deleteItem(const QModelIndex& index) {
     m_lastRightClickedIndex = index;
-    slotDeleteCrate();
+    slotDeleteItem();
 }
 
-void CrateFeature::slotDeleteCrate() {
+void CrateFeature::slotDeleteItem() {
     Crate crate;
-    if (readLastRightClickedCrate(&crate)) {
+    CrateFolder folder;
+    switch (readLastRightClickedItem(&crate, &folder)) {
+    case ItemType::Crate: {
         if (crate.isLocked()) {
             qWarning() << "Refusing to delete locked crate" << crate;
             return;
@@ -600,63 +602,129 @@ void CrateFeature::slotDeleteCrate() {
                         .arg(crate.getName()),
                 QMessageBox::Yes | QMessageBox::No,
                 QMessageBox::No);
-        if (btn == QMessageBox::Yes) {
-            if (m_pTrackCollection->deleteCrate(crateId)) {
-                qDebug() << "Deleted crate" << crate;
-                return;
-            }
-        } else {
-            return;
+        if (btn == QMessageBox::Yes && m_pTrackCollection->deleteCrate(crateId)) {
+            qDebug() << "Deleted crate" << crate;
         }
+        break;
     }
-    qWarning() << "Failed to delete selected crate";
+    case ItemType::Folder: {
+        CrateFolderId folderId = folder.getId();
+        // Store sibling id to restore selection after crate was deleted
+        // to avoid the scroll position being reset to Crate root item.
+        m_prevSiblingItem = CrateOrFolderId();
+        if (isChildIndexSelectedInSidebar(m_lastRightClickedIndex)) {
+            storePrevSiblingItemId(folderId);
+        }
+
+        QMessageBox::StandardButton btn = QMessageBox::question(nullptr,
+                tr("Confirm Deletion"),
+                tr("Do you really want to delete the folder <b>%1</b>?")
+                        .arg(crate.getName()),
+                QMessageBox::Yes | QMessageBox::No,
+                QMessageBox::No);
+        if (btn == QMessageBox::Yes && m_pTrackCollection->deleteCrateFolder(folderId)) {
+            qDebug() << "Deleted crate folder" << crate;
+        }
+        break;
+    }
+    case ItemType::Invalid:
+    default: {
+        qWarning() << "Failed to delete selected item";
+        break;
+    }
+    }
 }
 
 void CrateFeature::renameItem(const QModelIndex& index) {
     m_lastRightClickedIndex = index;
-    slotRenameCrate();
+    slotRenameItem();
 }
 
-void CrateFeature::slotRenameCrate() {
+void CrateFeature::slotRenameItem() {
     Crate crate;
-    if (readLastRightClickedCrate(&crate)) {
-        const QString oldName = crate.getName();
-        crate.resetName();
-        for (;;) {
-            bool ok = false;
-            auto newName =
-                    QInputDialog::getText(nullptr,
-                            tr("Rename Crate"),
-                            tr("Enter new name for crate:"),
-                            QLineEdit::Normal,
-                            oldName,
-                            &ok)
-                            .trimmed();
-            if (!ok || newName.isEmpty()) {
-                return;
+    CrateFolder folder;
+    switch (readLastRightClickedItem(&crate, &folder)) {
+    case ItemType::Crate: {
+            const QString oldName = crate.getName();
+            crate.resetName();
+            for (;;) {
+                bool ok = false;
+                auto newName =
+                        QInputDialog::getText(nullptr,
+                                tr("Rename Crate"),
+                                tr("Enter new name for crate:"),
+                                QLineEdit::Normal,
+                                oldName,
+                                &ok)
+                                .trimmed();
+                if (!ok || newName.isEmpty()) {
+                    return;
+                }
+                if (newName.isEmpty()) {
+                    QMessageBox::warning(nullptr,
+                            tr("Renaming Crate Failed"),
+                            tr("A crate cannot have a blank name."));
+                    continue;
+                }
+                if (m_pTrackCollection->crates().readCrateByName(crate.getFolderId(), newName)) {
+                    QMessageBox::warning(nullptr,
+                            tr("Renaming Crate Failed"),
+                            tr("A crate by that name already exists."));
+                    continue;
+                }
+                crate.setName(std::move(newName));
+                DEBUG_ASSERT(crate.hasName());
+                break;
             }
-            if (newName.isEmpty()) {
-                QMessageBox::warning(nullptr,
-                        tr("Renaming Crate Failed"),
-                        tr("A crate cannot have a blank name."));
-                continue;
-            }
-            if (m_pTrackCollection->crates().readCrateByName(crate.getFolderId(), newName)) {
-                QMessageBox::warning(nullptr,
-                        tr("Renaming Crate Failed"),
-                        tr("A crate by that name already exists."));
-                continue;
-            }
-            crate.setName(std::move(newName));
-            DEBUG_ASSERT(crate.hasName());
-            break;
-        }
 
-        if (!m_pTrackCollection->updateCrate(crate)) {
-            qDebug() << "Failed to rename crate" << crate;
-        }
-    } else {
-        qDebug() << "Failed to rename selected crate";
+            if (!m_pTrackCollection->updateCrate(crate)) {
+                qDebug() << "Failed to rename crate" << crate;
+            }
+            break;
+    }
+    case ItemType::Folder: {
+            const QString oldName = folder.getName();
+            folder.resetName();
+            for (;;) {
+                bool ok = false;
+                auto newName =
+                        QInputDialog::getText(nullptr,
+                                tr("Rename Folder"),
+                                tr("Enter new name for folder:"),
+                                QLineEdit::Normal,
+                                oldName,
+                                &ok)
+                                .trimmed();
+                if (!ok || newName.isEmpty()) {
+                    return;
+                }
+                if (newName.isEmpty()) {
+                    QMessageBox::warning(nullptr,
+                            tr("Renaming Folder Failed"),
+                            tr("A folder cannot have a blank name."));
+                    continue;
+                }
+                if (m_pTrackCollection->crates().readFolderByName(folder.getParentId(), newName)) {
+                    QMessageBox::warning(nullptr,
+                            tr("Renaming Folder Failed"),
+                            tr("A folder with that name already exists."));
+                    continue;
+                }
+                folder.setName(std::move(newName));
+                DEBUG_ASSERT(folder.hasName());
+                break;
+            }
+
+            if (!m_pTrackCollection->updateCrateFolder(folder)) {
+                qDebug() << "Failed to rename folder" << folder;
+            }
+            break;
+    }
+    case ItemType::Invalid:
+    default: {
+            qDebug() << "Failed to rename selected item";
+            break;
+    }
     }
 }
 
