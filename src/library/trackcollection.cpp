@@ -2,6 +2,7 @@
 
 #include "library/basetrackcache.h"
 #include "library/trackset/crate/crate.h"
+#include "library/trackset/crate/cratefolder.h"
 #include "moc_trackcollection.cpp"
 #include "track/globaltrackcache.h"
 #include "util/assert.h"
@@ -406,6 +407,78 @@ bool TrackCollection::purgeAllTracks(
         trackIds.append(trackRef.getId());
     }
     return purgeTracks(trackIds);
+}
+
+bool TrackCollection::insertCrateFolder(
+        const CrateFolder& folder,
+        CrateFolderId* pFolderId) {
+    DEBUG_ASSERT_QOBJECT_THREAD_AFFINITY(this);
+
+    // Transactional
+    SqlTransaction transaction(m_database);
+    VERIFY_OR_DEBUG_ASSERT(transaction) {
+        return false;
+    }
+    CrateFolderId folderId;
+    VERIFY_OR_DEBUG_ASSERT(m_crates.onInsertingFolder(folder, &folderId)) {
+        return false;
+    }
+    DEBUG_ASSERT(folderId.isValid());
+    VERIFY_OR_DEBUG_ASSERT(transaction.commit()) {
+        return false;
+    }
+
+    // Emit signals
+    emit crateFolderInserted(folderId);
+
+    if (pFolderId != nullptr) {
+        *pFolderId = folderId;
+    }
+    return true;
+}
+
+bool TrackCollection::updateCrateFolder(
+        const CrateFolder& folder) {
+    DEBUG_ASSERT_QOBJECT_THREAD_AFFINITY(this);
+
+    // Transactional
+    SqlTransaction transaction(m_database);
+    VERIFY_OR_DEBUG_ASSERT(transaction) {
+        return false;
+    }
+    VERIFY_OR_DEBUG_ASSERT(m_crates.onUpdatingFolder(folder)) {
+        return false;
+    }
+    VERIFY_OR_DEBUG_ASSERT(transaction.commit()) {
+        return false;
+    }
+
+    // Emit signals
+    emit crateFolderUpdated(folder.getId());
+
+    return true;
+}
+
+bool TrackCollection::deleteCrateFolder(
+        CrateFolderId folderId) {
+    DEBUG_ASSERT_QOBJECT_THREAD_AFFINITY(this);
+
+    // Transactional
+    SqlTransaction transaction(m_database);
+    VERIFY_OR_DEBUG_ASSERT(transaction) {
+        return false;
+    }
+    VERIFY_OR_DEBUG_ASSERT(m_crates.onDeletingFolder(folderId)) {
+        return false;
+    }
+    VERIFY_OR_DEBUG_ASSERT(transaction.commit()) {
+        return false;
+    }
+
+    // Emit signals
+    emit crateFolderDeleted(folderId);
+
+    return true;
 }
 
 bool TrackCollection::insertCrate(
