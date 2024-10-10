@@ -64,6 +64,7 @@ class CrateFeature : public BaseTrackSetFeature {
     void slotDeleteItem();
     void slotRenameItem();
     void slotDuplicateCrate();
+    void slotMoveToFolder(CrateFolderId destinationId);
     void slotAutoDjTrackSourceChanged();
     void slotToggleCrateLock();
     void slotImportPlaylist();
@@ -127,6 +128,8 @@ class CrateFeature : public BaseTrackSetFeature {
     // TreeItem actions
     void createNewCrate(CrateFolderId parent, bool selectAfterCreation);
     void createNewFolder(CrateFolderId parent, bool selectAfterCreation);
+    bool moveToFolder(CrateFolderId destinationId, CrateOrFolderId itemToMoveId);
+    bool moveToFolder(CrateFolderId destinationId, const QList<CrateOrFolderId>& itemsToMove);
 
     QString formatRootViewHtml() const;
 

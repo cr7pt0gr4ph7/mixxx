@@ -16,6 +16,7 @@
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
 #include "library/trackset/crate/cratefeaturehelper.h"
+#include "library/trackset/crate/cratefoldersummary.h"
 #include "library/trackset/crate/cratesummary.h"
 #include "library/treeitem.h"
 #include "moc_cratefeature.cpp"
@@ -530,6 +531,36 @@ void CrateFeature::onRightClickChild(
 
     QMenu menu(m_pSidebarWidget);
 
+    QMenu* moveToFolderMenu = new QMenu(&menu);
+    moveToFolderMenu->setTitle(tr("Move to Folder"));
+    moveToFolderMenu->setObjectName("FolderMenu");
+
+    bool folderMenuInitialized = false;
+    connect(moveToFolderMenu,
+            &QMenu::aboutToShow,
+            this,
+            [this, moveToFolderMenu, &folderMenuInitialized] {
+                if (folderMenuInitialized) {
+                    return;
+                }
+                moveToFolderMenu->clear();
+
+                CrateFolderSummary folder;
+                auto folders = m_pTrackCollection->crates().selectFolderSummaries();
+                while (folders.populateNext(&folder)) {
+                    auto* pAction = moveToFolderMenu->addAction(folder.getFullPath());
+                    pAction->setProperty("folderId", QVariant::fromValue(folder.getId()));
+                    connect(pAction,
+                            &QAction::triggered,
+                            this,
+                            [this, folderId{folder.getId()}] {
+                                slotMoveToFolder(folderId);
+                            });
+                }
+
+                folderMenuInitialized = true;
+            });
+
     if (selectionId.isCrate()) {
         CrateId crateId = selectionId.toCrateId();
         Crate crate;
@@ -552,6 +583,8 @@ void CrateFeature::onRightClickChild(
         menu.addSeparator();
         menu.addAction(m_pAutoDjTrackSourceAction.get());
         menu.addSeparator();
+        menu.addMenu(moveToFolderMenu);
+        menu.addSeparator();
         menu.addAction(m_pAnalyzeCrateAction.get());
         menu.addSeparator();
         if (!crate.isLocked()) {
@@ -571,9 +604,12 @@ void CrateFeature::onRightClickChild(
         menu.addSeparator();
         menu.addAction(m_pRenameCrateAction.get());
         menu.addAction(m_pDeleteCrateAction.get());
+        menu.addSeparator();
+        menu.addMenu(moveToFolderMenu);
     } else {
         return;
     }
+
     menu.exec(globalPos);
 }
 
@@ -619,6 +655,48 @@ void CrateFeature::createNewFolder(CrateFolderId parent, bool selectAfterCreatio
     if (selectAfterCreation && folderId.isValid()) {
         // expand Crates and scroll to new folder
         m_pSidebarWidget->selectChildIndex(indexFromCrateId(folderId), false);
+    }
+}
+
+void CrateFeature::slotMoveToFolder(CrateFolderId destinationId) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    CrateOrFolderId itemToMove = getLastRightClickedItem();
+    if (moveToFolder(destinationId, itemToMove) && itemToMove.isValid()) {
+        // Scroll to new location of the selected crate/folder
+        m_pSidebarWidget->selectChildIndex(indexFromCrateId(itemToMove), false);
+    }
+}
+
+bool CrateFeature::moveToFolder(CrateFolderId destinationId,
+        const QList<CrateOrFolderId>& itemsToMove) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    bool success = false;
+    for (CrateOrFolderId itemToMoveId : itemsToMove) {
+        success |= moveToFolder(destinationId, itemToMoveId);
+    }
+    return success;
+}
+
+bool CrateFeature::moveToFolder(CrateFolderId destinationId, CrateOrFolderId itemToMoveId) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    Crate crate;
+    CrateFolder folder;
+    switch (readItemById(itemToMoveId, &crate, &folder)) {
+    case ItemType::Crate: {
+        crate.setFolderId(destinationId);
+        return m_pTrackCollection->updateCrate(crate);
+    }
+    case ItemType::Folder: {
+        folder.setParentId(destinationId);
+        return m_pTrackCollection->updateCrateFolder(folder);
+    }
+    case ItemType::Invalid:
+    default: {
+        return false;
+    }
     }
 }
 
