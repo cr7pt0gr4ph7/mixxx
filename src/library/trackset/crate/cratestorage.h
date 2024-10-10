@@ -11,6 +11,7 @@
 
 class Crate;
 class CrateFolder;
+class CrateFolderSummary;
 class CrateSummary;
 
 class CrateFolderQueryFields {
@@ -66,6 +67,52 @@ class CrateFolderSelectResult : public FwdSqlQuerySelectResult {
     }
 
     CrateFolderQueryFields m_queryFields;
+};
+
+class CrateFolderSummaryQueryFields : public CrateFolderQueryFields {
+  public:
+    CrateFolderSummaryQueryFields() = default;
+    explicit CrateFolderSummaryQueryFields(const FwdSqlQuery& query);
+    ~CrateFolderSummaryQueryFields() override = default;
+
+    QString getFullPath(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iFullPath).toString();
+    }
+
+    void populateFromQuery(
+            const FwdSqlQuery& query,
+            CrateFolderSummary* pFolderSummary) const;
+
+  private:
+    DbFieldIndex m_iFullPath;
+};
+
+class CrateFolderSummarySelectResult : public FwdSqlQuerySelectResult {
+  public:
+    CrateFolderSummarySelectResult(CrateFolderSummarySelectResult&& other)
+            : FwdSqlQuerySelectResult(std::move(other)),
+              m_queryFields(std::move(other.m_queryFields)) {
+    }
+    ~CrateFolderSummarySelectResult() override = default;
+
+    bool populateNext(CrateFolderSummary* pFolderSummary) {
+        if (next()) {
+            m_queryFields.populateFromQuery(query(), pFolderSummary);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+  private:
+    friend class CrateStorage;
+    CrateFolderSummarySelectResult() = default;
+    explicit CrateFolderSummarySelectResult(FwdSqlQuery&& query)
+            : FwdSqlQuerySelectResult(std::move(query)),
+              m_queryFields(FwdSqlQuerySelectResult::query()) {
+    }
+
+    CrateFolderSummaryQueryFields m_queryFields;
 };
 
 class CrateQueryFields {
@@ -153,6 +200,9 @@ class CrateSummaryQueryFields : public CrateQueryFields {
             return varTrackDuration.toDouble();
         }
     }
+    QString getFullPath(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iFullPath).toString();
+    }
 
     void populateFromQuery(
             const FwdSqlQuery& query,
@@ -161,6 +211,7 @@ class CrateSummaryQueryFields : public CrateQueryFields {
   private:
     DbFieldIndex m_iTrackCount;
     DbFieldIndex m_iTrackDuration;
+    DbFieldIndex m_iFullPath;
 };
 
 class CrateSummarySelectResult : public FwdSqlQuerySelectResult {
@@ -416,6 +467,13 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
     /////////////////////////////////////////////////////////////////////////
     // CrateSummary view operations (read-only, const)
     /////////////////////////////////////////////////////////////////////////
+
+    // Track summaries of all crates:
+    //  - Hidden tracks are excluded from the crate summary statistics
+    //  - The result list is ordered by crate name:
+    //     - case-insensitive
+    //     - locale-aware
+    CrateFolderSummarySelectResult selectFolderSummaries() const; // all crates
 
     // Track summaries of all crates:
     //  - Hidden tracks are excluded from the crate summary statistics
