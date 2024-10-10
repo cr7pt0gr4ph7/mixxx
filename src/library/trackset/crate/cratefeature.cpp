@@ -70,6 +70,12 @@ void CrateFeature::initActions() {
             this,
             &CrateFeature::slotCreateCrate);
 
+    m_pCreateFolderAction = make_parented<QAction>(tr("Create New Folder"), this);
+    connect(m_pCreateFolderAction.get(),
+            &QAction::triggered,
+            this,
+            &CrateFeature::slotCreateFolder);
+
     m_pRenameCrateAction = make_parented<QAction>(tr("Rename"), this);
     m_pRenameCrateAction->setShortcut(kRenameSidebarItemShortcutKey);
     connect(m_pRenameCrateAction.get(),
@@ -503,6 +509,7 @@ void CrateFeature::onRightClick(const QPoint& globalPos) {
     m_lastRightClickedIndex = QModelIndex();
     QMenu menu(m_pSidebarWidget);
     menu.addAction(m_pCreateCrateAction.get());
+    menu.addAction(m_pCreateFolderAction.get());
     menu.addSeparator();
     menu.addAction(m_pCreateImportPlaylistAction.get());
 #ifdef __ENGINEPRIME__
@@ -536,6 +543,7 @@ void CrateFeature::onRightClickChild(
 
     QMenu menu(m_pSidebarWidget);
     menu.addAction(m_pCreateCrateAction.get());
+    menu.addAction(m_pCreateFolderAction.get());
     menu.addSeparator();
     menu.addAction(m_pRenameCrateAction.get());
     menu.addAction(m_pDuplicateCrateAction.get());
@@ -564,6 +572,16 @@ void CrateFeature::slotCreateCrate() {
     if (crateId.isValid()) {
         // expand Crates and scroll to new crate
         m_pSidebarWidget->selectChildIndex(indexFromCrateId(crateId), false);
+    }
+}
+
+void CrateFeature::slotCreateFolder() {
+    CrateFolderId folderId =
+            CrateFeatureHelper(m_pTrackCollection, m_pConfig)
+                    .createEmptyFolder(getLastRightClickedParentFolder());
+    if (folderId.isValid()) {
+        // expand Crates and scroll to new folder
+        m_pSidebarWidget->selectChildIndex(indexFromCrateId(folderId), false);
     }
 }
 

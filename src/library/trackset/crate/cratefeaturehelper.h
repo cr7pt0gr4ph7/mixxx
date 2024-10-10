@@ -19,11 +19,15 @@ class CrateFeatureHelper : public QObject {
     ~CrateFeatureHelper() override = default;
 
     CrateId createEmptyCrate(CrateFolderId folderId);
+    CrateFolderId createEmptyFolder(CrateFolderId parentId);
     CrateId duplicateCrate(const Crate& oldCrate);
 
   private:
     QString proposeNameForNewCrate(
             CrateFolderId folderId,
+            const QString& initialName = QString()) const;
+    QString proposeNameForNewFolder(
+            CrateFolderId parentId,
             const QString& initialName = QString()) const;
 
     TrackCollection* m_pTrackCollection;
