@@ -4,6 +4,7 @@
 #include "library/queryutil.h"
 #include "library/trackset/crate/crate.h"
 #include "library/trackset/crate/cratefolder.h"
+#include "library/trackset/crate/cratefoldersummary.h"
 #include "library/trackset/crate/crateschema.h"
 #include "library/trackset/crate/cratesummary.h"
 #include "util/db/dbconnection.h"
@@ -15,10 +16,66 @@ namespace {
 
 const mixxx::Logger kLogger("CrateStorage");
 
-const QString CRATE_SUMMARY_VIEW = "crate_summary";
+const QString CRATEFOLDER_SUMMARY_VIEW = "cratefolder_summary";
+const QString CRATEFOLDERSUMMARY_FULL_PATH = "full_path";
 
+const QString CRATE_SUMMARY_VIEW = "crate_summary";
 const QString CRATESUMMARY_TRACK_COUNT = "track_count";
 const QString CRATESUMMARY_TRACK_DURATION = "track_duration";
+const QString CRATESUMMARY_FULL_PATH = "full_path";
+
+const QString kCrateFolderSeparator("' / '");
+
+const QString kCrateFolderFullPathTableExpression =
+        QStringLiteral(
+                "WITH RECURSIVE full_path_recursive(id, path) AS "
+                "( "
+                "SELECT %2, %3 FROM %1 WHERE %4 IS NULL "
+                "UNION ALL "
+                "SELECT %1.%2, full_path_recursive.path||%5||%1.%3 "
+                "FROM %1 "
+                "JOIN full_path_recursive ON %1.%4=full_path_recursive.id "
+                ")")
+                .arg(
+                        CRATEFOLDER_TABLE,
+                        CRATEFOLDERTABLE_ID,
+                        CRATEFOLDERTABLE_NAME,
+                        CRATEFOLDERTABLE_PARENTID,
+                        kCrateFolderSeparator);
+
+const QString kCrateFolderSummaryViewSelect =
+        QStringLiteral(
+                "%4 "
+                "SELECT %1.*, full_path_recursive.path AS %3 "
+                "FROM %1 "
+                "JOIN full_path_recursive ON %1.%2=full_path_recursive.id ")
+                .arg(
+                        CRATEFOLDER_TABLE,
+                        CRATEFOLDERTABLE_ID,
+                        CRATEFOLDERSUMMARY_FULL_PATH,
+                        kCrateFolderFullPathTableExpression);
+
+const QString kCrateFolderSummaryViewQuery =
+        QStringLiteral(
+                "CREATE TEMPORARY VIEW IF NOT EXISTS %1 AS %2 ")
+                .arg(
+                        CRATEFOLDER_SUMMARY_VIEW,
+                        kCrateFolderSummaryViewSelect);
+
+const QString kCrateFullPathField =
+        QStringLiteral(
+                "("
+                "CASE "
+                "WHEN full_path_recursive.path NOT NULL "
+                "THEN full_path_recursive.path||%4||%1.%2 "
+                "ELSE %1.%2 "
+                "END"
+                ") AS %3")
+                .arg(CRATE_TABLE, CRATETABLE_NAME, CRATESUMMARY_FULL_PATH, kCrateFolderSeparator);
+
+const QString kCrateFullPathJoin =
+        QStringLiteral("LEFT JOIN full_path_recursive ON %1.%2=full_path_recursive.id")
+                .arg(CRATE_TABLE, CRATETABLE_ID);
 
 const QString kCrateTracksJoin =
         QStringLiteral("LEFT JOIN %3 ON %3.%4=%1.%2")
@@ -30,9 +87,11 @@ const QString kLibraryTracksJoin = kCrateTracksJoin +
 
 const QString kCrateSummaryViewSelect =
         QStringLiteral(
+                "%7 "
                 "SELECT %1.*,"
                 "COUNT(CASE %2.%4 WHEN 0 THEN 1 ELSE NULL END) AS %5,"
-                "SUM(CASE %2.%4 WHEN 0 THEN %2.%3 ELSE 0 END) AS %6 "
+                "SUM(CASE %2.%4 WHEN 0 THEN %2.%3 ELSE 0 END) AS %6, "
+                "%8 "
                 "FROM %1")
                 .arg(
                         CRATE_TABLE,
@@ -40,16 +99,19 @@ const QString kCrateSummaryViewSelect =
                         LIBRARYTABLE_DURATION,
                         LIBRARYTABLE_MIXXXDELETED,
                         CRATESUMMARY_TRACK_COUNT,
-                        CRATESUMMARY_TRACK_DURATION);
+                        CRATESUMMARY_TRACK_DURATION,
+                        kCrateFolderFullPathTableExpression,
+                        kCrateFullPathField);
 
 const QString kCrateSummaryViewQuery =
         QStringLiteral(
-                "CREATE TEMPORARY VIEW IF NOT EXISTS %1 AS %2 %3 "
-                "GROUP BY %4.%5")
+                "CREATE TEMPORARY VIEW IF NOT EXISTS %1 AS %2 %3 %4 "
+                "GROUP BY %5.%6")
                 .arg(
                         CRATE_SUMMARY_VIEW,
                         kCrateSummaryViewSelect,
                         kLibraryTracksJoin,
+                        kCrateFullPathJoin,
                         CRATE_TABLE,
                         CRATETABLE_ID);
 
@@ -153,6 +215,20 @@ void CrateFolderQueryFields::populateFromQuery(
     pFolder->setParentId(getParentId(query));
 }
 
+CrateFolderSummaryQueryFields::CrateFolderSummaryQueryFields(const FwdSqlQuery& query)
+        : CrateFolderQueryFields(query),
+          m_iFullPath(query.fieldIndex(CRATEFOLDERSUMMARY_FULL_PATH)) {
+}
+
+void CrateFolderSummaryQueryFields::populateFromQuery(
+        const FwdSqlQuery& query,
+        CrateFolderSummary* pFolder) const {
+    pFolder->setId(getId(query));
+    pFolder->setName(getName(query));
+    pFolder->setParentId(getParentId(query));
+    pFolder->setFullPath(getFullPath(query));
+}
+
 CrateTrackQueryFields::CrateTrackQueryFields(const FwdSqlQuery& query)
         : m_iCrateId(query.fieldIndex(CRATETRACKSTABLE_CRATEID)),
           m_iTrackId(query.fieldIndex(CRATETRACKSTABLE_TRACKID)) {
@@ -165,7 +241,8 @@ TrackQueryFields::TrackQueryFields(const FwdSqlQuery& query)
 CrateSummaryQueryFields::CrateSummaryQueryFields(const FwdSqlQuery& query)
         : CrateQueryFields(query),
           m_iTrackCount(query.fieldIndex(CRATESUMMARY_TRACK_COUNT)),
-          m_iTrackDuration(query.fieldIndex(CRATESUMMARY_TRACK_DURATION)) {
+          m_iTrackDuration(query.fieldIndex(CRATESUMMARY_TRACK_DURATION)),
+          m_iFullPath(query.fieldIndex(CRATESUMMARY_FULL_PATH)) {
 }
 
 void CrateSummaryQueryFields::populateFromQuery(
@@ -174,6 +251,7 @@ void CrateSummaryQueryFields::populateFromQuery(
     CrateQueryFields::populateFromQuery(query, pCrateSummary);
     pCrateSummary->setTrackCount(getTrackCount(query));
     pCrateSummary->setTrackDuration(getTrackDuration(query));
+    pCrateSummary->setFullPath(getFullPath(query));
 }
 
 void CrateStorage::repairDatabase(const QSqlDatabase& database) {
@@ -270,6 +348,11 @@ void CrateStorage::disconnectDatabase() {
 }
 
 void CrateStorage::createViews() {
+    VERIFY_OR_DEBUG_ASSERT(
+            FwdSqlQuery(m_database, kCrateFolderSummaryViewQuery).execPrepared()) {
+        kLogger.critical()
+                << "Failed to create database view for crate folder summaries!";
+    }
     VERIFY_OR_DEBUG_ASSERT(
             FwdSqlQuery(m_database, kCrateSummaryViewQuery).execPrepared()) {
         kLogger.critical()

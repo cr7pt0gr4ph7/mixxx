@@ -33,7 +33,17 @@ class CrateSummary : public Crate {
         return mixxx::Duration::formatTime(getTrackDuration(), mixxx::Duration::Precision::SECONDS);
     }
 
+    // The full path of this crate, formatted as
+    // "Ancestor folder name / Folder name / Crate name".
+    QString getFullPath() const {
+        return m_fullPath;
+    }
+    void setFullPath(const QString& fullPath) {
+        m_fullPath = fullPath;
+    }
+
   private:
     uint m_trackCount;
     double m_trackDuration;
+    QString m_fullPath;
 };
