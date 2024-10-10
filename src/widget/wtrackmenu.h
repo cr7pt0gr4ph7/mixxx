@@ -269,6 +269,9 @@ class WTrackMenu : public QMenu {
     QMenu* m_pRemoveFromDiskMenu{};
 #endif
 
+    // Crate Submenu Actions
+    QAction* m_pAddToNewCrateAct{};
+
     // Update ReplayGain from Track
     QAction* m_pUpdateReplayGainAct{};
 

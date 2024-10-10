@@ -377,6 +377,14 @@ void WTrackMenu::createActions() {
         connect(m_pSelectInLibraryAct, &QAction::triggered, this, &WTrackMenu::slotSelectInLibrary);
     }
 
+    if (featureIsEnabled(Feature::Crate)) {
+        m_pAddToNewCrateAct = new QAction(tr("Add to New Crate"), this);
+        connect(m_pAddToNewCrateAct,
+                &QAction::triggered,
+                this,
+                &WTrackMenu::addSelectionToNewCrate);
+    }
+
     if (featureIsEnabled(Feature::Metadata)) {
         m_pImportMetadataFromFileAct =
                 new QAction(tr("Import From File Tags"), m_pMetadataMenu);
@@ -1543,9 +1551,7 @@ void WTrackMenu::slotPopulateCrateMenu() {
         connect(pCheckBox.get(), &QCheckBox::stateChanged, this, [this, pCheckBox{pCheckBox.get()}] { updateSelectionCrates(pCheckBox); });
     }
     m_pCrateMenu->addSeparator();
-    QAction* newCrateAction = new QAction(tr("Add to New Crate"), m_pCrateMenu);
-    m_pCrateMenu->addAction(newCrateAction);
-    connect(newCrateAction, &QAction::triggered, this, &WTrackMenu::addSelectionToNewCrate);
+    m_pCrateMenu->addAction(m_pAddToNewCrateAct);
     m_bCrateMenuLoaded = true;
 }
 
