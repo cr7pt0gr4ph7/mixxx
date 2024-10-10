@@ -1486,6 +1486,12 @@ void WTrackMenu::slotPopulateCrateMenu() {
                     ->crates()
                     .selectCratesWithTrackCount(trackIds));
 
+    // The crates returned by selectCratesWithTrackCount are ordered
+    // by their parent folder's full path as well as their name.
+    // Based on that assumption, the following code creates sections
+    // for the different folders.
+    CrateFolderId currentFolderId;
+
     CrateSummary crate;
     while (allCrates.populateNext(&crate)) {
         auto pAction = make_parented<QWidgetAction>(
@@ -1519,6 +1525,17 @@ void WTrackMenu::slotPopulateCrateMenu() {
         } else {
             pCheckBox->setTristate(true);
             pCheckBox->setCheckState(Qt::PartiallyChecked);
+        }
+
+        if (crate.getFolderId() != currentFolderId) {
+            currentFolderId = crate.getFolderId();
+            // Crates that are children of the root item
+            // have a NULL folder_path and simply come first
+            // in the list, without an explicit section.
+            if (crate.getFolderPath().isEmpty()) {
+                auto pSection = m_pCrateMenu->addSection(crate.getFolderPath());
+                pSection->setProperty("folderId", QVariant::fromValue(crate.getFolderId()));
+            }
         }
 
         m_pCrateMenu->addAction(pAction.get());
