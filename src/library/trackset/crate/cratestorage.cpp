@@ -23,6 +23,7 @@ const QString CRATE_SUMMARY_VIEW = "crate_summary";
 const QString CRATESUMMARY_TRACK_COUNT = "track_count";
 const QString CRATESUMMARY_TRACK_DURATION = "track_duration";
 const QString CRATESUMMARY_FULL_PATH = "full_path";
+const QString CRATESUMMARY_FOLDER_PATH = "folder_path";
 
 const QString kCrateFolderSeparator("' / '");
 
@@ -87,11 +88,12 @@ const QString kLibraryTracksJoin = kCrateTracksJoin +
 
 const QString kCrateSummaryViewSelect =
         QStringLiteral(
-                "%7 "
+                "%8 "
                 "SELECT %1.*,"
                 "COUNT(CASE %2.%4 WHEN 0 THEN 1 ELSE NULL END) AS %5,"
-                "SUM(CASE %2.%4 WHEN 0 THEN %2.%3 ELSE 0 END) AS %6, "
-                "%8 "
+                "SUM(CASE %2.%4 WHEN 0 THEN %2.%3 ELSE 0 END) AS %6,"
+                "full_path_recursive.path AS %7,"
+                "%9 "
                 "FROM %1")
                 .arg(
                         CRATE_TABLE,
@@ -100,6 +102,7 @@ const QString kCrateSummaryViewSelect =
                         LIBRARYTABLE_MIXXXDELETED,
                         CRATESUMMARY_TRACK_COUNT,
                         CRATESUMMARY_TRACK_DURATION,
+                        CRATESUMMARY_FOLDER_PATH,
                         kCrateFolderFullPathTableExpression,
                         kCrateFullPathField);
 
@@ -242,7 +245,8 @@ CrateSummaryQueryFields::CrateSummaryQueryFields(const FwdSqlQuery& query)
         : CrateQueryFields(query),
           m_iTrackCount(query.fieldIndex(CRATESUMMARY_TRACK_COUNT)),
           m_iTrackDuration(query.fieldIndex(CRATESUMMARY_TRACK_DURATION)),
-          m_iFullPath(query.fieldIndex(CRATESUMMARY_FULL_PATH)) {
+          m_iFullPath(query.fieldIndex(CRATESUMMARY_FULL_PATH)),
+          m_iFolderPath(query.fieldIndex(CRATESUMMARY_FOLDER_PATH)) {
 }
 
 void CrateSummaryQueryFields::populateFromQuery(
@@ -252,6 +256,7 @@ void CrateSummaryQueryFields::populateFromQuery(
     pCrateSummary->setTrackCount(getTrackCount(query));
     pCrateSummary->setTrackDuration(getTrackDuration(query));
     pCrateSummary->setFullPath(getFullPath(query));
+    pCrateSummary->setFolderPath(getFolderPath(query));
 }
 
 void CrateStorage::repairDatabase(const QSqlDatabase& database) {
@@ -424,6 +429,18 @@ CrateFolderSelectResult CrateStorage::selectFolders() const {
         return CrateFolderSelectResult(std::move(query));
     } else {
         return CrateFolderSelectResult();
+    }
+}
+
+CrateFolderSummarySelectResult CrateStorage::selectFolderSummaries() const {
+    FwdSqlQuery query(m_database,
+            mixxx::DbConnection::collateLexicographically(
+                    QStringLiteral("SELECT * FROM %1 ORDER BY %2")
+                            .arg(CRATEFOLDER_SUMMARY_VIEW, CRATEFOLDERSUMMARY_FULL_PATH)));
+    if (query.execPrepared()) {
+        return CrateFolderSummarySelectResult(std::move(query));
+    } else {
+        return CrateFolderSummarySelectResult();
     }
 }
 
@@ -718,7 +735,7 @@ CrateSummarySelectResult CrateStorage::selectCratesWithTrackCount(
                                    "0 as %7 FROM %2 ORDER BY %8")
                             .arg(
                                     CRATE_TRACKS_TABLE,
-                                    CRATE_TABLE,
+                                    CRATE_SUMMARY_VIEW,
                                     CRATETABLE_ID,
                                     CRATETRACKSTABLE_CRATEID,
                                     CRATETRACKSTABLE_TRACKID,
