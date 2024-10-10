@@ -34,6 +34,24 @@ QString CrateFeatureHelper::proposeNameForNewCrate(
     return proposedName;
 }
 
+QString CrateFeatureHelper::proposeNameForNewFolder(
+        CrateFolderId parentId, const QString& initialName) const {
+    DEBUG_ASSERT(!initialName.isEmpty());
+    QString proposedName;
+    int suffixCounter = 0;
+    do {
+        if (suffixCounter++ > 0) {
+            // Append suffix " 2", " 3", ...
+            proposedName = QStringLiteral("%1 %2")
+                                   .arg(initialName, QString::number(suffixCounter));
+        } else {
+            proposedName = initialName;
+        }
+    } while (m_pTrackCollection->crates().readFolderByName(parentId, proposedName));
+    // Found an unused crate name
+    return proposedName;
+}
+
 CrateId CrateFeatureHelper::createEmptyCrate(CrateFolderId folderId) {
     const QString proposedCrateName =
             proposeNameForNewCrate(folderId, tr("New Crate"));
@@ -89,6 +107,60 @@ CrateId CrateFeatureHelper::createEmptyCrate(CrateFolderId folderId) {
     return newCrateId;
 }
 
+CrateFolderId CrateFeatureHelper::createEmptyFolder(CrateFolderId parentId) {
+    const QString proposedCrateName =
+            proposeNameForNewFolder(parentId, tr("New Folder"));
+    CrateFolder newFolder;
+    for (;;) {
+        bool ok = false;
+        auto newName =
+                QInputDialog::getText(
+                        nullptr,
+                        tr("Create New Folder"),
+                        tr("Enter name for new folder:"),
+                        QLineEdit::Normal,
+                        proposedCrateName,
+                        &ok)
+                        .trimmed();
+        if (!ok) {
+            return CrateFolderId();
+        }
+        if (newName.isEmpty()) {
+            QMessageBox::warning(
+                    nullptr,
+                    tr("Creating Folder Failed"),
+                    tr("A folder cannot have a blank name."));
+            continue;
+        }
+        if (m_pTrackCollection->crates().readFolderByName(parentId, newName)) {
+            QMessageBox::warning(
+                    nullptr,
+                    tr("Creating Folder Failed"),
+                    tr("A folder by that name already exists."));
+            continue;
+        }
+        newFolder.setParentId(parentId);
+        newFolder.setName(std::move(newName));
+        DEBUG_ASSERT(newFolder.hasName());
+        break;
+    }
+
+    CrateFolderId newFolderId;
+    if (m_pTrackCollection->insertCrateFolder(newFolder, &newFolderId)) {
+        DEBUG_ASSERT(newFolderId.isValid());
+        newFolder.setId(newFolderId);
+        qDebug() << "Created new folder" << newFolder;
+    } else {
+        DEBUG_ASSERT(!newFolderId.isValid());
+        qWarning() << "Failed to create new folder"
+                   << "->" << newFolder.getName();
+        QMessageBox::warning(
+                nullptr,
+                tr("Creating Folder Failed"),
+                tr("An unknown error occurred while creating folder: ") + newFolder.getName());
+    }
+    return newFolderId;
+}
 
 CrateId CrateFeatureHelper::duplicateCrate(const Crate& oldCrate) {
     const QString proposedCrateName =
