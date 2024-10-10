@@ -1,5 +1,6 @@
 #pragma once
 
+#include "library/trackset/crate/cratefolderid.h"
 #include "library/trackset/crate/crateid.h"
 #include "util/db/dbnamedentity.h"
 
@@ -11,6 +12,13 @@ class Crate : public DbNamedEntity<CrateId> {
               m_autoDjSource(false) {
     }
     ~Crate() override = default;
+
+    CrateFolderId getFolderId() const {
+        return m_folderId;
+    }
+    void setFolderId(CrateFolderId folderId) {
+        m_folderId = folderId;
+    }
 
     bool isLocked() const {
         return m_locked;
@@ -27,6 +35,7 @@ class Crate : public DbNamedEntity<CrateId> {
     }
 
   private:
+    CrateFolderId m_folderId;
     bool m_locked;
     bool m_autoDjSource;
 };

@@ -9,6 +9,7 @@
 const QString CRATETABLE_ID = "id";
 const QString CRATETABLE_NAME = "name";
 const QString CRATETABLE_LOCKED = "locked";
+const QString CRATETABLE_FOLDERID = "folder_id";
 
 // TODO(XXX): Fix AutoDJ database design.
 // Crates should have no dependency on AutoDJ stuff. Which

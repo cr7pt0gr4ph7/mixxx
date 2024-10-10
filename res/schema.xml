@@ -591,6 +591,8 @@ reapplying those migrations.
       CREATE TABLE IF NOT EXISTS cratefolders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name varchar(48) UNIQUE NOT NULL);
+
+      ALTER TABLE crates ADD COLUMN folder_id INTEGER REFERENCES cratefolders(id) DEFAULT NULL;
     </sql>
   </revision>
 </schema>
