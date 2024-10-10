@@ -1045,14 +1045,18 @@ void CrateFeature::slotTrackSelected(TrackId trackId) {
 
     // Set all crates the track is in bold (or if there is no track selected,
     // clear all the bolding).
-    for (TreeItem* pTreeItem : pRootItem->children()) {
+    for (TreeItem* pTreeItem : m_idToCrate) {
         DEBUG_ASSERT(pTreeItem != nullptr);
+        CrateOrFolderId itemId(pTreeItem->getData());
+        VERIFY_OR_DEBUG_ASSERT(itemId.isCrate()) {
+            continue;
+        }
         bool crateContainsSelectedTrack =
                 m_selectedTrackId.isValid() &&
                 std::binary_search(
                         sortedTrackCrates.begin(),
                         sortedTrackCrates.end(),
-                        CrateId(pTreeItem->getData()));
+                        itemId.toCrateId());
         pTreeItem->setBold(crateContainsSelectedTrack);
     }
 
