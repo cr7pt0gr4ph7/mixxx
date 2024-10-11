@@ -32,6 +32,8 @@ class CrateFeature : public BaseTrackSetFeature {
 
     QVariant title() override;
 
+    bool navigateTo(const QUrl& url) override;
+
     bool dropAccept(const QList<QUrl>& urls, QObject* pSource) override;
     bool dropAcceptChild(const QModelIndex& index,
             const QList<QUrl>& urls,
