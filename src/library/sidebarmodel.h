@@ -31,6 +31,10 @@ class SidebarModel : public QAbstractItemModel {
     void setDefaultSelection(unsigned int index);
     void activateDefaultSelection();
 
+    // Navigate to the sidebar item specified by the url.
+    // Returns false if the given URL is not supported by any LibraryFeature.
+    bool navigateTo(const QUrl& url);
+
     // Required for QAbstractItemModel
     QModelIndex index(int row, int column,
                       const QModelIndex& parent = QModelIndex()) const override;

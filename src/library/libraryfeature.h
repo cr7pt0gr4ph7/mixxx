@@ -45,6 +45,13 @@ class LibraryFeature : public QObject {
         return m_icon;
     }
 
+    // Navigate to the sidebar item specified by the url.
+    // Returns false if the given URL is not supported by this LibraryFeature.
+    virtual bool navigateTo(const QUrl& url) {
+        Q_UNUSED(url);
+        return false;
+    }
+
     virtual bool dropAccept(const QList<QUrl>& urls, QObject* pSource) {
         Q_UNUSED(urls);
         Q_UNUSED(pSource);
