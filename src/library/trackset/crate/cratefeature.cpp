@@ -78,6 +78,12 @@ void CrateFeature::initActions() {
             this,
             &CrateFeature::slotCreateFolder);
 
+    m_pAddToNewFolderAction = make_parented<QAction>(tr("Add to New Folder"), this);
+    connect(m_pAddToNewFolderAction.get(),
+            &QAction::triggered,
+            this,
+            &CrateFeature::slotAddToNewFolder);
+
     m_pRenameCrateAction = make_parented<QAction>(tr("Rename"), this);
     m_pRenameCrateAction->setShortcut(kRenameSidebarItemShortcutKey);
     connect(m_pRenameCrateAction.get(),
@@ -600,6 +606,8 @@ void CrateFeature::onRightClickChild(
                     addMoveToFolderAction(folder);
                 }
 
+                moveToFolderMenu->addSeparator();
+                moveToFolderMenu->addAction(m_pAddToNewFolderAction);
                 m_folderMenuInitialized = true;
             });
 
@@ -744,6 +752,44 @@ bool CrateFeature::moveToFolder(CrateFolderId destinationId, CrateOrFolderId ite
     default: {
         return false;
     }
+    }
+}
+
+void CrateFeature::slotAddToNewFolder() {
+    Crate crate;
+    CrateFolder folder;
+    auto itemType = readLastRightClickedItem(&crate, &folder);
+    VERIFY_OR_DEBUG_ASSERT(itemType == ItemType::Crate || itemType == ItemType::Folder) {
+        return;
+    }
+
+    // Note: The new folder is always created at the root
+    //       when using "Add to New Folder". This differs
+    //       from the behavior when using "Create New Folder".
+    CrateFolderId newFolderId =
+            CrateFeatureHelper(m_pTrackCollection, m_pConfig)
+                    .createEmptyFolder(kRootFolderId);
+
+    if (!newFolderId.isValid()) {
+        return;
+    }
+
+    CrateOrFolderId idToSelect;
+    if (itemType == ItemType::Crate) {
+        idToSelect = crate.getId();
+        crate.setFolderId(newFolderId);
+        m_pTrackCollection->updateCrate(crate);
+    } else if (itemType == ItemType::Folder) {
+        idToSelect = folder.getId();
+        folder.setParentId(newFolderId);
+        m_pTrackCollection->updateCrateFolder(folder);
+    } else {
+        return;
+    }
+
+    // Scroll to new location of the selected crate/folder
+    if (idToSelect.isValid()) {
+        m_pSidebarWidget->selectChildIndex(indexFromCrateId(idToSelect), false);
     }
 }
 

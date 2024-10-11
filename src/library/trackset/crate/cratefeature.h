@@ -64,6 +64,7 @@ class CrateFeature : public BaseTrackSetFeature {
     void slotDeleteItem();
     void slotRenameItem();
     void slotDuplicateCrate();
+    void slotAddToNewFolder();
     void slotMoveToFolder(CrateFolderId destinationId);
     void slotAutoDjTrackSourceChanged();
     void slotToggleCrateLock();
@@ -158,6 +159,7 @@ class CrateFeature : public BaseTrackSetFeature {
 
     parented_ptr<QAction> m_pCreateCrateAction;
     parented_ptr<QAction> m_pCreateFolderAction;
+    parented_ptr<QAction> m_pAddToNewFolderAction;
     parented_ptr<QAction> m_pDeleteCrateAction;
     parented_ptr<QAction> m_pRenameCrateAction;
     parented_ptr<QAction> m_pLockCrateAction;
