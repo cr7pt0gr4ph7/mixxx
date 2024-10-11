@@ -107,6 +107,15 @@ void SidebarModel::activateDefaultSelection() {
     }
 }
 
+bool SidebarModel::navigateTo(const QUrl& url) {
+    for (auto* feature : m_sFeatures) {
+        if (feature->navigateTo(url)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 QModelIndex SidebarModel::index(int row, int column,
                                 const QModelIndex& parent) const {
     if constexpr (sDebug) {
