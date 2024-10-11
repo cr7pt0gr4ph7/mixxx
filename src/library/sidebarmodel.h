@@ -40,6 +40,7 @@ class SidebarModel : public QAbstractItemModel {
     QVariant data(const QModelIndex& index,
                   int role = Qt::DisplayRole) const override;
     QStringList mimeTypes() const override;
+    QMimeData* mimeData(const QModelIndexList& indexes) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QModelIndex resolveDropIndex(int row, int column, const QModelIndex& index) const;
     bool canDropMimeData(const QMimeData* data,
@@ -100,6 +101,7 @@ class SidebarModel : public QAbstractItemModel {
     void slotPressedUntilClickedTimeout();
 
   private:
+    QList<QUrl> collectUrls(const QModelIndexList& indexes) const;
     QModelIndex translateSourceIndex(const QModelIndex& parent);
     QModelIndex translateIndex(const QModelIndex& index, const QAbstractItemModel* model);
     void featureRenamed(LibraryFeature*);

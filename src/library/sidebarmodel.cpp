@@ -447,6 +447,49 @@ QStringList SidebarModel::mimeTypes() const {
     return m_mimeTypes;
 }
 
+QMimeData* SidebarModel::mimeData(const QModelIndexList& indexes) const {
+    if constexpr (sDebug) {
+        qDebug() << "SidebarModel::mimeData() indexes=" << indexes;
+    }
+    DEBUG_ASSERT(mimeTypes().size() == 1 && mimeTypes().at(0) == kUriListMimeType);
+    const auto urls = collectUrls(indexes);
+    if (urls.isEmpty()) {
+        return nullptr;
+    } else {
+        QMimeData* mimeData = new QMimeData();
+        mimeData->setUrls(urls);
+        return mimeData;
+    }
+}
+
+QList<QUrl> SidebarModel::collectUrls(const QModelIndexList& indexes) const {
+    QList<QUrl> urls;
+    urls.reserve(indexes.size());
+    // The list of indexes we're given may contain separate indices for each
+    // column, so even if only one row is selected, we might have columnCount()
+    // indices.  We need to only count a single QModelIndex per unique row.
+    //
+    // TODO(cr7pt0gr4ph7): An alternative implementation would be to instead
+    // use a QSet<QUrl> to check if an URL has already been seen. Are there
+    // any cases where the behavior of these two implementations would differ?
+    QSet<QModelIndex> visitedRows;
+    for (const auto& index : indexes) {
+        if (!index.isValid()) {
+            continue;
+        }
+        auto uniqueRow = index.siblingAtColumn(0);
+        if (visitedRows.contains(uniqueRow)) {
+            continue;
+        }
+        visitedRows.insert(uniqueRow);
+        QUrl url = data(index, Roles::UrlRole).toUrl();
+        if (url.isValid()) {
+            urls.append(url);
+        }
+    }
+    return urls;
+}
+
 Qt::ItemFlags SidebarModel::flags(const QModelIndex& index) const {
     Q_UNUSED(index);
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
