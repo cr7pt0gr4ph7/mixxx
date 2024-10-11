@@ -109,3 +109,10 @@ const ConfigKey mixxx::library::prefs::kTagFetcherApplyCoverConfigKey =
         ConfigKey{
                 mixxx::library::prefs::kConfigGroup,
                 QStringLiteral("TagFetcherApplyCover")};
+
+const QString kTrackCollectionConfigGroup = QStringLiteral("[TrackCollection]");
+
+const ConfigKey mixxx::library::prefs::kRepairDatabaseOnNextRestart =
+        ConfigKey{
+                kTrackCollectionConfigGroup,
+                QStringLiteral("RepairDatabaseOnNextRestart")};

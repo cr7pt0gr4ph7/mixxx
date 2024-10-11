@@ -18,10 +18,6 @@ namespace {
 
 const mixxx::Logger kLogger("TrackCollectionManager");
 
-const QString kConfigGroup = QStringLiteral("[TrackCollection]");
-
-const ConfigKey kConfigKeyRepairDatabaseOnNextRestart(kConfigGroup, "RepairDatabaseOnNextRestart");
-
 inline
 parented_ptr<TrackCollection> createInternalTrackCollection(
         TrackCollectionManager* parent,
@@ -49,10 +45,10 @@ TrackCollectionManager::TrackCollectionManager(
     // in the options menu, as well as using the command line option
     // "--repair-database".
     if (CmdlineArgs::Instance().getRepairDatabase() ||
-            pConfig->getValue(kConfigKeyRepairDatabaseOnNextRestart, false)) {
+            pConfig->getValue(mixxx::library::prefs::kRepairDatabaseOnNextRestart, false)) {
         m_pInternalCollection->repairDatabase(dbConnection);
         // Reset config value
-        pConfig->setValue(kConfigKeyRepairDatabaseOnNextRestart, false);
+        pConfig->setValue(mixxx::library::prefs::kRepairDatabaseOnNextRestart, false);
     }
 
     m_pInternalCollection->connectDatabase(dbConnection);

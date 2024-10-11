@@ -1102,7 +1102,8 @@ void MixxxMainWindow::slotOptionsRepairDatabase() {
         // main Mixxx executable, but also listens for a a special restart flag.
 
         // Set flag and exit out of Mixxx
-        m_pCoreServices->getSettings()->setValue(kConfigKeyRepairDatabaseOnNextRestart, true);
+        m_pCoreServices->getSettings()->setValue(
+                mixxx::library::prefs::kRepairDatabaseOnNextRestart, true);
         close();
     }
 }
