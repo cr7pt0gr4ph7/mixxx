@@ -300,6 +300,31 @@ void CrateStorage::repairDatabase(const QSqlDatabase& database) {
     // the query are released implicitly and before executing the next
     // query.
 
+    // Folders
+    {
+        // Delete folders with empty names
+        FwdSqlQuery query(database,
+                QStringLiteral("DELETE FROM %1 WHERE %2 IS NULL OR TRIM(%2)=''")
+                        .arg(CRATEFOLDER_TABLE, CRATEFOLDERTABLE_NAME));
+        if (query.execPrepared() && (query.numRowsAffected() > 0)) {
+            kLogger.warning()
+                    << "Deleted" << query.numRowsAffected()
+                    << "folders with empty names";
+        }
+    }
+    {
+        // Fix invalid -1/NULL values in the "parent_id" column
+        FwdSqlQuery query(database,
+                QStringLiteral("UPDATE %1 SET %2=NULL WHERE %2<0")
+                        .arg(CRATEFOLDER_TABLE, CRATEFOLDERTABLE_PARENTID));
+        if (query.execPrepared() && (query.numRowsAffected() > 0)) {
+            kLogger.warning()
+                    << "Fixed NULL values in table" << CRATEFOLDER_TABLE
+                    << "column" << CRATEFOLDERTABLE_PARENTID
+                    << "for" << query.numRowsAffected() << "folders";
+        }
+    }
+
     // Crates
     {
         // Delete crates with empty names
@@ -333,6 +358,18 @@ void CrateStorage::repairDatabase(const QSqlDatabase& database) {
             kLogger.warning()
                     << "Fixed boolean values in table" << CRATE_TABLE
                     << "column" << CRATETABLE_AUTODJ_SOURCE
+                    << "for" << query.numRowsAffected() << "crates";
+        }
+    }
+    {
+        // Fix invalid -1/NULL values in the "folder_id" column
+        FwdSqlQuery query(database,
+                QStringLiteral("UPDATE %1 SET %2=NULL WHERE %2<0")
+                        .arg(CRATE_TABLE, CRATETABLE_FOLDERID));
+        if (query.execPrepared() && (query.numRowsAffected() > 0)) {
+            kLogger.warning()
+                    << "Fixed NULL values in table" << CRATE_TABLE
+                    << "column" << CRATETABLE_FOLDERID
                     << "for" << query.numRowsAffected() << "crates";
         }
     }
