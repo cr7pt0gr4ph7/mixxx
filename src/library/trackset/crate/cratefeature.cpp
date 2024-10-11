@@ -254,6 +254,7 @@ std::unique_ptr<TreeItem> CrateFeature::newTreeItemForFolder(
         CrateFolderId folderId) {
     auto pTreeItem = TreeItem::newRoot(this);
     pTreeItem->setData(CrateOrFolderId(folderId).toVariant());
+    pTreeItem->setForceExpandable(true);
     // Label will be set later (due to the way we handle the recursive folder structure)
     return pTreeItem;
 }
