@@ -556,6 +556,7 @@ void CrateFeature::onRightClickChild(
     }
 
     QMenu menu(m_pSidebarWidget);
+    bool showMoreMenu = true;
 
     QMenu* moveToFolderMenu = new QMenu(&menu);
     moveToFolderMenu->setTitle(tr("Move to Folder"));
@@ -629,15 +630,26 @@ void CrateFeature::onRightClickChild(
         menu.addSeparator();
         menu.addMenu(moveToFolderMenu);
         menu.addSeparator();
-        menu.addAction(m_pAnalyzeCrateAction.get());
-        menu.addSeparator();
-        if (!selectedCrate.isLocked()) {
-            menu.addAction(m_pImportPlaylistAction.get());
+
+        QMenu* moreMenu;
+        if (showMoreMenu) {
+            moreMenu = new QMenu(&menu);
+            moreMenu->setTitle(tr("More"));
+            moreMenu->setObjectName("MoreMenu");
+            menu.addMenu(moreMenu);
+        } else {
+            moreMenu = &menu;
         }
-        menu.addAction(m_pExportPlaylistAction.get());
-        menu.addAction(m_pExportTrackFilesAction.get());
+
+        moreMenu->addAction(m_pAnalyzeCrateAction.get());
+        moreMenu->addSeparator();
+        if (!selectedCrate.isLocked()) {
+            moreMenu->addAction(m_pImportPlaylistAction.get());
+        }
+        moreMenu->addAction(m_pExportPlaylistAction.get());
+        moreMenu->addAction(m_pExportTrackFilesAction.get());
 #ifdef __ENGINEPRIME__
-        menu.addAction(m_pExportCrateAction.get());
+        moreMenu->addAction(m_pExportCrateAction.get());
 #endif
     } else if (selectionId.isFolder()) {
         m_pDeleteCrateAction->setEnabled(true);
