@@ -18,6 +18,7 @@
 #include "library/trackset/crate/cratefeaturehelper.h"
 #include "library/trackset/crate/cratefoldersummary.h"
 #include "library/trackset/crate/cratesummary.h"
+#include "library/trackset/crate/crateurls.h"
 #include "library/treeitem.h"
 #include "moc_cratefeature.cpp"
 #include "sources/soundsourceproxy.h"
@@ -269,6 +270,7 @@ std::unique_ptr<TreeItem> CrateFeature::newTreeItemForFolder(
         CrateFolderId folderId) {
     auto pTreeItem = TreeItem::newRoot(this);
     pTreeItem->setData(CrateOrFolderId(folderId).toVariant());
+    pTreeItem->setUrl(CrateURLs::toUrl(folderId));
     pTreeItem->setForceExpandable(true);
     // Label will be set later (due to the way we handle the recursive folder structure)
     return pTreeItem;
@@ -280,6 +282,7 @@ void CrateFeature::updateTreeItemForFolder(
     if (pTreeItem->getData().isNull()) {
         // Initialize a newly created tree item
         pTreeItem->setData(CrateOrFolderId(folder.getId()).toVariant());
+        pTreeItem->setUrl(CrateURLs::toUrl(folder.getId()));
     } else {
         // The data (= CrateId) is immutable once it has been set
         DEBUG_ASSERT(CrateOrFolderId(pTreeItem->getData()) == folder.getId());
@@ -304,6 +307,7 @@ void CrateFeature::updateTreeItemForCrateSummary(
     if (pTreeItem->getData().isNull()) {
         // Initialize a newly created tree item
         pTreeItem->setData(CrateOrFolderId(crateSummary.getId()).toVariant());
+        pTreeItem->setUrl(CrateURLs::toUrl(crateSummary.getId()));
     } else {
         // The data (= CrateId) is immutable once it has been set
         DEBUG_ASSERT(CrateOrFolderId(pTreeItem->getData()).toCrateId() == crateSummary.getId());
