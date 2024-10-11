@@ -276,6 +276,14 @@ void CrateFeature::updateTreeItemForCrateSummary(
     pTreeItem->setUrl(CrateURLs::toUrl(crateSummary.getId()));
 }
 
+bool CrateFeature::navigateTo(const QUrl& url) {
+    CrateOrFolderId itemId = CrateURLs::parseCrateOrFolderUrl(url);
+    if (!itemId.isValid()) {
+        return false;
+    }
+    return selectAndActivateItem(itemId);
+}
+
 bool CrateFeature::dropAccept(const QList<QUrl>& urls, QObject* pSource) {
     Q_UNUSED(pSource);
     QList<CrateId> crateIds = CrateURLs::parseCrateUrls(urls);
