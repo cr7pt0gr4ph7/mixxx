@@ -58,8 +58,28 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
             return;
         }
     }
+
     event->ignore();
-    //QTreeView::dragEnterEvent(event);
+
+    // Note(cr7pt0gr4ph7): Do NOT call the base class method here.
+    // We want to fully replace the reject/accept logic. Note that
+    // this means we have to manually call setState() ourselves.
+    //
+    // QTreeView::dragEnterEvent(event);
+}
+
+/// Drag leave event, happens when the dragged item leaves the track sources view
+/// or when the drag is aborted through Escape or other means.
+void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
+    m_expandTimer.stop();
+    m_hoverIndex = QModelIndex();
+
+    // Note(cr7pt0gr4ph7): We have to use the base class method here,
+    // because it will stop any in-progress autoscroll, which we
+    // cannot do otherwise via the public Qt API.
+    //
+    // The base class method will also call setState(NoState).
+    QTreeView::dragLeaveEvent(event);
 }
 
 /// Drag move event, happens when a dragged item hovers over the track sources view...
@@ -164,6 +184,8 @@ void WLibrarySidebar::dropEvent(QDropEvent * event) {
     } else {
         event->ignore();
     }
+
+    setState(QAbstractItemView::NoState);
 }
 
 void WLibrarySidebar::toggleSelectedItem() {
