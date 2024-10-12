@@ -18,6 +18,7 @@ const mixxx::Logger kLogger("CrateStorage");
 
 const QString CRATEFOLDER_SUMMARY_VIEW = "cratefolder_summary";
 const QString CRATEFOLDERSUMMARY_FULL_PATH = "full_path";
+const QString CRATEFOLDERSUMMARY_ANCESTOR_IDS = "ancestor_ids";
 
 const QString CRATE_SUMMARY_VIEW = "crate_summary";
 const QString CRATESUMMARY_TRACK_COUNT = "track_count";
@@ -25,15 +26,19 @@ const QString CRATESUMMARY_TRACK_DURATION = "track_duration";
 const QString CRATESUMMARY_FULL_PATH = "full_path";
 const QString CRATESUMMARY_FOLDER_PATH = "folder_path";
 
-const QString kCrateFolderSeparator("' / '");
+const QChar kSqlListSeparator(',');
+
+const QString kCrateFolderSeparator(" / ");
 
 const QString kCrateFolderFullPathTableExpression =
         QStringLiteral(
-                "WITH RECURSIVE full_path_recursive(id, path) AS "
+                "WITH RECURSIVE full_path_recursive(id, path, ancestors) AS "
                 "( "
-                "SELECT %2, %3 FROM %1 WHERE %4 IS NULL "
+                "SELECT %2, %3, '' FROM %1 WHERE %4 IS NULL "
                 "UNION ALL "
-                "SELECT %1.%2, full_path_recursive.path||%5||%1.%3 "
+                "SELECT %1.%2, "
+                "   full_path_recursive.path||'%5'||%1.%3, "
+                "   full_path_recursive.ancestors||'%6'||full_path_recursive.id "
                 "FROM %1 "
                 "JOIN full_path_recursive ON %1.%4=full_path_recursive.id "
                 ")")
@@ -42,18 +47,22 @@ const QString kCrateFolderFullPathTableExpression =
                         CRATEFOLDERTABLE_ID,
                         CRATEFOLDERTABLE_NAME,
                         CRATEFOLDERTABLE_PARENTID,
-                        kCrateFolderSeparator);
+                        kCrateFolderSeparator,
+                        kSqlListSeparator);
 
 const QString kCrateFolderSummaryViewSelect =
         QStringLiteral(
-                "%4 "
-                "SELECT %1.*, full_path_recursive.path AS %3 "
+                "%5 "
+                "SELECT %1.*, "
+                "    full_path_recursive.path AS %3, "
+                "    full_path_recursive.ancestors AS %4 "
                 "FROM %1 "
                 "JOIN full_path_recursive ON %1.%2=full_path_recursive.id ")
                 .arg(
                         CRATEFOLDER_TABLE,
                         CRATEFOLDERTABLE_ID,
                         CRATEFOLDERSUMMARY_FULL_PATH,
+                        CRATEFOLDERSUMMARY_ANCESTOR_IDS,
                         kCrateFolderFullPathTableExpression);
 
 const QString kCrateFolderSummaryViewQuery =
@@ -68,7 +77,7 @@ const QString kCrateFullPathField =
                 "("
                 "CASE "
                 "WHEN full_path_recursive.path NOT NULL "
-                "THEN full_path_recursive.path||%4||%1.%2 "
+                "THEN full_path_recursive.path||'%4'||%1.%2 "
                 "ELSE %1.%2 "
                 "END"
                 ") AS %3")
@@ -164,8 +173,6 @@ class CrateFolderQueryBinder final {
     FwdSqlQuery& m_query;
 };
 
-const QChar kSqlListSeparator(',');
-
 // It is not possible to bind multiple values as a list to a query.
 // The list of track ids has to be transformed into a single list
 // string before it can be used in an SQL query.
@@ -220,7 +227,26 @@ void CrateFolderQueryFields::populateFromQuery(
 
 CrateFolderSummaryQueryFields::CrateFolderSummaryQueryFields(const FwdSqlQuery& query)
         : CrateFolderQueryFields(query),
-          m_iFullPath(query.fieldIndex(CRATEFOLDERSUMMARY_FULL_PATH)) {
+          m_iFullPath(query.fieldIndex(CRATEFOLDERSUMMARY_FULL_PATH)),
+          m_iAncestorIds(query.fieldIndex(CRATEFOLDERSUMMARY_ANCESTOR_IDS)) {
+}
+
+QList<CrateFolderId> CrateFolderSummaryQueryFields::getAncestorIds(const FwdSqlQuery& query) const {
+    QList<CrateFolderId> result;
+    for (const QString& id : query.fieldValue(m_iAncestorIds)
+                              .toString()
+                              .split(kSqlListSeparator, Qt::KeepEmptyParts)) {
+        if (id.isEmpty()) {
+            result.append(CrateFolderId());
+        } else {
+            // If id is a valid number, it will be automatically parsed while
+            // coercing the QVariant to int inside the DbId constructor.
+            CrateFolderId parsedId = CrateFolderId(id);
+            DEBUG_ASSERT(parsedId.isValid());
+            result.append(parsedId);
+        }
+    }
+    return result;
 }
 
 void CrateFolderSummaryQueryFields::populateFromQuery(
@@ -230,6 +256,7 @@ void CrateFolderSummaryQueryFields::populateFromQuery(
     pFolder->setName(getName(query));
     pFolder->setParentId(getParentId(query));
     pFolder->setFullPath(getFullPath(query));
+    pFolder->setAncestorIds(getAncestorIds(query));
 }
 
 CrateTrackQueryFields::CrateTrackQueryFields(const FwdSqlQuery& query)
@@ -432,6 +459,14 @@ CrateFolderSelectResult CrateStorage::selectFolders() const {
     }
 }
 
+bool CrateStorage::isAncestor(CrateFolderId folderA, CrateFolderId folderB) const {
+    // Note: An "invalid"/NULL folderA id is not actually invalid
+    //       for this function, but instead represents the root folder.
+    CrateFolderSummary folderSummary;
+    readFolderSummaryById(folderB, &folderSummary);
+    return folderSummary.isDescendantOf(folderA);
+}
+
 CrateFolderSummarySelectResult CrateStorage::selectFolderSummaries() const {
     FwdSqlQuery query(m_database,
             mixxx::DbConnection::collateLexicographically(
@@ -442,6 +477,28 @@ CrateFolderSummarySelectResult CrateStorage::selectFolderSummaries() const {
     } else {
         return CrateFolderSummarySelectResult();
     }
+}
+
+bool CrateStorage::readFolderSummaryById(
+        CrateFolderId id, CrateFolderSummary* pFolderSummary) const {
+    FwdSqlQuery query(m_database,
+            QStringLiteral("SELECT * FROM %1 WHERE %2=:id")
+                    .arg(CRATEFOLDER_SUMMARY_VIEW, CRATEFOLDERTABLE_ID));
+    query.bindValue(":id", id);
+    if (query.execPrepared()) {
+        CrateFolderSummarySelectResult folderSummaries(std::move(query));
+        if ((pFolderSummary != nullptr)
+                        ? folderSummaries.populateNext(pFolderSummary)
+                        : folderSummaries.next()) {
+            VERIFY_OR_DEBUG_ASSERT(!folderSummaries.next()) {
+                kLogger.warning() << "Ambiguous folder id:" << id;
+            }
+            return true;
+        } else {
+            kLogger.warning() << "Folder summary not found by id:" << id;
+        }
+    }
+    return false;
 }
 
 CrateFolderSelectResult CrateStorage::selectFoldersByIds(
