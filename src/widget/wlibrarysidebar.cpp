@@ -82,6 +82,22 @@ void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
     QTreeView::dragLeaveEvent(event);
 }
 
+void WLibrarySidebar::paintEvent(QPaintEvent* event) {
+    QTreeView::paintEvent(event);
+    QPainter painter(viewport());
+    paintDropIndicator(painter);
+}
+
+void WLibrarySidebar::paintDropIndicator(QPainter& painter) {
+    if (showDropIndicator() && state() == QAbstractItemView::DraggingState &&
+            viewport()->cursor().shape() != Qt::ForbiddenCursor) {
+        QStyleOption option;
+        option.initFrom(this);
+        option.rect = m_dropIndicatorRect;
+        style()->drawPrimitive(QStyle::PE_IndicatorItemViewItemDrop, &option, &painter, this);
+    }
+}
+
 /// Drag move event, happens when a dragged item hovers over the track sources view...
 void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     //qDebug() << "dragMoveEvent" << event->mimeData()->formats();
@@ -126,6 +142,7 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
                 }
             }
             if (accepted) {
+                m_dropIndicatorRect = visualRect(index);
                 event->acceptProposedAction();
             } else {
                 event->ignore();
