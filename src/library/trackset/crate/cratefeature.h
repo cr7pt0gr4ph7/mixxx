@@ -114,6 +114,7 @@ class CrateFeature : public BaseTrackSetFeature {
 
     typedef enum CrateOrFolderId::ItemType ItemType;
 
+    ItemType readItemById(CrateOrFolderId itemId, Crate* pCrate, CrateFolder* pFolder) const;
     ItemType readLastRightClickedItem(Crate* pCrate, CrateFolder* pFolder) const;
     bool readLastRightClickedCrate(Crate* pCrate) const;
 
