@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "analyzer/analyzerscheduledtrack.h"
+#include "controllers/keyboard/keyboardeventfilter.h"
 #include "library/export/trackexportwizard.h"
 #include "library/library.h"
 #include "library/library_prefs.h"
@@ -341,7 +342,11 @@ bool CrateFeature::dragMoveAcceptChild(const QModelIndex& index, const QUrl& url
 
 void CrateFeature::bindLibraryWidget(
         WLibrary* libraryWidget, KeyboardEventFilter* keyboard) {
-    Q_UNUSED(keyboard);
+    m_pCreateCrateAction->setShortcut(
+            QKeySequence(keyboard->getKeyboardConfig()->getValue(
+                    ConfigKey("[KeyboardShortcuts]", "LibraryMenu_NewCrate"),
+                    tr("Ctrl+Shift+N"))));
+
     WLibraryTextBrowser* edit = new WLibraryTextBrowser(libraryWidget);
     edit->setHtml(formatRootViewHtml());
     edit->setOpenLinks(false);
