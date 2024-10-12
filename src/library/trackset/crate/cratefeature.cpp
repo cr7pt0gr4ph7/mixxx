@@ -555,7 +555,7 @@ void CrateFeature::onRightClickChild(
 void CrateFeature::slotCreateCrate() {
     CrateId crateId =
             CrateFeatureHelper(m_pTrackCollection, m_pConfig)
-                    .createEmptyCrate(kRootFolderId);
+                    .createEmptyCrate(getLastRightClickedParentFolder());
     if (crateId.isValid()) {
         // expand Crates and scroll to new crate
         m_pSidebarWidget->selectChildIndex(indexFromCrateId(crateId), false);
