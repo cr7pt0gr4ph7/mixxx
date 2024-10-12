@@ -139,3 +139,4 @@ merge_branch ready-for-merge/fix-track-search-preferences
 merge_branch wip/auto-fade-controller
 merge_branch wip/style-active-search-control
 merge_branch wip/sidebar-mouse-usability
+merge_branch wip/crate-folders
