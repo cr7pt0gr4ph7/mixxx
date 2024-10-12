@@ -84,9 +84,11 @@ class CrateFeature : public BaseTrackSetFeature {
     void connectLibrary(Library* pLibrary);
     void connectTrackCollection();
 
+    // Navigation handling
     bool selectAndActivateItem(CrateOrFolderId itemId);
     bool activateItemImpl(CrateOrFolderId itemId, const QModelIndex& index);
 
+    // TreeItem construction
     TreeItem* getTreeItemForFolder(CrateFolderId folderId);
     std::unique_ptr<TreeItem> newTreeItemForFolder(
             CrateFolderId folderId);
@@ -103,6 +105,7 @@ class CrateFeature : public BaseTrackSetFeature {
     QModelIndex rebuildChildModel(CrateOrFolderId selectedCrateId = CrateOrFolderId());
     void updateChildModel(const QSet<CrateId>& updatedCrateIds);
 
+    // TreeItem mapping
     CrateOrFolderId crateIdFromIndex(const QModelIndex& index) const;
     QModelIndex indexFromCrateId(CrateOrFolderId crateId) const;
 
