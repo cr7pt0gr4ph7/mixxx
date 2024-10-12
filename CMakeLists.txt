@@ -796,6 +796,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/effects/backends/builtin/linkwitzriley8eqeffect.cpp
   src/effects/backends/builtin/loudnesscontoureffect.cpp
   src/effects/backends/builtin/metronomeeffect.cpp
+  src/effects/backends/builtin/metronomeclick.cpp
   src/effects/backends/builtin/moogladder4filtereffect.cpp
   src/effects/backends/builtin/compressoreffect.cpp
   src/effects/backends/builtin/parametriceqeffect.cpp
@@ -1146,6 +1147,7 @@ add_library(mixxx-lib STATIC EXCLUDE_FROM_ALL
   src/track/tracknumbers.cpp
   src/track/trackrecord.cpp
   src/track/trackref.cpp
+  src/util/autofilereloader.cpp
   src/util/battery/battery.cpp
   src/util/cache.cpp
   src/util/clipboard.cpp
@@ -1443,7 +1445,6 @@ set(MIXXX_LIB_PRECOMPILED_HEADER
   src/util/rampingvalue.h
   src/util/rangelist.h
   src/util/readaheadsamplebuffer.h
-  src/util/reference.h
   src/util/regex.h
   src/util/rescaler.h
   src/util/ringdelaybuffer.h
@@ -2101,6 +2102,7 @@ add_executable(mixxx-test
   src/test/imageutils_test.cpp
   src/test/indexrange_test.cpp
   src/test/itunesxmlimportertest.cpp
+  src/test/keyfactorytest.cpp
   src/test/keyutilstest.cpp
   src/test/lcstest.cpp
   src/test/learningutilstest.cpp
@@ -2152,6 +2154,7 @@ add_executable(mixxx-test
   src/test/trackdao_test.cpp
   src/test/trackexport_test.cpp
   src/test/trackmetadata_test.cpp
+  src/test/trackmetadataexport_test.cpp
   src/test/tracknumberstest.cpp
   src/test/trackreftest.cpp
   src/test/trackupdate_test.cpp
@@ -2784,6 +2787,7 @@ if(QML)
     src/qml/qmlplayermanagerproxy.cpp
     src/qml/qmlplayerproxy.cpp
     src/qml/qmlvisibleeffectsmodel.cpp
+    src/qml/qmlchainpresetmodel.cpp
     src/qml/qmlwaveformoverview.cpp
     # The following sources need to be in this target to get QML_ELEMENT properly interpreted
     src/control/controlmodel.cpp
@@ -3465,6 +3469,7 @@ if (STEM)
     src/sources/soundsourcestem.cpp
     src/track/steminfoimporter.cpp
     src/track/steminfo.cpp
+    src/widget/wstemlabel.cpp
   )
   if(QOPENGL)
     target_sources(mixxx-lib PRIVATE
