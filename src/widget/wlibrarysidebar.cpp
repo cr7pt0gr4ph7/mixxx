@@ -21,7 +21,7 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
     //Drag and drop setup
     setDragEnabled(false);
     setDragDropMode(QAbstractItemView::DragDrop);
-    setDropIndicatorShown(false);
+    setDropIndicatorShown(true);
     setAcceptDrops(true);
     setAutoScroll(true);
     setAttribute(Qt::WA_MacShowFocusRect, false);
