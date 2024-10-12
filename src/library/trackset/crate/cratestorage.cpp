@@ -788,8 +788,9 @@ CrateSummarySelectResult CrateStorage::selectCratesWithTrackCount(
             mixxx::DbConnection::collateLexicographically(
                     QStringLiteral("SELECT *, "
                                    "(SELECT COUNT(*) FROM %1 WHERE %2.%3 = %1.%4 and "
-                                   "%1.%5 in (%9)) AS %6, "
-                                   "0 as %7 FROM %2 ORDER BY %8")
+                                   "%1.%5 in (%10)) AS %6, "
+                                   "0 as %7 FROM %2 "
+                                   "ORDER BY %8 ASC NULLS LAST, %9")
                             .arg(
                                     CRATE_TRACKS_TABLE,
                                     CRATE_SUMMARY_VIEW,
@@ -798,6 +799,7 @@ CrateSummarySelectResult CrateStorage::selectCratesWithTrackCount(
                                     CRATETRACKSTABLE_TRACKID,
                                     CRATESUMMARY_TRACK_COUNT,
                                     CRATESUMMARY_TRACK_DURATION,
+                                    CRATESUMMARY_FOLDER_PATH,
                                     CRATETABLE_NAME,
                                     joinSqlStringList(trackIds))));
 
