@@ -82,10 +82,6 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     }
 }
 
-void WLibrarySidebar::timerEvent(QTimerEvent *event) {
-    QTreeView::timerEvent(event);
-}
-
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
 void WLibrarySidebar::dropEvent(QDropEvent* event) {
     auto* sidebarModel = qobject_cast<SidebarModel*>(model());
