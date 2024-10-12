@@ -78,6 +78,7 @@ class CrateFolderSummaryQueryFields : public CrateFolderQueryFields {
     QString getFullPath(const FwdSqlQuery& query) const {
         return query.fieldValue(m_iFullPath).toString();
     }
+    QList<CrateFolderId> getAncestorIds(const FwdSqlQuery& query) const;
 
     void populateFromQuery(
             const FwdSqlQuery& query,
@@ -85,6 +86,7 @@ class CrateFolderSummaryQueryFields : public CrateFolderQueryFields {
 
   private:
     DbFieldIndex m_iFullPath;
+    DbFieldIndex m_iAncestorIds;
 };
 
 class CrateFolderSummarySelectResult : public FwdSqlQuerySelectResult {
@@ -472,12 +474,19 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
     // CrateSummary view operations (read-only, const)
     /////////////////////////////////////////////////////////////////////////
 
+    // Returns whether folderA is an ancestor folder of folderB.
+    bool isAncestor(CrateFolderId folderA, CrateFolderId folderB) const;
+
     // Track summaries of all crates:
     //  - Hidden tracks are excluded from the crate summary statistics
     //  - The result list is ordered by crate name:
     //     - case-insensitive
     //     - locale-aware
     CrateFolderSummarySelectResult selectFolderSummaries() const; // all crates
+
+    // Omit the pFolder parameter for checking if the corresponding folder exists.
+    bool readFolderSummaryById(CrateFolderId id,
+            CrateFolderSummary* pFolderSummary = nullptr) const;
 
     // Track summaries of all crates:
     //  - Hidden tracks are excluded from the crate summary statistics
