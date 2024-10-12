@@ -317,37 +317,69 @@ void CrateFeature::updateTreeItemForCrateSummary(
     pTreeItem->setIcon(crateSummary.isLocked() ? m_lockedCrateIcon : QIcon());
 }
 
+bool CrateFeature::dropAccept(const QList<QUrl>& urls, QObject* pSource) {
+    Q_UNUSED(pSource);
+    QList<CrateOrFolderId> itemIds = CrateURLs::parseCrateOrFolderUrls(urls);
+    if (itemIds.isEmpty()) {
+        return false;
+    }
+    return moveToFolder(kRootFolderId, itemIds);
+}
+
 bool CrateFeature::dropAcceptChild(
         const QModelIndex& index, const QList<QUrl>& urls, QObject* pSource) {
     CrateOrFolderId destinationId(crateIdFromIndex(index));
-    VERIFY_OR_DEBUG_ASSERT(destinationId.isValid() && destinationId.isCrate()) {
-        return false;
-    }
-    CrateId crateId(destinationId.toCrateId());
-    // If a track is dropped onto a crate's name, but the track isn't in the
-    // library, then add the track to the library before adding it to the
-    // playlist.
-    // pSource != nullptr it is a drop from inside Mixxx and indicates all
-    // tracks already in the DB
-    QList<TrackId> trackIds =
-            m_pLibrary->trackCollectionManager()->resolveTrackIdsFromUrls(urls, !pSource);
-    if (trackIds.isEmpty()) {
-        return false;
-    }
 
-    m_pTrackCollection->addCrateTracks(crateId, trackIds);
-    return true;
+    switch (destinationId.itemType()) {
+    case ItemType::Crate: {
+        CrateId crateId(destinationId.toCrateId());
+        // If a track is dropped onto a crate's name, but the track isn't in the
+        // library, then add the track to the library before adding it to the
+        // playlist.
+        // pSource != nullptr it is a drop from inside Mixxx and indicates all
+        // tracks already in the DB
+        QList<TrackId> trackIds =
+                m_pLibrary->trackCollectionManager()->resolveTrackIdsFromUrls(urls, !pSource);
+        if (trackIds.isEmpty()) {
+            return false;
+        }
+
+        m_pTrackCollection->addCrateTracks(crateId, trackIds);
+        return true;
+    }
+    case ItemType::Folder: {
+        QList<CrateOrFolderId> itemIds = CrateURLs::parseCrateOrFolderUrls(urls);
+        if (itemIds.isEmpty()) {
+            return false;
+        }
+        return moveToFolder(destinationId.toFolderId(), itemIds);
+    }
+    case ItemType::Invalid:
+    default: {
+        return false;
+    }
+    }
+}
+
+bool CrateFeature::dragMoveAccept(const QUrl& url) {
+    return CrateURLs::parseCrateOrFolderUrl(url).isValid();
 }
 
 bool CrateFeature::dragMoveAcceptChild(const QModelIndex& index, const QUrl& url) {
-    CrateOrFolderId crateOrFolderId(crateIdFromIndex(index));
-    if (!crateOrFolderId.isValid()) {
+    CrateOrFolderId destinationId(crateIdFromIndex(index));
+    if (!destinationId.isValid()) {
         return false;
     }
-    if (crateOrFolderId.isFolder()) {
-        return false;
+    if (destinationId.isFolder()) {
+        CrateOrFolderId itemId = CrateURLs::parseCrateOrFolderUrl(url);
+        if (itemId.isFolder()) {
+            // Ensure that we do not create a cycle where a crate folder becomes its own ancestor.
+            return !m_pTrackCollection->crates().isAncestor(
+                    itemId.toFolderId(), destinationId.toFolderId());
+        }
+        return itemId.isValid();
     } else {
-        CrateId crateId(crateOrFolderId.toCrateId());
+        CrateId crateId(destinationId.toCrateId());
         Crate crate;
         if (!m_pTrackCollection->crates().readCrateById(crateId, &crate) ||
                 crate.isLocked()) {
