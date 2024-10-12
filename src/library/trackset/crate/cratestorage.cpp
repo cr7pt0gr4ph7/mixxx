@@ -909,6 +909,14 @@ bool CrateStorage::onUpdatingFolder(
                 << "Cannot update folder without a valid id";
         return false;
     }
+    // Ensure that we do not create a cycle where a crate folder becomes its own ancestor.
+    VERIFY_OR_DEBUG_ASSERT(folder.getId() != folder.getParentId() &&
+            !isAncestor(folder.getId(), folder.getParentId())) {
+        kLogger.warning() << "Cannot update parent folder of crate folder" << folder.getId()
+                          << "to" << folder.getParentId()
+                          << "because that would create a cycle";
+        return false;
+    }
     FwdSqlQuery query(m_database,
             QString(
                     "UPDATE %1 "
