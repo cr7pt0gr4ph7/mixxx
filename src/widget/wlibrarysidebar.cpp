@@ -25,6 +25,7 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
     setDropIndicatorShown(true);
     setAcceptDrops(true);
     setAutoScroll(true);
+    setAutoExpandDelay(expand_time);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
