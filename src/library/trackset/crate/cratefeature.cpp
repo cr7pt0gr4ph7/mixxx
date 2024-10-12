@@ -445,7 +445,7 @@ CrateFeature::ItemType CrateFeature::readItemById(
 
 CrateFeature::ItemType CrateFeature::readLastRightClickedItem(
         Crate* pCrate, CrateFolder* pFolder) const {
-    CrateOrFolderId selectionId(crateIdFromIndex(m_lastRightClickedIndex));
+    CrateOrFolderId selectionId(getLastRightClickedItem());
     VERIFY_OR_DEBUG_ASSERT(selectionId.isValid()) {
         qWarning() << "Failed to determine id of selected item";
         return ItemType::Invalid;
@@ -454,7 +454,7 @@ CrateFeature::ItemType CrateFeature::readLastRightClickedItem(
 }
 
 bool CrateFeature::readLastRightClickedCrate(Crate* pCrate) const {
-    CrateOrFolderId selectionId(crateIdFromIndex(m_lastRightClickedIndex));
+    CrateOrFolderId selectionId(getLastRightClickedItem());
     CrateId crateId = selectionId.toCrateId();
     VERIFY_OR_DEBUG_ASSERT(crateId.isValid()) {
         qWarning() << "Failed to determine id of selected crate";
