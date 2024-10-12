@@ -553,10 +553,17 @@ void CrateFeature::onRightClickChild(
 }
 
 void CrateFeature::slotCreateCrate() {
+    createNewCrate(getLastRightClickedParentFolder(), true);
+}
+
+void CrateFeature::createNewCrate(CrateFolderId parent, bool selectAfterCreation) {
+    // Note: An "invalid"/NULL parent is not actually invalid
+    //       for this function, but instead represents the root folder.
     CrateId crateId =
             CrateFeatureHelper(m_pTrackCollection, m_pConfig)
-                    .createEmptyCrate(kRootFolderId);
-    if (crateId.isValid()) {
+                    .createEmptyCrate(parent);
+
+    if (selectAfterCreation && crateId.isValid()) {
         // expand Crates and scroll to new crate
         m_pSidebarWidget->selectChildIndex(indexFromCrateId(crateId), false);
     }

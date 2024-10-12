@@ -122,6 +122,9 @@ class CrateFeature : public BaseTrackSetFeature {
         return crateIdFromIndex(m_lastRightClickedIndex);
     }
 
+    // TreeItem actions
+    void createNewCrate(CrateFolderId parent, bool selectAfterCreation);
+
     QString formatRootViewHtml() const;
 
     const QIcon m_lockedCrateIcon;
