@@ -138,3 +138,4 @@ merge_branch ready-for-merge/toggle-autodj-via-contextmenu
 merge_branch ready-for-merge/fix-track-search-preferences
 merge_branch wip/auto-fade-controller
 merge_branch wip/style-active-search-control
+merge_branch wip/sidebar-mouse-usability
