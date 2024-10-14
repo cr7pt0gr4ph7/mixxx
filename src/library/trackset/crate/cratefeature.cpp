@@ -540,7 +540,7 @@ void CrateFeature::onRightClickChild(
     connect(moveToFolderMenu,
             &QMenu::aboutToShow,
             this,
-            [this, moveToFolderMenu] {
+            [this, moveToFolderMenu, selectionId] {
                 if (m_folderMenuInitialized) {
                     return;
                 }
@@ -549,6 +549,14 @@ void CrateFeature::onRightClickChild(
                 CrateFolderSummary folder;
                 auto folders = m_pTrackCollection->crates().selectFolderSummaries();
                 while (folders.populateNext(&folder)) {
+                    if (selectionId.isFolder() &&
+                            (selectionId.toFolderId() == folder.getId() ||
+                                    folder.isDescendantOf(selectionId.toFolderId()))) {
+                        // A folder cannot be moved into its own descendants,
+                        // because that would create a cycle in the hierarchy.
+                        continue;
+                    }
+
                     auto* pAction = moveToFolderMenu->addAction(folder.getFullPath());
                     pAction->setProperty("folderId", QVariant::fromValue(folder.getId()));
                     connect(pAction,
