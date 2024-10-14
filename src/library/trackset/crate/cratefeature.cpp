@@ -1059,6 +1059,19 @@ QModelIndex CrateFeature::rebuildChildModel(CrateOrFolderId selectedItemId) {
         return selectedIndex;
     }
 
+    // Store expansion state of folder items to restore it later
+    QHash<CrateFolderId, bool> idToExpanded;
+    idToExpanded.reserve(m_idToFolder.size());
+    for (auto it = m_idToFolder.begin(); it != m_idToFolder.end(); ++it) {
+        auto item = it.value();
+        auto index = m_pSidebarModel->index(item);
+        auto isExpanded = m_pSidebarWidget->isChildIndexExpanded(index);
+        qInfo() << "State"
+                << "name:" << item->getLabel() << "expanded:" << isExpanded
+                << "index:" << index << "item:" << item << "id:" << it.key();
+        idToExpanded[it.key()] = isExpanded;
+    }
+
     // Remove all existing tree items except for the root
     m_pSidebarModel->removeRows(0, pRootItem->childRows());
 
@@ -1096,6 +1109,18 @@ QModelIndex CrateFeature::rebuildChildModel(CrateOrFolderId selectedItemId) {
             // save index for selection
             selectedIndex = m_pSidebarModel->index(pThisItemPtr);
         }
+    }
+
+    // Restore the expansion state of the tree items
+    for (auto it = idToExpanded.begin(); it != idToExpanded.end(); ++it) {
+        auto i = m_idToFolder.find(it.key());
+        if (i == m_idToFolder.end()) {
+            qInfo() << "Cannot restore" << it.key() << "to" << it.value();
+            // Folder has been removed
+            continue;
+        }
+        qInfo() << "Restoring" << it.key() << "to" << it.value();
+        m_pSidebarWidget->setChildIndexExpanded(m_pSidebarModel->index(*i), it.value());
     }
 
     // Update rendering of crates depending on the currently selected track
