@@ -25,6 +25,8 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     void focusInEvent(QFocusEvent* event) override;
     void toggleSelectedItem();
     bool isLeafNodeSelected();
+    void setChildIndexExpanded(const QModelIndex& index, bool expand);
+    bool isChildIndexExpanded(const QModelIndex& index);
     bool isChildIndexSelected(const QModelIndex& index);
     bool isFeatureRootIndexSelected(LibraryFeature* pFeature);
 
