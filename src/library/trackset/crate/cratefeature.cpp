@@ -53,7 +53,8 @@ CrateFeature::CrateFeature(Library* pLibrary,
         : BaseTrackSetFeature(pLibrary, pConfig, "CRATEHOME", QStringLiteral("crates")),
           m_lockedCrateIcon(":/images/library/ic_library_locked_tracklist.svg"),
           m_pTrackCollection(pLibrary->trackCollectionManager()->internalCollection()),
-          m_crateTableModel(this, pLibrary->trackCollectionManager()) {
+          m_crateTableModel(this, pLibrary->trackCollectionManager()),
+          m_folderMenuInitialized(false) {
     initActions();
 
     // construct child model
@@ -535,12 +536,12 @@ void CrateFeature::onRightClickChild(
     moveToFolderMenu->setTitle(tr("Move to Folder"));
     moveToFolderMenu->setObjectName("FolderMenu");
 
-    bool folderMenuInitialized = false;
+    m_folderMenuInitialized = false;
     connect(moveToFolderMenu,
             &QMenu::aboutToShow,
             this,
-            [this, moveToFolderMenu, &folderMenuInitialized] {
-                if (folderMenuInitialized) {
+            [this, moveToFolderMenu] {
+                if (m_folderMenuInitialized) {
                     return;
                 }
                 moveToFolderMenu->clear();
@@ -558,7 +559,7 @@ void CrateFeature::onRightClickChild(
                             });
                 }
 
-                folderMenuInitialized = true;
+                m_folderMenuInitialized = true;
             });
 
     if (selectionId.isCrate()) {
@@ -611,6 +612,7 @@ void CrateFeature::onRightClickChild(
     }
 
     menu.exec(globalPos);
+    m_folderMenuInitialized = false;
 }
 
 void CrateFeature::slotCreateCrateLink() {

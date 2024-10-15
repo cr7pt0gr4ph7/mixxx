@@ -151,6 +151,8 @@ class CrateFeature : public BaseTrackSetFeature {
     QModelIndex m_lastRightClickedIndex;
     TrackId m_selectedTrackId;
 
+    bool m_folderMenuInitialized;
+
     parented_ptr<QAction> m_pCreateCrateAction;
     parented_ptr<QAction> m_pCreateFolderAction;
     parented_ptr<QAction> m_pDeleteCrateAction;
