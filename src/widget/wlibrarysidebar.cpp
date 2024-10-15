@@ -15,30 +15,6 @@ namespace {
 constexpr int expand_time = 250;
 constexpr int collapse_time = 750;
 
-std::shared_ptr<QDropEvent> newSyntheticEvent(QPoint position, const QDropEvent* event) {
-    auto syntheticEvent = std::make_shared<QDropEvent>(
-            position,
-            event->possibleActions(),
-            event->mimeData(),
-            event->buttons(),
-            event->modifiers(),
-            event->type());
-
-    // Copy mutable state from original event
-    syntheticEvent->setAccepted(event->isAccepted());
-    syntheticEvent->setDropAction(event->dropAction());
-
-    return syntheticEvent;
-
-    return syntheticEvent;
-}
-
-void finishSyntheticEvent(std::shared_ptr<QDropEvent> syntheticEvent, QDropEvent* event) {
-    // Mirror modifications back to the original event
-    event->setAccepted(syntheticEvent->isAccepted());
-    event->setDropAction(syntheticEvent->dropAction());
-}
-
 } // namespace
 
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
