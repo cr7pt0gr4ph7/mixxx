@@ -1098,10 +1098,14 @@ void CrateFeature::slotExportPlaylist() {
 }
 
 void CrateFeature::slotExportTrackFiles() {
+    CrateOrFolderId itemId(crateIdFromIndex(m_lastRightClickedIndex));
+    if (!itemId.isCrate()) {
+        return;
+    }
     // Create a new table model since the main one might have an active search.
     std::unique_ptr<CrateTableModel> pCrateTableModel =
             std::make_unique<CrateTableModel>(this, m_pLibrary->trackCollectionManager());
-    pCrateTableModel->selectCrate(m_crateTableModel.selectedCrate());
+    pCrateTableModel->selectCrate(itemId.toCrateId());
     pCrateTableModel->select();
 
     int rows = pCrateTableModel->rowCount();
