@@ -7,27 +7,27 @@
 #include "util/defs.h"
 #include "util/sample.h"
 
+SoundDeviceDescriptor::SoundDeviceDescriptor()
+        : m_hostAPI("Unknown API"),
+          m_strDisplayName("Unknown Soundcard"),
+          m_deviceId(),
+          m_numOutputChannels(mixxx::audio::ChannelCount::stereo()),
+          m_numInputChannels(mixxx::audio::ChannelCount::stereo()),
+          m_defaultSampleRate(SoundManagerConfig::kMixxxDefaultSampleRate) {
+}
+
 SoundDevice::SoundDevice(UserSettingsPointer config, SoundManager* sm)
         : m_pConfig(config),
           m_pSoundManager(sm),
-          m_strDisplayName("Unknown Soundcard"),
-          m_numOutputChannels(mixxx::audio::ChannelCount::stereo()),
-          m_numInputChannels(mixxx::audio::ChannelCount::stereo()),
           m_sampleRate(SoundManagerConfig::kMixxxDefaultSampleRate),
-          m_hostAPI("Unknown API"),
           m_configFramesPerBuffer(0) {
 }
 
-mixxx::audio::ChannelCount SoundDevice::getNumInputChannels() const {
-    return m_numInputChannels;
-}
-
-mixxx::audio::ChannelCount SoundDevice::getNumOutputChannels() const {
-    return m_numOutputChannels;
+SoundDevice::~SoundDevice() {
 }
 
 void SoundDevice::setSampleRate(mixxx::audio::SampleRate sampleRate) {
-    m_sampleRate = sampleRate.isValid() ? sampleRate : SoundManagerConfig::kMixxxDefaultSampleRate;
+    m_sampleRate = sampleRate.isValid() ? sampleRate : m_defaultSampleRate;
 }
 
 void SoundDevice::setConfigFramesPerBuffer(unsigned int framesPerBuffer) {
