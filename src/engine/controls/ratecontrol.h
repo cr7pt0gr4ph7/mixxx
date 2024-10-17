@@ -90,6 +90,7 @@ public slots:
   void slotControlFastBack(double);
 
 private:
+  void moveRateSlider(double amount);
   void processTempRate(const int bufferSamples);
   double getJogFactor() const;
   double getWheelFactor() const;

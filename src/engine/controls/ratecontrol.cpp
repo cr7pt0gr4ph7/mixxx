@@ -330,39 +330,37 @@ void RateControl::slotControlFastBack(double v) {
     }
 }
 
+void RateControl::moveRateSlider(double amount) {
+    m_pRateSlider->set(m_pRateSlider->get() +
+            m_pRateDir->get() * amount / (100 * m_pRateRange->get()));
+    slotRateSliderChanged(m_pRateSlider->get());
+}
+
 void RateControl::slotControlRatePermDown(double v) {
     // Adjusts perm rate down if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() -
-                m_pRateDir->get() * m_dPermanentRateChangeCoarse.getValue() / (100 * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(-m_dPermanentRateChangeCoarse.getValue());
     }
 }
 
 void RateControl::slotControlRatePermDownSmall(double v) {
     // Adjusts perm rate down if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() -
-                m_pRateDir->get() * m_dPermanentRateChangeFine.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(-m_dPermanentRateChangeFine.getValue());
     }
 }
 
 void RateControl::slotControlRatePermUp(double v) {
     // Adjusts perm rate up if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() +
-                m_pRateDir->get() * m_dPermanentRateChangeCoarse.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(m_dPermanentRateChangeCoarse.getValue());
     }
 }
 
 void RateControl::slotControlRatePermUpSmall(double v) {
     // Adjusts perm rate up if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() +
-                           m_pRateDir->get() * m_dPermanentRateChangeFine.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(m_dPermanentRateChangeFine.getValue());
     }
 }
 
