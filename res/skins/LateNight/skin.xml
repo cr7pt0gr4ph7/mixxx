@@ -405,6 +405,10 @@
       <SizePolicy>me,me</SizePolicy>
       <Children>
 
+        <NotificationsContainer>
+          <ObjectName>NotificationsContainer</ObjectName>
+        </NotificationsContainer>
+
         <Template src="skins:LateNight/toolbar.xml"/>
 
         <!-- regular/maximized library  |  skin settings menu -->

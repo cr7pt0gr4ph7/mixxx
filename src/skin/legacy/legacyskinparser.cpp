@@ -54,6 +54,7 @@
 #include "widget/wlabel.h"
 #include "widget/wlibrary.h"
 #include "widget/wlibrarysidebar.h"
+#include "widget/wnotificationscontainer.h"
 #include "widget/wnumber.h"
 #include "widget/wnumberdb.h"
 #include "widget/wnumberpos.h"
@@ -572,6 +573,8 @@ QList<QWidget*> LegacySkinParser::parseNode(const QDomElement& node) {
         result = wrapWidget(parseStandardWidget<WKnob>(node));
     } else if (nodeName == "KnobComposed") {
         result = wrapWidget(parseStandardWidget<WKnobComposed>(node));
+    } else if (nodeName == "NotificationsContainer") {
+        result = wrapWidget(parseNotificationsContainer(node));
     } else if (nodeName == "TableView") {
         result = wrapWidget(parseTableView(node));
     } else if (nodeName == "CoverArt") {
@@ -1782,6 +1785,30 @@ QString LegacySkinParser::getLibraryStyle(const QDomNode& node) {
     }
     style.prepend(styleHack);
     return style;
+}
+
+QWidget* LegacySkinParser::parseNotificationsContainer(const QDomElement& node) {
+    VERIFY_OR_DEBUG_ASSERT(m_pParent) {
+        SKIN_WARNING(node,
+                *m_pContext,
+                QStringLiteral("NotificationsContainer must be placed within a "
+                               "parent widget"));
+    }
+
+    WNotificationsContainer* pWidget = new WNotificationsContainer(m_pParent);
+    pWidget->setup(node, *m_pContext);
+
+    // Special case behavior for WNotificationsContainer
+    //
+    // WNotificationsContainer is supposed to be an overlay in front
+    // of all other sibling widgets, and as such should not take part
+    // in the normal layout process of the parent. Therefore, we return
+    // nullptr here to prevent it from being added to the parent's layout
+    // in LegacySkinParser::parseChildren().
+    //
+    // Instead, it is enough for it to be added to the parent's children()
+    // list, which is accomplished by passing m_pParent to its constructor.
+    return nullptr;
 }
 
 QDomElement LegacySkinParser::loadTemplate(const QString& path) {

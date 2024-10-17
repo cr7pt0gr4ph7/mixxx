@@ -19,6 +19,7 @@
 #include "util/clipboard.h"
 #include "util/defs.h"
 #include "util/dnd.h"
+#include "util/notifications.h"
 #include "widget/wlibrary.h"
 #include "widget/wlibrarysidebar.h"
 
@@ -277,6 +278,47 @@ void AutoDJFeature::removeCrateFromAutoDj(CrateId crateId) {
     m_pTrackCollection->updateAutoDjCrate(crateId, false);
 }
 
+QString AutoDJFeature::buildTracksAddedNotification(
+        PlaylistDAO::AutoDJSendLoc loc,
+        const QList<TrackId>& trackIds) const {
+    if (trackIds.size() == 1) {
+            auto trackPointer = m_pLibrary->trackCollectionManager()->getTrackById(trackIds[0]);
+
+            // Case (1): Single track from external collection
+            if (!trackPointer) {
+            if (loc == PlaylistDAO::AutoDJSendLoc::TOP) {
+                return tr("Added 1 track to top of AutoDJ queue");
+            } else if (loc == PlaylistDAO::AutoDJSendLoc::REPLACE) {
+                return tr("Cleared AutoDJ queue and added 1 track");
+            } else {
+                return tr("Added 1 track to AutoDJ queue");
+            }
+            }
+
+            // Case (2): Single track from internal collection
+            QString fmt;
+            if (loc == PlaylistDAO::AutoDJSendLoc::TOP) {
+            fmt = tr("Added \'%1 - %2\' to top of AutoDJ queue");
+            } else if (loc == PlaylistDAO::AutoDJSendLoc::REPLACE) {
+            fmt = tr("Cleared AutoDJ queue and added \'%1 - %2\'");
+            } else {
+            fmt = tr("Added \'%1 - %2\' to AutoDJ queue");
+            }
+            return fmt.arg(trackPointer->getArtist(), trackPointer->getTitle());
+    } else {
+            // Case (3): Multiple tracks
+            QString fmt;
+            if (loc == PlaylistDAO::AutoDJSendLoc::TOP) {
+            fmt = tr("Added %1 tracks to top of AutoDJ queue");
+            } else if (loc == PlaylistDAO::AutoDJSendLoc::REPLACE) {
+            fmt = tr("Cleared AutoDJ queue and added %1 tracks");
+            } else {
+            fmt = tr("Added %1 tracks to AutoDJ queue");
+            }
+            return fmt.arg(trackIds.size());
+    }
+}
+
 bool AutoDJFeature::dropAccept(const QList<QUrl>& urls, QObject* pSource) {
     // If a track is dropped onto the Auto DJ tree node, but the track isn't in the
     // library, then add the track to the library before adding it to the
@@ -290,7 +332,16 @@ bool AutoDJFeature::dropAccept(const QList<QUrl>& urls, QObject* pSource) {
     }
 
     // Return whether appendTracksToPlaylist succeeded.
-    return m_playlistDao.appendTracksToPlaylist(trackIds, m_iAutoDJPlaylistId);
+    bool added = m_playlistDao.appendTracksToPlaylist(trackIds, m_iAutoDJPlaylistId);
+
+    // Only show a notification when successful
+    if (added) {
+        QString notificationText = buildTracksAddedNotification(
+                PlaylistDAO::AutoDJSendLoc::BOTTOM, trackIds);
+        WNotifications::show(notificationText);
+    }
+
+    return added;
 }
 
 bool AutoDJFeature::dragMoveAccept(const QUrl& url) {
