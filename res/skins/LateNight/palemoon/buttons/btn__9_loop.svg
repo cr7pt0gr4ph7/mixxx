@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 20 24">
-  <text xml:space="preserve" x="5.8255696" y="17.235025" font-family="sans-serif" font-size="40px" font-weight="400" letter-spacing="0" style="line-height:1.25" word-spacing="0"><tspan x="5.8255696" y="17.235025" font-family="Open Sans" font-size="14.66666698px" font-weight="700" style="-inkscape-font-specification:&quot;Open Sans Bold&quot;">8</tspan></text>
-  <g fill="none" stroke="#000">
+<svg width="40" height="48" version="1.1" id="svg6" viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg">
+  <text fill="#000000" font-family="Open Sans" font-size="14.6667" font-weight="700" x="5.8255696" y="17.235025" id="text1">9</text>
+  <g fill="none" stroke="#999999">
     <path stroke-miterlimit="3.9" stroke-width="1.5" d="M4.56087 5.02999c1.56883-1.22054 3.4998-1.88321 5.48753-1.88321 4.9356 0 8.9366 4.00108 8.9366 8.93662 0 1.3838-.3206 2.7295-.9158 3.941"/>
     <path stroke-width="1.5" d="M15.6466 19.0494c-1.5871 1.2754-3.5621 1.9707-5.5982 1.9707-4.93561 0-8.93669-4.0011-8.93669-8.9367 0-1.5078.38063-2.96947 1.08149-4.26144"/>
     <path stroke-miterlimit="3.9" stroke-width="2.44492" d="m5.09068 4.62107.41279-.61559.41278-.6156.32673.66528.32672.66528-.73951-.04968Z"/>
