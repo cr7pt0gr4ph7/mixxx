@@ -2502,6 +2502,14 @@ WSearchLineEdit {
     /* hide '---' placeholder text */
     background-color: #191919;
   }
+  WSearchLineEdit[isEmpty="false"] {
+    background-color: #140e00;
+  }
+  WSearchLineEdit[isEmpty="false"]:!focus {
+    padding: 2px;
+    border: 1px solid #c28400;
+    border-radius: 0px;
+  }
   /* Clear button: see /skins/default.qss */
 
 /************ splitters ***********************/

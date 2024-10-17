@@ -161,6 +161,12 @@ WLibraryTextBrowser:focus,
 WSearchLineEdit:focus {
   border-color: #78C70B;
 }
+WSearchLineEdit[isEmpty="false"] {
+  background-color: #121d02;
+}
+WSearchLineEdit[isEmpty="false"]:!focus {
+  border-color: #6fb80a;
+}
 
 #LibraryBPMButton::indicator:unchecked:selected {
   image: url(skin:/btn/btn_lib_bpm_unlocked_white.svg);
