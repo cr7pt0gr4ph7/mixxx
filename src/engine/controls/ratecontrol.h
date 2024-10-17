@@ -91,6 +91,7 @@ public slots:
 
 private:
   void moveRateSlider(double amount);
+  void setRateRatioFromSlider(double v);
   void processTempRate(const int bufferSamples);
   double getJogFactor() const;
   double getWheelFactor() const;

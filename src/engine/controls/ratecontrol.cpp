@@ -288,6 +288,10 @@ void RateControl::slotRateRangeChanged(double) {
 }
 
 void RateControl::slotRateSliderChanged(double v) {
+    setRateRatioFromSlider(v);
+}
+
+void RateControl::setRateRatioFromSlider(double v) {
     double rateRatio = 1.0 + m_pRateDir->get() * m_pRateRange->get() * v;
     m_pRateRatio->set(rateRatio);
 }
