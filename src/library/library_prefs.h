@@ -56,6 +56,8 @@ extern const ConfigKey kTagFetcherApplyTagsConfigKey;
 
 extern const ConfigKey kTagFetcherApplyCoverConfigKey;
 
+extern const ConfigKey kRepairDatabaseOnNextRestart;
+
 } // namespace prefs
 
 } // namespace library

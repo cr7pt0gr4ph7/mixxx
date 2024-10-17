@@ -10,16 +10,13 @@
 #include "sources/soundsourceproxy.h"
 #include "track/track.h"
 #include "util/assert.h"
+#include "util/cmdlineargs.h"
 #include "util/db/dbconnectionpooled.h"
 #include "util/logger.h"
 
 namespace {
 
 const mixxx::Logger kLogger("TrackCollectionManager");
-
-const QString kConfigGroup = QStringLiteral("[TrackCollection]");
-
-const ConfigKey kConfigKeyRepairDatabaseOnNextRestart(kConfigGroup, "RepairDatabaseOnNextRestart");
 
 inline
 parented_ptr<TrackCollection> createInternalTrackCollection(
@@ -44,12 +41,14 @@ TrackCollectionManager::TrackCollectionManager(
       m_pInternalCollection(createInternalTrackCollection(this, pConfig, deleteTrackForTestingFn)) {
     const QSqlDatabase dbConnection = mixxx::DbConnectionPooled(pDbConnectionPool);
 
-    // TODO(XXX): Add a checkbox in the library preferences for checking
-    // and repairing the database on the next restart of the application.
-    if (pConfig->getValue(kConfigKeyRepairDatabaseOnNextRestart, false)) {
+    // The database repair can be triggered via "Repair Database"
+    // in the options menu, as well as using the command line option
+    // "--repair-database".
+    if (CmdlineArgs::Instance().getRepairDatabase() ||
+            pConfig->getValue(mixxx::library::prefs::kRepairDatabaseOnNextRestart, false)) {
         m_pInternalCollection->repairDatabase(dbConnection);
         // Reset config value
-        pConfig->setValue(kConfigKeyRepairDatabaseOnNextRestart, false);
+        pConfig->setValue(mixxx::library::prefs::kRepairDatabaseOnNextRestart, false);
     }
 
     m_pInternalCollection->connectDatabase(dbConnection);
