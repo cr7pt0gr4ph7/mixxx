@@ -1,11 +1,13 @@
 #pragma once
 
 #include <QBasicTimer>
+#include <QElapsedTimer>
 #include <QModelIndex>
 #include <QTreeView>
 
 #include "library/library_decl.h"
 #include "widget/wbasewidget.h"
+#include "widget/wlonghovertracker.h"
 
 class LibraryFeature;
 class QPoint;
@@ -23,6 +25,7 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
     void focusInEvent(QFocusEvent* event) override;
+    void timerEvent(QTimerEvent* event) override;
     void toggleSelectedItem();
     void renameSelectedItem();
     bool isLeafNodeSelected();
@@ -49,4 +52,10 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
   private:
     void focusSelectedIndex();
     QModelIndex selectedIndex();
+
+    QElapsedTimer m_activationTimer;
+    QElapsedTimer m_expirationTimer;
+    QModelIndex m_autoExpandIndex;
+
+    WLongHoverTracker<QModelIndex> m_longHover;
 };
