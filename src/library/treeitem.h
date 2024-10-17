@@ -3,6 +3,7 @@
 #include <QIcon>
 #include <QList>
 #include <QString>
+#include <QUrl>
 #include <QVariant>
 #include <memory>
 
@@ -112,6 +113,13 @@ class TreeItem final {
         return m_data;
     }
 
+    void setUrl(const QUrl& url) {
+        m_url = url;
+    }
+    const QUrl& getUrl() const {
+        return m_url;
+    }
+
     void setIcon(const QIcon& icon) {
         m_icon = icon;
     }
@@ -124,6 +132,15 @@ class TreeItem final {
     }
     bool isBold() const {
         return m_bold;
+    }
+
+    // Gets or sets whether to display the expander triangle next
+    // to this tree item even when it has no children.
+    void setForceExpandable(bool forceExpandable) {
+        m_forceExpandable = forceExpandable;
+    }
+    bool isForceExpandable() const {
+        return m_forceExpandable;
     }
 
   private:
@@ -145,6 +162,8 @@ class TreeItem final {
 
     QString m_label;
     QVariant m_data;
+    QUrl m_url;
     QIcon m_icon;
     bool m_bold;
+    bool m_forceExpandable;
 };

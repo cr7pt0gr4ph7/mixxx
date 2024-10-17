@@ -3,10 +3,12 @@
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QInputDialog>
+#include <QLineEdit>
 #include <QList>
 #include <QListWidget>
 #include <QModelIndex>
 #include <QVBoxLayout>
+#include <QWidgetAction>
 
 #include "analyzer/analyzerscheduledtrack.h"
 #include "analyzer/analyzersilence.h"
@@ -48,6 +50,7 @@
 #include "widget/wfindonwebmenu.h"
 #include "widget/wsearchrelatedtracksmenu.h"
 // WStarRating is required for DlgTrackInfo
+#include "util/reverse_iterable.h"
 #include "widget/wstarrating.h"
 #include "widget/wstarratingaction.h"
 
@@ -381,6 +384,26 @@ void WTrackMenu::createActions() {
     if (featureIsEnabled(Feature::SelectInLibrary)) {
         m_pSelectInLibraryAct = new QAction(tr("Select in Library"), this);
         connect(m_pSelectInLibraryAct, &QAction::triggered, this, &WTrackMenu::slotSelectInLibrary);
+    }
+
+    if (featureIsEnabled(Feature::Crate)) {
+        auto placeholderText = tr("Start typing to filter crates...");
+        m_pFilterCratesEdit = new QLineEdit(this);
+        m_pFilterCratesEdit->setPlaceholderText(placeholderText);
+        m_pFilterCratesEdit->setToolTip(placeholderText);
+        connect(m_pFilterCratesEdit,
+                &QLineEdit::textChanged,
+                this,
+                &WTrackMenu::slotCrateFilterTextChanged);
+
+        m_pFilterCratesAct = new QWidgetAction(this);
+        m_pFilterCratesAct->setDefaultWidget(m_pFilterCratesEdit);
+
+        m_pAddToNewCrateAct = new QAction(tr("Add to New Crate"), this);
+        connect(m_pAddToNewCrateAct,
+                &QAction::triggered,
+                this,
+                &WTrackMenu::addSelectionToNewCrate);
     }
 
     if (featureIsEnabled(Feature::Metadata)) {
@@ -1505,6 +1528,7 @@ void WTrackMenu::slotPopulateCrateMenu() {
         return;
     }
     m_pCrateMenu->clear();
+    m_pCrateMenu->addAction(m_pFilterCratesAct);
     const TrackIdList trackIds = getTrackIds();
 
     CrateSummarySelectResult allCrates(
@@ -1512,6 +1536,12 @@ void WTrackMenu::slotPopulateCrateMenu() {
                     ->internalCollection()
                     ->crates()
                     .selectCratesWithTrackCount(trackIds));
+
+    // The crates returned by selectCratesWithTrackCount are ordered
+    // by their parent folder's full path as well as their name.
+    // Based on that assumption, the following code creates sections
+    // for the different folders.
+    CrateFolderId currentFolderId;
 
     CrateSummary crate;
     while (allCrates.populateNext(&crate)) {
@@ -1548,15 +1578,51 @@ void WTrackMenu::slotPopulateCrateMenu() {
             pCheckBox->setCheckState(Qt::PartiallyChecked);
         }
 
+        if (crate.getFolderId() != currentFolderId) {
+            currentFolderId = crate.getFolderId();
+            // Crates that are children of the root item
+            // have a NULL folder_path and simply come first
+            // in the list, without an explicit section.
+            if (crate.getFolderPath().isEmpty()) {
+                auto pSection = m_pCrateMenu->addSection(crate.getFolderPath());
+                pSection->setProperty("folderId", QVariant::fromValue(crate.getFolderId()));
+            }
+        }
+
         m_pCrateMenu->addAction(pAction.get());
         connect(pAction.get(), &QAction::triggered, this, [this, pCheckBox{pCheckBox.get()}] { updateSelectionCrates(pCheckBox); });
         connect(pCheckBox.get(), &QCheckBox::stateChanged, this, [this, pCheckBox{pCheckBox.get()}] { updateSelectionCrates(pCheckBox); });
     }
     m_pCrateMenu->addSeparator();
-    QAction* newCrateAction = new QAction(tr("Add to New Crate"), m_pCrateMenu);
-    m_pCrateMenu->addAction(newCrateAction);
-    connect(newCrateAction, &QAction::triggered, this, &WTrackMenu::addSelectionToNewCrate);
+    m_pCrateMenu->addAction(m_pAddToNewCrateAct);
     m_bCrateMenuLoaded = true;
+}
+
+void WTrackMenu::slotCrateFilterTextChanged(const QString& newText) {
+    // Iterate in reverse order so that we can hide sections
+    // that do not contain any visible items.
+    bool sectionHasVisibleItems = false;
+    for (QAction* pAction : make_reverse_iterable(m_pCrateMenu->actions())) {
+        auto crateId = pAction->property("crateId").value<CrateId>();
+        auto folderId = pAction->property("folderId").value<CrateFolderId>();
+
+        if (crateId.isValid()) {
+            // pAction has a valid crateId property => This actions represents a crate checkbox
+            // Visibility depends on whether it matches the specified search text.
+            // TODO(cr7pt0gr4ph7): Also match against the folder path?
+            // TODO(cr7pt0gr4ph7): Check whether we use the correct text comparison mode
+            bool isVisible = newText.isEmpty() || pAction->text().contains(newText);
+            pAction->setVisible(isVisible);
+            sectionHasVisibleItems |= isVisible;
+        } else if (folderId.isValid()) {
+            // pAction has a valid folderId => This action represents a folder section
+            // Visibility depends on the visibility of the crates contained in this folder.
+            pAction->setVisible(sectionHasVisibleItems);
+            sectionHasVisibleItems = false;
+        } else {
+            // Other actions, just ignore these.
+        }
+    }
 }
 
 void WTrackMenu::updateSelectionCrates(QWidget* pWidget) {
@@ -1586,7 +1652,7 @@ void WTrackMenu::updateSelectionCrates(QWidget* pWidget) {
         if (!crateId.isValid()) { // i.e. a new crate is suppose to be created
             crateId = CrateFeatureHelper(
                     m_pLibrary->trackCollectionManager()->internalCollection(), m_pConfig)
-                              .createEmptyCrate();
+                              .createEmptyCrate(CrateFolderId());
         }
         if (crateId.isValid()) {
             m_pLibrary->trackCollectionManager()->unhideTracks(trackIds);
@@ -1607,7 +1673,7 @@ void WTrackMenu::addSelectionToNewCrate() {
 
     CrateId crateId = CrateFeatureHelper(
             m_pLibrary->trackCollectionManager()->internalCollection(), m_pConfig)
-                              .createEmptyCrate();
+                              .createEmptyCrate(CrateFolderId());
 
     if (crateId.isValid()) {
         m_pLibrary->trackCollectionManager()->unhideTracks(trackIds);

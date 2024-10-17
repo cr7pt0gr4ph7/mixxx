@@ -10,8 +10,9 @@ class TreeItem;
 class TreeItemModel : public QAbstractItemModel {
     Q_OBJECT
   public:
-    static const int kDataRole = Qt::UserRole;
-    static const int kBoldRole = Qt::UserRole + 1;
+    static constexpr int kDataRole = Qt::UserRole;
+    static constexpr int kBoldRole = Qt::UserRole + 1;
+    static constexpr int kUrlRole = Qt::UserRole + 2;
 
     explicit TreeItemModel(QObject *parent = 0);
     ~TreeItemModel() override;
@@ -19,6 +20,7 @@ class TreeItemModel : public QAbstractItemModel {
     QVariant data(const QModelIndex &index, int role) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QModelIndex index(TreeItem* pTreeItem) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     // Tell the compiler we don't mean to shadow insertRows.
@@ -27,6 +29,7 @@ class TreeItemModel : public QAbstractItemModel {
                          int a_iRole = Qt::EditRole) override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    bool hasChildren(const QModelIndex& parent = QModelIndex()) const override;
 
     void insertTreeItemRows(
             std::vector<std::unique_ptr<TreeItem>>&&,
