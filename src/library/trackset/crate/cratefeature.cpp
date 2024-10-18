@@ -557,6 +557,17 @@ void CrateFeature::onRightClickChild(
     menu.exec(globalPos);
 }
 
+void CrateFeature::slotCreateCrateLink() {
+    CrateFolderId selectedFolderId = kRootFolderId;
+    if (isChildIndexSelectedInSidebar(m_lastClickedIndex)) {
+        CrateOrFolderId itemId = crateIdFromIndex(m_lastClickedIndex);
+        if (itemId.isFolder()) {
+            selectedFolderId = itemId.toFolderId();
+        }
+    }
+    createNewCrate(selectedFolderId, true);
+}
+
 void CrateFeature::slotCreateCrate() {
     createNewCrate(getLastRightClickedParentFolder(), true);
 }
@@ -1158,7 +1169,7 @@ void CrateFeature::slotUpdateCrateLabels(const QSet<CrateId>& updatedCrateIds) {
 
 void CrateFeature::htmlLinkClicked(const QUrl& link) {
     if (QString(link.path()) == "create") {
-        slotCreateCrate();
+        slotCreateCrateLink();
     } else {
         qDebug() << "Unknown crate link clicked" << link;
     }
