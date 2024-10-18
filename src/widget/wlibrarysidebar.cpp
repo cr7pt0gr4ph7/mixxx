@@ -21,7 +21,7 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
     //Drag and drop setup
     setDragEnabled(false);
     setDragDropMode(QAbstractItemView::DragDrop);
-    setDropIndicatorShown(true);
+    setDropIndicatorShown(false);
     setAcceptDrops(true);
     setAutoScroll(true);
     setAttribute(Qt::WA_MacShowFocusRect, false);
@@ -43,136 +43,60 @@ void WLibrarySidebar::contextMenuEvent(QContextMenuEvent *event) {
     //}
 }
 
-// Drag enter event, happens when a dragged item enters the track sources view
+/// Drag enter event, happens when a dragged item enters the track sources view
 void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
-    qDebug() << "WLibrarySidebar::dragEnterEvent" << event->mimeData()->formats();
-    if (event->mimeData()->hasUrls()) {
-        // We don't have a way to ask the LibraryFeatures whether to accept a
-        // drag so for now we accept all drags. Since almost every
-        // LibraryFeature accepts all files in the drop and accepts playlist
-        // drops we default to those flags to DragAndDropHelper.
-        QList<mixxx::FileInfo> fileInfos = DragAndDropHelper::supportedTracksFromUrls(
-                event->mimeData()->urls(), false, true);
-        if (!fileInfos.isEmpty()) {
-            event->acceptProposedAction();
-            return;
-        }
+    // event->source() will be NULL if something is dropped
+    // from a different application. This knowledge is used
+    // inside the LibraryFeature implementations.
+    auto* sidebarModel = qobject_cast<SidebarModel*>(model());
+    if (sidebarModel) {
+        sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
-    event->ignore();
-    //QTreeView::dragEnterEvent(event);
+    QTreeView::dragEnterEvent(event);
+    if (event->isAccepted()) {
+        event->acceptProposedAction();
+    }
+    if (sidebarModel) {
+        sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
+    }
 }
 
-// Drag move event, happens when a dragged item hovers over the track sources view...
+/// Drag leave event, happens when the dragged item leaves the track sources view
+/// or when the drag is aborted through Escape or other means.
+void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
+    QTreeView::dragLeaveEvent(event);
+}
+
+/// Drag move event, happens when a dragged item hovers over the track sources view...
 void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
-    //qDebug() << "dragMoveEvent" << event->mimeData()->formats();
-    // Start a timer to auto-expand sections the user hovers on.
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    QPoint pos = event->position().toPoint();
-#else
-    QPoint pos = event->pos();
-#endif
-    QModelIndex index = indexAt(pos);
-    if (m_hoverIndex != index) {
-        m_expandTimer.stop();
-        m_hoverIndex = index;
-        m_expandTimer.start(expand_time, this);
+    auto* sidebarModel = qobject_cast<SidebarModel*>(model());
+    if (sidebarModel) {
+        sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
-    // This has to be here instead of after, otherwise all drags will be
-    // rejected -- rryan 3/2011
     QTreeView::dragMoveEvent(event);
-    if (event->mimeData()->hasUrls()) {
-        const QList<QUrl> urls = event->mimeData()->urls();
-        // Drag and drop within this widget
-        if ((event->source() == this)
-                && (event->possibleActions() & Qt::MoveAction)) {
-            // Do nothing.
-            event->ignore();
-        } else {
-            SidebarModel* sidebarModel = qobject_cast<SidebarModel*>(model());
-            bool accepted = true;
-            if (sidebarModel) {
-                accepted = false;
-                for (const QUrl& url : urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-                    QPoint pos = event->position().toPoint();
-#else
-                    QPoint pos = event->pos();
-#endif
-                    QModelIndex destIndex = indexAt(pos);
-                    if (sidebarModel->dragMoveAccept(destIndex, url)) {
-                        // We only need one URL to be valid for us
-                        // to accept the whole drag...
-                        // consider we have a long list of valid files, checking all will
-                        // take a lot of time that stales Mixxx and this makes the drop feature useless
-                        // Eg. you may have tried to drag two MP3's and an EXE, the drop is accepted here,
-                        // but the EXE is sorted out later after dropping
-                        accepted = true;
-                        break;
-                    }
-                }
-            }
-            if (accepted) {
-                event->acceptProposedAction();
-            } else {
-                event->ignore();
-            }
-        }
-    } else {
-        event->ignore();
+    if (event->isAccepted()) {
+        event->acceptProposedAction();
     }
-}
-
-void WLibrarySidebar::timerEvent(QTimerEvent *event) {
-    if (event->timerId() == m_expandTimer.timerId()) {
-        QPoint pos = viewport()->mapFromGlobal(QCursor::pos());
-        if (viewport()->rect().contains(pos)) {
-            QModelIndex index = indexAt(pos);
-            if (m_hoverIndex == index) {
-                setExpanded(index, !isExpanded(index));
-            }
-        }
-        m_expandTimer.stop();
-        return;
+    if (sidebarModel) {
+        sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
     }
-    QTreeView::timerEvent(event);
 }
 
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
-void WLibrarySidebar::dropEvent(QDropEvent * event) {
-    if (event->mimeData()->hasUrls()) {
-        // Drag and drop within this widget
-        if ((event->source() == this)
-                && (event->possibleActions() & Qt::MoveAction)) {
-            // Do nothing.
-            event->ignore();
-        } else {
-            //Reset the selected items (if you had anything highlighted, it clears it)
-            //this->selectionModel()->clear();
-            //Drag-and-drop from an external application or the track table widget
-            //eg. dragging a track from Windows Explorer onto the sidebar
-            SidebarModel* sidebarModel = qobject_cast<SidebarModel*>(model());
-            if (sidebarModel) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-                QPoint pos = event->position().toPoint();
-#else
-                QPoint pos = event->pos();
-#endif
-
-                QModelIndex destIndex = indexAt(pos);
-                // event->source() will return NULL if something is dropped from
-                // a different application
-                const QList<QUrl> urls = event->mimeData()->urls();
-                if (sidebarModel->dropAccept(destIndex, urls, event->source())) {
-                    event->acceptProposedAction();
-                } else {
-                    event->ignore();
-                }
-            }
-        }
-        //emit trackDropped(name);
-        //repaintEverything();
-    } else {
-        event->ignore();
+void WLibrarySidebar::dropEvent(QDropEvent* event) {
+    auto* sidebarModel = qobject_cast<SidebarModel*>(model());
+    if (sidebarModel) {
+        // event->source() will be NULL if something is dropped
+        // from a different application. This knowledge is used
+        // inside the LibraryFeature implementations.
+        sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
+    }
+    QTreeView::dropEvent(event);
+    if (event->isAccepted()) {
+        event->acceptProposedAction();
+    }
+    if (sidebarModel) {
+        sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
     }
 }
 
