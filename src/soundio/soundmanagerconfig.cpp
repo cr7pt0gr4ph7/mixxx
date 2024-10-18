@@ -85,7 +85,7 @@ bool SoundManagerConfig::readFromDisk() {
     VERIFY_OR_DEBUG_ASSERT(m_pSoundManager != nullptr) {
         return false;
     }
-    const QList<SoundDevicePointer> soundDevices =
+    const QList<SoundDeviceDescriptorPointer> soundDevices =
             m_pSoundManager->getDeviceList(m_api, true, true);
 
     for (int i = 0; i < devElements.count(); ++i) {
@@ -509,7 +509,7 @@ void SoundManagerConfig::loadDefaults(SoundManager* soundManager, unsigned int f
     if (flags & SoundManagerConfig::DEVICES) {
         clearOutputs();
         clearInputs();
-        const QList<SoundDevicePointer> outputDevices =
+        const QList<SoundDeviceDescriptorPointer> outputDevices =
                 soundManager->getDeviceList(m_api, true, false);
         if (!outputDevices.isEmpty()) {
             for (const auto& pDevice : outputDevices) {

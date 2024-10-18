@@ -36,8 +36,8 @@ class DlgPrefSound : public DlgPreferencePage, public Ui::DlgPrefSoundDlg  {
   signals:
     void loadPaths(const SoundManagerConfig &config);
     void writePaths(SoundManagerConfig *config);
-    void refreshOutputDevices(const QList<SoundDevicePointer>& devices);
-    void refreshInputDevices(const QList<SoundDevicePointer>& devices);
+    void refreshOutputDevices(const QList<SoundDeviceDescriptorPointer>& devices);
+    void refreshInputDevices(const QList<SoundDeviceDescriptorPointer>& devices);
     void updatingAPI();
     void updatedAPI();
 
@@ -102,8 +102,8 @@ class DlgPrefSound : public DlgPreferencePage, public Ui::DlgPrefSoundDlg  {
     parented_ptr<ControlProxy> m_pMainEnabled;
     parented_ptr<ControlProxy> m_pMainMonoMixdown;
 
-    QList<SoundDevicePointer> m_inputDevices;
-    QList<SoundDevicePointer> m_outputDevices;
+    QList<SoundDeviceDescriptorPointer> m_inputDevices;
+    QList<SoundDeviceDescriptorPointer> m_outputDevices;
     QHash<DlgPrefSoundItem*, QPair<SoundDeviceId, int>> m_selectedOutputChannelIndices;
     QHash<DlgPrefSoundItem*, QPair<SoundDeviceId, int>> m_selectedInputChannelIndices;
     bool m_settingsModified;
