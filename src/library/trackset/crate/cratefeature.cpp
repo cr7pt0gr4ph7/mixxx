@@ -662,6 +662,19 @@ void CrateFeature::onRightClickChild(
         menu.addAction(m_pDeleteCrateAction.get());
         menu.addSeparator();
         menu.addMenu(moveToFolderMenu);
+        menu.addSeparator();
+
+        QMenu* moreMenu;
+        if (showMoreMenu) {
+            moreMenu = new QMenu(&menu);
+            moreMenu->setTitle(tr("More"));
+            moreMenu->setObjectName("MoreMenu");
+            menu.addMenu(moreMenu);
+        } else {
+            moreMenu = &menu;
+        }
+
+        moreMenu->addAction(m_pCreateImportPlaylistAction);
     } else {
         return;
     }
