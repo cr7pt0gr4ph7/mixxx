@@ -82,6 +82,8 @@ public slots:
   void slotRateSliderChanged(double);
   void slotRateRatioChanged(double);
   void slotReverseRollActivate(double);
+  void slotSoftRampEnabledChanged(double);
+  void slotSoftRampTargetSliderChanged(double);
   void slotControlRatePermDown(double);
   void slotControlRatePermDownSmall(double);
   void slotControlRatePermUp(double);
@@ -90,8 +92,10 @@ public slots:
   void slotControlFastBack(double);
 
 private:
+  void updateSoftRampState();
   void moveRateSlider(double amount);
   void setRateRatioFromSlider(double v);
+  void processSoftRamp(const int bufferSamples);
   void processTempRate(const int bufferSamples);
   double getJogFactor() const;
   double getWheelFactor() const;
@@ -133,6 +137,11 @@ private:
   ControlPushButton* m_pReverseRollButton;
   ControlObject* m_pBackButton;
   ControlObject* m_pForwardButton;
+
+  ControlObject* m_pSoftRampDirection;
+  ControlPushButton* m_pButtonSoftRampEnabled;
+  ControlPotmeter* m_pSoftRampTargetSlider;
+  ControlPotmeter* m_pSoftRampSpeed;
 
   ControlTTRotary* m_pWheel;
   ControlObject* m_pScratch2;
