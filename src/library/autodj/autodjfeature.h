@@ -7,6 +7,7 @@
 #include <QVariant>
 
 #include "library/dao/autodjcratesdao.h"
+#include "library/dao/playlistdao.h"
 #include "library/libraryfeature.h"
 #include "library/trackset/crate/crate.h"
 #include "preferences/usersettings.h"
@@ -56,6 +57,11 @@ class AutoDJFeature : public LibraryFeature {
     void onRightClick(const QPoint& globalPos) override;
     // Temporary, until WCrateTableView can be written.
     void onRightClickChild(const QPoint& globalPos, const QModelIndex& index) override;
+
+  private:
+    QString buildTracksAddedNotification(
+            PlaylistDAO::AutoDJSendLoc loc,
+            const QList<TrackId>& trackIds) const;
 
   private:
     TrackCollection* const m_pTrackCollection;
