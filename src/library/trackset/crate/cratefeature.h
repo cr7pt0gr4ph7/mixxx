@@ -129,6 +129,9 @@ class CrateFeature : public BaseTrackSetFeature {
     void createNewCrate(CrateFolderId parent, bool selectAfterCreation);
     void createNewFolder(CrateFolderId parent, bool selectAfterCreation);
     bool moveToFolder(CrateFolderId destinationId, CrateOrFolderId itemToMoveId);
+    bool moveToFolder(CrateFolderId destinationId,
+            CrateOrFolderId itemToMoveId,
+            bool selectAfterMove);
     bool moveToFolder(CrateFolderId destinationId, const QList<CrateOrFolderId>& itemsToMove);
 
     QString formatRootViewHtml() const;

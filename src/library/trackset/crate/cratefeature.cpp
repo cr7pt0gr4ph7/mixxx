@@ -699,10 +699,20 @@ void CrateFeature::slotMoveToFolder(CrateFolderId destinationId) {
     // Note: An "invalid"/NULL destination is not actually invalid
     //       for this function, but instead represents the root folder.
     CrateOrFolderId itemToMove = getLastRightClickedItem();
-    if (moveToFolder(destinationId, itemToMove) && itemToMove.isValid()) {
+    moveToFolder(destinationId, itemToMove, true);
+}
+
+bool CrateFeature::moveToFolder(CrateFolderId destinationId,
+        CrateOrFolderId itemToMoveId,
+        bool selectAfterMove) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    const bool moved = moveToFolder(destinationId, itemToMoveId);
+    if (moved && selectAfterMove && itemToMoveId.isValid()) {
         // Scroll to new location of the selected crate/folder
-        m_pSidebarWidget->selectChildIndex(indexFromCrateId(itemToMove), false);
+        m_pSidebarWidget->selectChildIndex(indexFromCrateId(itemToMoveId), false);
     }
+    return moved;
 }
 
 bool CrateFeature::moveToFolder(CrateFolderId destinationId,
