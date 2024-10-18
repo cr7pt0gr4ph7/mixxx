@@ -140,6 +140,28 @@ RateControl::RateControl(const QString& group,
     m_pButtonRateTempUpSmall =
         new ControlPushButton(ConfigKey(group,"rate_temp_up_small"));
 
+    // This also changes the behavior of the rate_*_up/down controls
+    // to affect the soft ramp target rate instead of the current rate.
+    m_pButtonSoftRampEnabled =
+            new ControlPushButton(ConfigKey(group, "soft_ramp_enabled"));
+    m_pButtonSoftRampEnabled->setButtonMode(mixxx::control::ButtonMode::TOGGLE);
+
+    // Indicator for whether a soft rate ramp is currently in progress,
+    // and in which direction (+1 = speeding up, -1 = slowing down,
+    // 0 = inactive)
+    m_pSoftRampDirection =
+            new ControlObject(ConfigKey(group, "soft_ramp_dir"));
+
+    // The target of the soft rate ramp. Allow it to go out of bounds
+    // like the rate slider so that sync lock rate adjustments are not capped.
+    m_pSoftRampTargetSlider = new ControlPotmeter(
+            ConfigKey(group, "soft_ramp_target"), -1.0, 1.0, true);
+
+    // How fast the playback rate changes during a soft rate ramp.
+    // The unit is "percent per second".
+    m_pSoftRampSpeed = new ControlPotmeter(
+            ConfigKey(group, "soft_ramp_speed"), 0.0, 1.0, false, true, false, true, 0.01);
+
     // We need the sample rate so we can guesstimate something close
     // what latency is.
     m_pSampleRate = ControlObject::getControl(
@@ -204,6 +226,11 @@ RateControl::~RateControl() {
     delete m_pButtonRatePermDownSmall;
     delete m_pButtonRatePermUp;
     delete m_pButtonRatePermUpSmall;
+
+    delete m_pSoftRampDirection;
+    delete m_pButtonSoftRampEnabled;
+    delete m_pSoftRampTargetSlider;
+    delete m_pSoftRampSpeed;
 
     delete m_pWheel;
     delete m_pScratch2;
@@ -283,11 +310,45 @@ double RateControl::getPermanentRateChangeFineAmount() {
 }
 
 void RateControl::slotRateRangeChanged(double) {
-    // update RateSlider with the new Range value butdo not change m_pRateRatio
+    // Update RateSlider with the new Range value but do not change m_pRateRatio
     slotRateRatioChanged(m_pRateRatio->get());
 }
 
 void RateControl::slotRateSliderChanged(double v) {
+    if (!m_pButtonSoftRampEnabled->toBool()) {
+        // Keep the soft ramp target slider in sync with
+        // the rate slider while soft ramping is disabled.
+        // Setting one of the two immediately sets the other as well.
+        m_pSoftRampTargetSlider->set(v);
+    }
+
+    setRateRatioFromSlider(v);
+}
+
+void RateControl::slotSoftRampEnabledChanged(double v) {
+    updateSoftRampState();
+
+    if (v == 0.0) {
+        // Keep the soft ramp target slider in sync with
+        // the rate slider while soft ramping is disabled.
+        m_pSoftRampTargetSlider->set(m_pRateSlider->get());
+    }
+}
+
+void RateControl::slotSoftRampTargetSliderChanged(double v) {
+    if (m_pButtonSoftRampEnabled->toBool()) {
+        // Soft ramping is enabled
+        updateSoftRampState();
+    } else {
+        // Keep the soft ramp target slider in sync with
+        // the rate slider while soft ramping is disabled.
+        // Setting one of the two immediately sets the other as well.
+        m_pRateSlider->set(v);
+        setRateRatioFromSlider(v);
+    }
+}
+
+void RateControl::setRateRatioFromSlider(double v) {
     double rateRatio = 1.0 + m_pRateDir->get() * m_pRateRange->get() * v;
     m_pRateRatio->set(rateRatio);
 }
@@ -330,39 +391,47 @@ void RateControl::slotControlFastBack(double v) {
     }
 }
 
-void RateControl::slotControlRatePermDown(double v) {
-    // Adjusts temp rate down if button pressed
-    if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() -
-                m_pRateDir->get() * m_dPermanentRateChangeCoarse.getValue() / (100 * m_pRateRange->get()));
+void RateControl::moveRateSlider(double amount) {
+    const double effectiveAmount =
+            m_pRateDir->get() * amount / (100 * m_pRateRange->get());
+
+    if (m_pButtonSoftRampEnabled->toBool()) {
+        // Soft ramp mode: Affect the soft ramp target
+        m_pSoftRampTargetSlider->set(m_pSoftRampTargetSlider->get() + effectiveAmount);
+        slotSoftRampTargetSliderChanged(m_pSoftRampTargetSlider->get());
+        updateSoftRampState();
+    } else {
+        // Normal behavior: Affect the rate slider directly
+        m_pRateSlider->set(m_pRateSlider->get() + effectiveAmount);
         slotRateSliderChanged(m_pRateSlider->get());
+    }
+}
+
+void RateControl::slotControlRatePermDown(double v) {
+    // Adjusts perm rate down if button pressed
+    if (v > 0.0) {
+        moveRateSlider(-m_dPermanentRateChangeCoarse.getValue());
     }
 }
 
 void RateControl::slotControlRatePermDownSmall(double v) {
-    // Adjusts temp rate down if button pressed
+    // Adjusts perm rate down if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() -
-                m_pRateDir->get() * m_dPermanentRateChangeFine.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(-m_dPermanentRateChangeFine.getValue());
     }
 }
 
 void RateControl::slotControlRatePermUp(double v) {
-    // Adjusts temp rate up if button pressed
+    // Adjusts perm rate up if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() +
-                m_pRateDir->get() * m_dPermanentRateChangeCoarse.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(m_dPermanentRateChangeCoarse.getValue());
     }
 }
 
 void RateControl::slotControlRatePermUpSmall(double v) {
-    // Adjusts temp rate up if button pressed
+    // Adjusts perm rate up if button pressed
     if (v > 0.0) {
-        m_pRateSlider->set(m_pRateSlider->get() +
-                           m_pRateDir->get() * m_dPermanentRateChangeFine.getValue() / (100. * m_pRateRange->get()));
-        slotRateSliderChanged(m_pRateSlider->get());
+        moveRateSlider(m_dPermanentRateChangeFine.getValue());
     }
 }
 
@@ -402,6 +471,7 @@ double RateControl::calculateSpeed(double baserate, double speed, bool paused,
     *pReportReverse = false;
 
     processTempRate(iSamplesPerBuffer);
+    processSoftRamp(iSamplesPerBuffer);
 
     double rate;
     const double searching = m_pRateSearch->get();
@@ -508,6 +578,73 @@ double RateControl::calculateSpeed(double baserate, double speed, bool paused,
         }
     }
     return rate;
+}
+
+void RateControl::updateSoftRampState() {
+    if (!m_pButtonSoftRampEnabled->toBool()) {
+        m_pSoftRampDirection->set(0.0);
+        return;
+    }
+
+    const double targetValue = m_pSoftRampTargetSlider->get();
+    const double currentValue = m_pRateSlider->get();
+
+    if (targetValue == currentValue) {
+        // RampDirection::None
+        m_pSoftRampDirection->set(0.0);
+        return;
+    } else if (currentValue < targetValue) {
+        // RampDirection::Up
+        m_pSoftRampDirection->set(1.0);
+    } else {
+        // RampDirection::Down
+        m_pSoftRampDirection->set(-1.0);
+    }
+}
+
+void RateControl::processSoftRamp(const int bufferSamples) {
+    if (!m_pButtonSoftRampEnabled->toBool()) {
+        // RampDirection::None
+        m_pSoftRampDirection->set(0.0);
+        return;
+    }
+
+    const double targetValue = m_pSoftRampTargetSlider->get();
+    const double currentValue = m_pRateSlider->get();
+
+    if (targetValue == currentValue) {
+        // RampDirection::None
+        m_pSoftRampDirection->set(0.0);
+        return;
+    }
+
+    const double amount = bufferSamples / m_pSampleRate->get() * m_pSoftRampSpeed->get();
+    double newValue = currentValue;
+
+    if (currentValue < targetValue) {
+        newValue = currentValue + amount;
+        if (newValue > targetValue) {
+            // RampDirection::None
+            m_pSoftRampDirection->set(0.0);
+            newValue = targetValue;
+        } else {
+            // RampDirection::Up
+            m_pSoftRampDirection->set(1.0);
+        }
+    } else {
+        newValue = currentValue - amount;
+        if (newValue < targetValue) {
+            // RampDirection::None
+            m_pSoftRampDirection->set(0.0);
+            newValue = targetValue;
+        } else {
+            // RampDirection::Down
+            m_pSoftRampDirection->set(-1.0);
+        }
+    }
+
+    m_pRateSlider->set(newValue);
+    setRateRatioFromSlider(newValue);
 }
 
 void RateControl::processTempRate(const int bufferSamples) {
