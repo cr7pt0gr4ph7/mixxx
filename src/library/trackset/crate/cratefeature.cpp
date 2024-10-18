@@ -948,7 +948,7 @@ void CrateFeature::slotCreateImportCrate() {
             ConfigValue(fileDirectory));
 
     // Set crate folder where the imported crates should be created
-    CrateFolderId importedIntoFolder = kRootFolderId;
+    CrateFolderId importedIntoFolder = getLastRightClickedParentFolder();
 
     CrateId lastCrateId;
 
