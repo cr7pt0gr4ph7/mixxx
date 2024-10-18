@@ -530,6 +530,25 @@ void CrateFeature::onRightClickChild(
         return;
     }
 
+    Crate selectedCrate;
+    CrateFolder selectedFolder;
+    CrateFolderId parentFolderId;
+    auto itemType = readItemById(selectionId, &selectedCrate, &selectedFolder);
+    switch (itemType) {
+    case ItemType::Crate: {
+        parentFolderId = selectedCrate.getFolderId();
+        break;
+    }
+    case ItemType::Folder: {
+        parentFolderId = selectedFolder.getParentId();
+        break;
+    }
+    case ItemType::Invalid:
+    default: {
+        return;
+    }
+    }
+
     QMenu menu(m_pSidebarWidget);
 
     QMenu* moveToFolderMenu = new QMenu(&menu);
@@ -540,47 +559,55 @@ void CrateFeature::onRightClickChild(
     connect(moveToFolderMenu,
             &QMenu::aboutToShow,
             this,
-            [this, moveToFolderMenu, selectionId] {
+            [this, moveToFolderMenu, selectionId, parentFolderId] {
                 if (m_folderMenuInitialized) {
                     return;
                 }
                 moveToFolderMenu->clear();
 
+                auto addMoveToFolderAction =
+                        [this, moveToFolderMenu, selectionId, parentFolderId](
+                                const CrateFolderSummary& folder) {
+                            if (selectionId.isFolder() &&
+                                    (selectionId.toFolderId() == folder.getId() ||
+                                            folder.isDescendantOf(selectionId.toFolderId()))) {
+                                // A folder cannot be moved into its own descendants,
+                                // because that would create a cycle in the hierarchy.
+                                return;
+                            }
+
+                            auto* pAction = moveToFolderMenu->addAction(folder.getFullPath());
+                            pAction->setProperty("folderId", folder.getId().toVariantOrNull());
+                            pAction->setEnabled(parentFolderId != folder.getId());
+                            connect(pAction,
+                                    &QAction::triggered,
+                                    this,
+                                    [this, folderId{folder.getId()}] {
+                                        slotMoveToFolder(folderId);
+                                    });
+                        };
+
+                CrateFolderSummary root;
+                const QString rootTitle = tr("(Root)", "Move to Folder menu");
+                root.setId(kRootFolderId);
+                root.setName(rootTitle);
+                root.setFullPath(rootTitle);
+                addMoveToFolderAction(root);
+
                 CrateFolderSummary folder;
                 auto folders = m_pTrackCollection->crates().selectFolderSummaries();
                 while (folders.populateNext(&folder)) {
-                    if (selectionId.isFolder() &&
-                            (selectionId.toFolderId() == folder.getId() ||
-                                    folder.isDescendantOf(selectionId.toFolderId()))) {
-                        // A folder cannot be moved into its own descendants,
-                        // because that would create a cycle in the hierarchy.
-                        continue;
-                    }
-
-                    auto* pAction = moveToFolderMenu->addAction(folder.getFullPath());
-                    pAction->setProperty("folderId", QVariant::fromValue(folder.getId()));
-                    connect(pAction,
-                            &QAction::triggered,
-                            this,
-                            [this, folderId{folder.getId()}] {
-                                slotMoveToFolder(folderId);
-                            });
+                    addMoveToFolderAction(folder);
                 }
 
                 m_folderMenuInitialized = true;
             });
 
     if (selectionId.isCrate()) {
-        CrateId crateId = selectionId.toCrateId();
-        Crate crate;
-        if (!m_pTrackCollection->crates().readCrateById(crateId, &crate)) {
-            return;
-        }
-
-        m_pDeleteCrateAction->setEnabled(!crate.isLocked());
-        m_pRenameCrateAction->setEnabled(!crate.isLocked());
-        m_pAutoDjTrackSourceAction->setChecked(crate.isAutoDjSource());
-        m_pLockCrateAction->setText(crate.isLocked() ? tr("Unlock") : tr("Lock"));
+        m_pDeleteCrateAction->setEnabled(!selectedCrate.isLocked());
+        m_pRenameCrateAction->setEnabled(!selectedCrate.isLocked());
+        m_pAutoDjTrackSourceAction->setChecked(selectedCrate.isAutoDjSource());
+        m_pLockCrateAction->setText(selectedCrate.isLocked() ? tr("Unlock") : tr("Lock"));
 
         menu.addAction(m_pCreateCrateAction.get());
         menu.addAction(m_pCreateFolderAction.get());
@@ -596,7 +623,7 @@ void CrateFeature::onRightClickChild(
         menu.addSeparator();
         menu.addAction(m_pAnalyzeCrateAction.get());
         menu.addSeparator();
-        if (!crate.isLocked()) {
+        if (!selectedCrate.isLocked()) {
             menu.addAction(m_pImportPlaylistAction.get());
         }
         menu.addAction(m_pExportPlaylistAction.get());
