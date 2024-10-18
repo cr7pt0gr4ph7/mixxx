@@ -38,6 +38,20 @@ const ConfigKey kVScrollBarPosConfigKey{
         QStringLiteral("[Library]"),
         QStringLiteral("VScrollBarPos")};
 
+QModelIndex calculateCutIndex(const QModelIndex& currentIndex,
+        const QModelIndexList& removedIndices) {
+    if (removedIndices.empty()) {
+        return QModelIndex();
+    }
+    const int row = currentIndex.row();
+    int rowAfterRemove = row;
+    for (const auto& removeIndex : removedIndices) {
+        if (removeIndex.row() < row) {
+            rowAfterRemove--;
+        }
+    }
+    return currentIndex.siblingAtRow(rowAfterRemove);
+}
 } // anonymous namespace
 
 WTrackTableView::WTrackTableView(QWidget* parent,
@@ -471,9 +485,9 @@ void WTrackTableView::slotPurge() {
     if (indices.isEmpty()) {
         return;
     }
-    saveCurrentIndex();
+    const QModelIndex newIndex = calculateCutIndex(currentIndex(), indices);
     pTrackModel->purgeTracks(indices);
-    restoreCurrentIndex();
+    setCurrentIndex(newIndex);
 }
 
 void WTrackTableView::slotDeleteTracksFromDisk() {
@@ -496,9 +510,9 @@ void WTrackTableView::slotUnhide() {
     if (indices.isEmpty()) {
         return;
     }
-    saveCurrentIndex();
+    const QModelIndex newIndex = calculateCutIndex(currentIndex(), indices);
     pTrackModel->unhideTracks(indices);
-    restoreCurrentIndex();
+    setCurrentIndex(newIndex);
 }
 
 void WTrackTableView::slotShowHideTrackMenu(bool show) {
@@ -813,23 +827,6 @@ TrackModel* WTrackTableView::getTrackModel() const {
     TrackModel* pTrackModel = dynamic_cast<TrackModel*>(model());
     return pTrackModel;
 }
-
-namespace {
-QModelIndex calculateCutIndex(const QModelIndex& currentIndex,
-        const QModelIndexList& removedIndices) {
-    if (removedIndices.empty()) {
-        return QModelIndex();
-    }
-    const int row = currentIndex.row();
-    int rowAfterRemove = row;
-    for (const auto& removeIndex : removedIndices) {
-        if (removeIndex.row() < row) {
-            rowAfterRemove--;
-        }
-    }
-    return currentIndex.siblingAtRow(rowAfterRemove);
-}
-} // namespace
 
 void WTrackTableView::removeSelectedTracks() {
     const QModelIndexList indices = getSelectedRows();
@@ -1261,7 +1258,7 @@ void WTrackTableView::hideOrRemoveSelectedTracks() {
         }
     }
 
-    saveCurrentIndex();
+    auto newIndex = calculateCutIndex(currentIndex(), indices);
 
     if (cap == TrackModel::Capability::Hide) {
         pTrackModel->hideTracks(indices);
@@ -1269,7 +1266,7 @@ void WTrackTableView::hideOrRemoveSelectedTracks() {
         pTrackModel->removeTracks(indices);
     }
 
-    restoreCurrentIndex();
+    setCurrentIndex(newIndex);
 }
 
 /// If applicable, requests that the selected field/item be edited
