@@ -22,6 +22,8 @@ class DlgTrackInfoMulti;
 //class DlgDeleteFilesConfirmation;
 class ExternalTrackCollection;
 class Library;
+class QLineEdit;
+class QWidgetAction;
 class TrackModel;
 class WColorPickerAction;
 class WCoverArtMenu;
@@ -163,6 +165,7 @@ class WTrackMenu : public QMenu {
     // Playlist and crate
     void slotPopulatePlaylistMenu();
     void slotPopulateCrateMenu();
+    void slotCrateFilterTextChanged(const QString& newText);
     void addSelectionToNewCrate();
 
     // Auto DJ
@@ -268,6 +271,11 @@ class WTrackMenu : public QMenu {
 #if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
     QMenu* m_pRemoveFromDiskMenu{};
 #endif
+
+    // Crate Submenu Actions
+    QWidgetAction* m_pFilterCratesAct{};
+    QLineEdit* m_pFilterCratesEdit{};
+    QAction* m_pAddToNewCrateAct{};
 
     // Update ReplayGain from Track
     QAction* m_pUpdateReplayGainAct{};

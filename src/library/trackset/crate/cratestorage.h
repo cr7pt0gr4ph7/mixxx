@@ -3,14 +3,119 @@
 #include <QList>
 #include <QSet>
 
-#include "library/trackset/crate/crateid.h"
+#include "library/trackset/crate/crateorfolderid.h"
 #include "track/trackid.h"
 #include "util/db/fwdsqlqueryselectresult.h"
 #include "util/db/sqlstorage.h"
 #include "util/db/sqlsubselectmode.h"
 
 class Crate;
+class CrateFolder;
+class CrateFolderSummary;
 class CrateSummary;
+
+class CrateFolderQueryFields {
+  public:
+    CrateFolderQueryFields() {
+    }
+    explicit CrateFolderQueryFields(const FwdSqlQuery& query);
+    virtual ~CrateFolderQueryFields() = default;
+
+    CrateFolderId getId(const FwdSqlQuery& query) const {
+        return CrateFolderId(query.fieldValue(m_iId));
+    }
+    QString getName(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iName).toString();
+    }
+    CrateFolderId getParentId(const FwdSqlQuery& query) const {
+        return CrateFolderId(query.fieldValue(m_iParentId));
+    }
+
+    void populateFromQuery(
+            const FwdSqlQuery& query,
+            CrateFolder* pFolder) const;
+
+  private:
+    DbFieldIndex m_iId;
+    DbFieldIndex m_iName;
+    DbFieldIndex m_iParentId;
+};
+
+class CrateFolderSelectResult : public FwdSqlQuerySelectResult {
+  public:
+    CrateFolderSelectResult(CrateFolderSelectResult&& other)
+            : FwdSqlQuerySelectResult(std::move(other)),
+              m_queryFields(std::move(other.m_queryFields)) {
+    }
+    ~CrateFolderSelectResult() override = default;
+
+    bool populateNext(CrateFolder* pFolder) {
+        if (next()) {
+            m_queryFields.populateFromQuery(query(), pFolder);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+  private:
+    friend class CrateStorage;
+    CrateFolderSelectResult() = default;
+    explicit CrateFolderSelectResult(FwdSqlQuery&& query)
+            : FwdSqlQuerySelectResult(std::move(query)),
+              m_queryFields(FwdSqlQuerySelectResult::query()) {
+    }
+
+    CrateFolderQueryFields m_queryFields;
+};
+
+class CrateFolderSummaryQueryFields : public CrateFolderQueryFields {
+  public:
+    CrateFolderSummaryQueryFields() = default;
+    explicit CrateFolderSummaryQueryFields(const FwdSqlQuery& query);
+    ~CrateFolderSummaryQueryFields() override = default;
+
+    QString getFullPath(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iFullPath).toString();
+    }
+    QList<CrateFolderId> getAncestorIds(const FwdSqlQuery& query) const;
+
+    void populateFromQuery(
+            const FwdSqlQuery& query,
+            CrateFolderSummary* pFolderSummary) const;
+
+  private:
+    DbFieldIndex m_iFullPath;
+    DbFieldIndex m_iAncestorIds;
+};
+
+class CrateFolderSummarySelectResult : public FwdSqlQuerySelectResult {
+  public:
+    CrateFolderSummarySelectResult(CrateFolderSummarySelectResult&& other)
+            : FwdSqlQuerySelectResult(std::move(other)),
+              m_queryFields(std::move(other.m_queryFields)) {
+    }
+    ~CrateFolderSummarySelectResult() override = default;
+
+    bool populateNext(CrateFolderSummary* pFolderSummary) {
+        if (next()) {
+            m_queryFields.populateFromQuery(query(), pFolderSummary);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+  private:
+    friend class CrateStorage;
+    CrateFolderSummarySelectResult() = default;
+    explicit CrateFolderSummarySelectResult(FwdSqlQuery&& query)
+            : FwdSqlQuerySelectResult(std::move(query)),
+              m_queryFields(FwdSqlQuerySelectResult::query()) {
+    }
+
+    CrateFolderSummaryQueryFields m_queryFields;
+};
 
 class CrateQueryFields {
   public:
@@ -24,6 +129,9 @@ class CrateQueryFields {
     }
     QString getName(const FwdSqlQuery& query) const {
         return query.fieldValue(m_iName).toString();
+    }
+    CrateFolderId getFolderId(const FwdSqlQuery& query) const {
+        return CrateFolderId(query.fieldValue(m_iFolderId));
     }
     bool isLocked(const FwdSqlQuery& query) const {
         return query.fieldValueBoolean(m_iLocked);
@@ -39,6 +147,7 @@ class CrateQueryFields {
   private:
     DbFieldIndex m_iId;
     DbFieldIndex m_iName;
+    DbFieldIndex m_iFolderId;
     DbFieldIndex m_iLocked;
     DbFieldIndex m_iAutoDjSource;
 };
@@ -93,6 +202,12 @@ class CrateSummaryQueryFields : public CrateQueryFields {
             return varTrackDuration.toDouble();
         }
     }
+    QString getFullPath(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iFullPath).toString();
+    }
+    QString getFolderPath(const FwdSqlQuery& query) const {
+        return query.fieldValue(m_iFolderPath).toString();
+    }
 
     void populateFromQuery(
             const FwdSqlQuery& query,
@@ -101,6 +216,8 @@ class CrateSummaryQueryFields : public CrateQueryFields {
   private:
     DbFieldIndex m_iTrackCount;
     DbFieldIndex m_iTrackDuration;
+    DbFieldIndex m_iFullPath;
+    DbFieldIndex m_iFolderPath;
 };
 
 class CrateSummarySelectResult : public FwdSqlQuerySelectResult {
@@ -241,6 +358,16 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
     //      for notifications
     /////////////////////////////////////////////////////////////////////////
 
+    bool onInsertingFolder(
+            const CrateFolder& folder,
+            CrateFolderId* pFolderId = nullptr);
+
+    bool onUpdatingFolder(
+            const CrateFolder& folder);
+
+    bool onDeletingFolder(
+            CrateFolderId folderId);
+
     bool onInsertingCrate(
             const Crate& crate,
             CrateId* pCrateId = nullptr);
@@ -266,6 +393,25 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
     // Crate read operations (read-only, const)
     /////////////////////////////////////////////////////////////////////////
 
+    uint countFolders() const;
+
+    // Omit the pFolder parameter for checking if the corresponding folder exists.
+    bool readFolderById(
+            CrateFolderId id,
+            CrateFolder* pFolder = nullptr) const;
+    bool readFolderByName(
+            CrateFolderId parent,
+            const QString& name,
+            CrateFolder* pFolder = nullptr) const;
+
+    // The following list results are ordered by crate/folder name:
+    //  - case-insensitive
+    //  - locale-aware
+    CrateFolderSelectResult selectFolders() const; // all folders
+    CrateFolderSelectResult selectFoldersByIds(    // subset of folders
+            const QString& subselectForFolderIds,
+            SqlSubselectMode subselectMode) const;
+
     uint countCrates() const;
 
     // Omit the pCrate parameter for checking if the corresponding crate exists.
@@ -273,6 +419,7 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
             CrateId id,
             Crate* pCrate = nullptr) const;
     bool readCrateByName(
+            CrateFolderId folder,
             const QString& name,
             Crate* pCrate = nullptr) const;
 
@@ -326,6 +473,20 @@ class CrateStorage : public virtual /*implements*/ SqlStorage {
     /////////////////////////////////////////////////////////////////////////
     // CrateSummary view operations (read-only, const)
     /////////////////////////////////////////////////////////////////////////
+
+    // Returns whether folderA is an ancestor folder of folderB.
+    bool isAncestor(CrateFolderId folderA, CrateFolderId folderB) const;
+
+    // Track summaries of all crates:
+    //  - Hidden tracks are excluded from the crate summary statistics
+    //  - The result list is ordered by crate name:
+    //     - case-insensitive
+    //     - locale-aware
+    CrateFolderSummarySelectResult selectFolderSummaries() const; // all crates
+
+    // Omit the pFolder parameter for checking if the corresponding folder exists.
+    bool readFolderSummaryById(CrateFolderId id,
+            CrateFolderSummary* pFolderSummary = nullptr) const;
 
     // Track summaries of all crates:
     //  - Hidden tracks are excluded from the crate summary statistics

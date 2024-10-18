@@ -55,6 +55,8 @@ QVariant TreeItemModel::data(const QModelIndex &index, int role) const {
         return item->getData();
     case kBoldRole:
         return item->isBold();
+    case kUrlRole:
+        return item->getUrl();
     default:
         return QVariant();
     }
@@ -100,6 +102,20 @@ QVariant TreeItemModel::headerData(int section, Qt::Orientation orientation, int
     Q_UNUSED(orientation);
     Q_UNUSED(role);
     return QVariant();
+}
+
+QModelIndex TreeItemModel::index(TreeItem* pTreeItem) const {
+    VERIFY_OR_DEBUG_ASSERT(pTreeItem) {
+        return QModelIndex();
+    }
+    if (pTreeItem == m_pRootItem.get()) {
+        return QModelIndex();
+    }
+    int row = pTreeItem->parentRow();
+    VERIFY_OR_DEBUG_ASSERT(row != TreeItem::kInvalidRow) {
+        return QModelIndex();
+    }
+    return createIndex(row, 0, pTreeItem);
 }
 
 QModelIndex TreeItemModel::index(int row, int column, const QModelIndex &parent) const {
@@ -150,6 +166,16 @@ int TreeItemModel::rowCount(const QModelIndex& parent) const {
         parentItem = getRootItem();
     }
     return parentItem->childRows();
+}
+
+bool TreeItemModel::hasChildren(const QModelIndex& parent) const {
+    TreeItem* parentItem;
+    if (parent.isValid()) {
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
+    } else {
+        parentItem = getRootItem();
+    }
+    return parentItem->isForceExpandable() || QAbstractItemModel::hasChildren(parent);
 }
 
 // Populates the model and notifies the view.
