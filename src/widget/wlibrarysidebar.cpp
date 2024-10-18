@@ -1,5 +1,6 @@
 #include "widget/wlibrarysidebar.h"
 
+#include <QApplication>
 #include <QHeaderView>
 #include <QUrl>
 #include <QtDebug>
@@ -9,11 +10,20 @@
 #include "util/defs.h"
 #include "util/dnd.h"
 
+namespace {
+
 constexpr int expand_time = 250;
+constexpr int collapse_time = 750;
+
+} // namespace
 
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
-          WBaseWidget(this) {
+          WBaseWidget(this),
+          m_longHover(this,
+                  300,
+                  100,
+                  20) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
@@ -21,9 +31,11 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
     //Drag and drop setup
     setDragEnabled(false);
     setDragDropMode(QAbstractItemView::DragDrop);
-    setDropIndicatorShown(false);
+    setDragDropOverwriteMode(true);
+    setDropIndicatorShown(true);
     setAcceptDrops(true);
     setAutoScroll(true);
+    setAutoExpandDelay(expand_time);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -64,6 +76,8 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent * event) {
 /// Drag leave event, happens when the dragged item leaves the track sources view
 /// or when the drag is aborted through Escape or other means.
 void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* event) {
+    m_autoExpandIndex = QModelIndex();
+    m_longHover.clearState();
     QTreeView::dragLeaveEvent(event);
 }
 
@@ -73,7 +87,31 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
-    QTreeView::dragMoveEvent(event);
+
+    auto pos = event->position().toPoint();
+    auto index = indexAt(pos);
+    m_longHover.hoveringOnItem(index, pos);
+
+    if (m_autoExpandIndex != index) {
+        if (m_activationTimer.isValid()) {
+            qDebug() << "Last timer" << m_activationTimer.elapsed() << m_autoExpandIndex;
+        }
+        m_activationTimer.start();
+        m_autoExpandIndex = index;
+        if (isExpanded(index)) {
+            setAutoExpandDelay(collapse_time);
+        } else {
+            setAutoExpandDelay(expand_time);
+        }
+        // QTreeView::dragMoveEvent just restarts the autoExpand timer
+        // and then calls QAbstractItemView::dragMoveEvent
+        QTreeView::dragMoveEvent(event);
+    } else {
+        // Skip resetting the autoExpand timer (see above)
+        // because we are still hovering over the same item
+        QAbstractItemView::dragMoveEvent(event);
+    }
+
     if (event->isAccepted()) {
         event->acceptProposedAction();
     }
@@ -82,8 +120,17 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent * event) {
     }
 }
 
+void WLibrarySidebar::timerEvent(QTimerEvent *event) {
+    if (m_longHover.timerEvent(event)) {
+        return;
+    }
+    QTreeView::timerEvent(event);
+}
+
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
 void WLibrarySidebar::dropEvent(QDropEvent* event) {
+    m_autoExpandIndex = QModelIndex();
+
     auto* sidebarModel = qobject_cast<SidebarModel*>(model());
     if (sidebarModel) {
         // event->source() will be NULL if something is dropped
@@ -91,13 +138,46 @@ void WLibrarySidebar::dropEvent(QDropEvent* event) {
         // inside the LibraryFeature implementations.
         sidebarModel->setSourceOfCurrentDragDropEvent(event->source());
     }
-    QTreeView::dropEvent(event);
+
+    auto pos = event->position().toPoint();
+    auto index = indexAt(pos);
+    auto probableTarget = m_longHover.tryGuessIntendedTarget(index, pos);
+    qDebug() << "Dropping after" << m_activationTimer.elapsed() << index << probableTarget.item;
+    m_activationTimer.invalidate();
+
+    if (probableTarget.item != index) {
+        // Use the target item that the user likely intended to hit,
+        // instead of the one that is currently under the mouse cursor
+        QDropEvent syntheticEvent(
+                probableTarget.position,
+                event->possibleActions(),
+                event->mimeData(),
+                event->buttons(),
+                event->modifiers(),
+                event->type());
+
+        // Copy mutable state from original event
+        syntheticEvent.setAccepted(event->isAccepted());
+        syntheticEvent.setDropAction(event->dropAction());
+
+        // Execute the original handling logic,
+        // but with the synthetic event instead
+        QTreeView::dropEvent(&syntheticEvent);
+
+        // Mirror modifications back to the original event
+        event->setAccepted(syntheticEvent.isAccepted());
+        event->setDropAction(syntheticEvent.dropAction());
+    } else {
+        QTreeView::dropEvent(event);
+    }
+
     if (event->isAccepted()) {
         event->acceptProposedAction();
     }
     if (sidebarModel) {
         sidebarModel->setSourceOfCurrentDragDropEvent(nullptr);
     }
+    m_longHover.clearState();
 }
 
 void WLibrarySidebar::renameSelectedItem() {
