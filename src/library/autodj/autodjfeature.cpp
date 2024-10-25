@@ -4,6 +4,7 @@
 #include <QtDebug>
 
 #include "controllers/keyboard/keyboardeventfilter.h"
+#include "integrations/metadatapushmanager.h"
 #include "library/autodj/autodjprocessor.h"
 #include "library/autodj/dlgautodj.h"
 #include "library/dao/trackschema.h"
@@ -53,10 +54,12 @@ AutoDJFeature::AutoDJFeature(Library* pLibrary,
           m_playlistDao(m_pTrackCollection->getPlaylistDAO()),
           m_iAutoDJPlaylistId(findOrCrateAutoDjPlaylistId(m_playlistDao)),
           m_pAutoDJProcessor(nullptr),
+          m_pMetadataPushManager(nullptr),
           m_pSidebarModel(make_parented<TreeItemModel>(this)),
           m_pAutoDJView(nullptr),
           m_autoDjCratesDao(m_iAutoDJPlaylistId, pLibrary->trackCollectionManager(), m_pConfig) {
     qRegisterMetaType<AutoDJProcessor::AutoDJState>("AutoDJState");
+    m_pMetadataPushManager = new MetadataPushManager(this, m_pConfig, pPlayerManager);
     m_pAutoDJProcessor = new AutoDJProcessor(this,
             m_pConfig,
             pPlayerManager,

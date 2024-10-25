@@ -21,6 +21,7 @@ class WLibrarySidebar;
 class QAction;
 class QModelIndex;
 class QPoint;
+class MetadataPushManager;
 
 class AutoDJFeature : public LibraryFeature {
     Q_OBJECT
@@ -65,6 +66,7 @@ class AutoDJFeature : public LibraryFeature {
     AutoDJProcessor* m_pAutoDJProcessor;
     parented_ptr<TreeItemModel> m_pSidebarModel;
     DlgAutoDJ* m_pAutoDJView;
+    MetadataPushManager* m_pMetadataPushManager;
 
     // Initialize the list of crates loaded into the auto-DJ queue.
     void constructCrateChildModel();
