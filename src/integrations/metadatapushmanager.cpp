@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "mixer/basetrackplayer.h"
 #include "mixer/playermanager.h"
@@ -43,32 +44,42 @@ bool MetadataPushManager::isEnabled() {
 
 void MetadataPushManager::slotPlayStateChanged(double v) {
     Q_UNUSED(v);
-    auto playingTracks = getPlayingTracks();
-    auto body = buildJson(playingTracks);
-    auto host = qgetenv("METADATA_PUSH_HOST");
-    auto request = QNetworkRequest(QUrl(QStringLiteral("http://%1/now-playing/update").arg(host)));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
-    m_pNetworkAccessManager->post(request, body);
+    if (isEnabled()) {
+        auto playingTracks = getPlayingTracks();
+        auto body = buildJson(playingTracks);
+        auto host = qgetenv("METADATA_PUSH_HOST");
+        auto request = QNetworkRequest(QUrl(QStringLiteral("%1/now-playing/update").arg(host)));
+        request.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/json"));
+        auto pReply = m_pNetworkAccessManager->post(request, body);
+        connect(pReply,
+                &QNetworkReply::finished,
+                this,
+                [pReply] {
+                    pReply->deleteLater();
+                });
+    }
 }
 
-QList<TrackPointer> MetadataPushManager::getPlayingTracks() {
-    QList<TrackPointer> tracks;
+QList<QPair<bool, TrackPointer>> MetadataPushManager::getPlayingTracks() {
+    QList<QPair<bool, TrackPointer>> tracks;
     for (unsigned int i = 0; i < m_pPlayerManager->numberOfDecks(); ++i) {
         QString group = PlayerManager::groupForDeck(i);
         BaseTrackPlayer* pPlayer = m_pPlayerManager->getPlayer(group);
         TrackPointer pTrack = pPlayer->getLoadedTrack();
         if (pTrack) {
-            tracks.append(pTrack);
+            tracks.append(QPair<bool, TrackPointer>(m_decks[i]->toBool(), pTrack));
         }
     }
     return tracks;
 }
 
-QByteArray MetadataPushManager::buildJson(QList<TrackPointer> playingTracks) {
+QByteArray MetadataPushManager::buildJson(QList<QPair<bool, TrackPointer>> playingTracks) {
     QJsonArray tracks;
 
-    for (auto trackPointer : playingTracks) {
+    for (auto info : playingTracks) {
+        auto trackPointer = info.second;
         QJsonObject track{
+                {"is_playing", info.first},
                 {"title", trackPointer->getTitle()},
                 {"artist", trackPointer->getArtist()},
                 {"album", trackPointer->getAlbum()},
@@ -77,7 +88,8 @@ QByteArray MetadataPushManager::buildJson(QList<TrackPointer> playingTracks) {
                 {"comment", trackPointer->getComment()},
                 {"year", trackPointer->getYear()},
                 {"location", trackPointer->getLocation()},
-                {"url", trackPointer->getURL()}};
+                {"url", trackPointer->getURL()},
+                {"bpm", trackPointer->getBpm()}};
         tracks.append(track);
     }
 

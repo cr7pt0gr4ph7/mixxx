@@ -2,6 +2,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QPair>
 #include <memory>
 
 #include "control/controlproxy.h"
@@ -31,8 +32,8 @@ class MetadataPushManager : public QObject {
     void slotPlayStateChanged(double v);
 
   private:
-    QList<TrackPointer> getPlayingTracks();
-    QByteArray buildJson(QList<TrackPointer> playingTracks);
+    QList<QPair<bool, TrackPointer>> getPlayingTracks();
+    QByteArray buildJson(QList<QPair<bool, TrackPointer>> playingTracks);
 
   private:
     UserSettingsPointer m_pConfig;
