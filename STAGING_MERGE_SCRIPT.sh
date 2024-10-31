@@ -146,3 +146,4 @@ merge_branch wip/metadata-push
 merge_branch ext/daschuer/gh13707-write-metadata-via-symlink # https://github.com/mixxxdj/mixxx/pull/13711
 merge_branch ext/daschuer/gh13734-adj-unrelated-decks-check # https://github.com/mixxxdj/mixxx/pull/13762
 merge_branch ext/rons0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
+merge_branch ext/rons0/lib-multi-prop-fix # https://github.com/mixxxdj/mixxx/pull/13631
