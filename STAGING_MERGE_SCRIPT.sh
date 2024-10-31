@@ -143,4 +143,5 @@ merge_branch ready-for-merge/trigger-repair-database
 merge_branch wip/soft-pitch-ramp
 merge_branch wip/metadata-push
 merge_branch ext/daschuer/gh13707-write-metadata-via-symlink # https://github.com/mixxxdj/mixxx/pull/13711
+merge_branch ext/daschuer/gh13734-adj-unrelated-decks-check # https://github.com/mixxxdj/mixxx/pull/13762
 merge_branch ext/ronso0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
