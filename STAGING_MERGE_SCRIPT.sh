@@ -139,6 +139,7 @@ merge_branch wip/style-active-search-control
 merge_branch ready-for-merge/sidebar-dnd/reuse-qtreeview-dnd
 merge_branch ready-for-merge/crate-folders
 merge_branch ready-for-merge/sidebar-dnd/improvements
+merge_branch ready-for-merge/sidebar-dnd/more-improvements
 merge_branch ready-for-merge/trigger-repair-database
 merge_branch wip/soft-pitch-ramp
 merge_branch wip/metadata-push
