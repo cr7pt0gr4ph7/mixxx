@@ -34,6 +34,9 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
             const TrackModel* trackModel = nullptr);
     ~DlgTrackInfo() override = default;
 
+  protected:
+    bool eventFilter(QObject* pObj, QEvent* pEvent) override;
+
   public slots:
     // Not thread safe. Only invoke via AutoConnection or QueuedConnection, not
     // directly!
