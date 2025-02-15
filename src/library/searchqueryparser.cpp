@@ -72,6 +72,7 @@ SearchQueryParser::SearchQueryParser(TrackCollection* pTrackCollection, QStringL
           m_searchCrates(false) {
     setSearchColumns(std::move(searchColumns));
 
+    // TODO(cr7pt0gr4ph7): Source this data from searchquerymeta.h
     m_textFilters << "artist"
                   << "album_artist"
                   << "album"
