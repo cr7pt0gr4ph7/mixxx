@@ -21,6 +21,8 @@ const QString kMissingFieldSearchTerm = "\"\""; // "" searches for an empty stri
 enum class StringMatch {
     Contains = 0,
     Equals,
+    StartsWith,
+    EndsWith,
 };
 
 class QueryNode {

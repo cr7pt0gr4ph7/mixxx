@@ -197,6 +197,14 @@ bool TextFilterNode::match(const TrackPointer& pTrack) const {
             if (strValue == m_argument) {
                 return true;
             }
+        } else if (m_matchMode == StringMatch::StartsWith) {
+            if (strValue.startsWith(m_argument)) {
+                return true;
+            }
+        } else if (m_matchMode == StringMatch::EndsWith) {
+            if (strValue.endsWith(m_argument)) {
+                return true;
+            }
         } else {
             if (strValue.contains(m_argument)) {
                 return true;
@@ -222,6 +230,14 @@ QString TextFilterNode::toSql() const {
     case StringMatch::Contains:
         escapedArgument = escaper.escapeString(
                 kSqlLikeMatchAll + argument + kSqlLikeMatchAll);
+        break;
+    case StringMatch::StartsWith:
+        escapedArgument = escaper.escapeString(
+                kSqlLikeMatchAll + argument);
+        break;
+    case StringMatch::EndsWith:
+        escapedArgument = escaper.escapeString(
+                argument + kSqlLikeMatchAll);
         break;
     case StringMatch::Equals:
         escapedArgument = escaper.escapeString(argument);
