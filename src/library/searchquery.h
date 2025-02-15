@@ -14,6 +14,7 @@
 #include "util/assert.h"
 
 class CrateStorage;
+class QueryNodeBuilder;
 class TrackId;
 
 const QString kMissingFieldSearchTerm = "\"\""; // "" searches for an empty string
@@ -31,6 +32,7 @@ class QueryNode {
     virtual ~QueryNode() = default;
 
     virtual bool match(const TrackPointer& pTrack) const = 0;
+    virtual std::unique_ptr<QueryNodeBuilder> toBuilder() const;
     virtual QString toSql() const = 0;
 
   protected:
@@ -55,12 +57,14 @@ class OrNode : public GroupNode {
   public:
     bool match(const TrackPointer& pTrack) const override;
     QString toSql() const override;
+    std::unique_ptr<QueryNodeBuilder> toBuilder() const override;
 };
 
 class AndNode : public GroupNode {
   public:
     bool match(const TrackPointer& pTrack) const override;
     QString toSql() const override;
+    std::unique_ptr<QueryNodeBuilder> toBuilder() const override;
 };
 
 class NotNode : public QueryNode {
@@ -72,6 +76,7 @@ class NotNode : public QueryNode {
 
     bool match(const TrackPointer& pTrack) const override;
     QString toSql() const override;
+    std::unique_ptr<QueryNodeBuilder> toBuilder() const override;
 
   private:
     std::unique_ptr<QueryNode> m_pNode;

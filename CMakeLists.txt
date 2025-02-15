@@ -1240,6 +1240,8 @@ add_library(
   src/library/scanner/recursivescandirectorytask.cpp
   src/library/scanner/scannertask.cpp
   src/library/searchquery.cpp
+  src/library/searchquerybuilder.cpp
+  src/library/searchquerymeta.cpp
   src/library/searchqueryparser.cpp
   src/library/serato/seratofeature.cpp
   src/library/serato/seratoplaylistmodel.cpp

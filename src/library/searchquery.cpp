@@ -108,6 +108,10 @@ QString concatSqlClauses(
 
 } // namespace
 
+std::unique_ptr<QueryNodeBuilder> QueryNode::toBuilder() const {
+    return new LeafQueryNodeBuilder();
+}
+
 bool AndNode::match(const TrackPointer& pTrack) const {
     for (const auto& pNode : m_nodes) {
         if (!pNode->match(pTrack)) {
@@ -130,6 +134,14 @@ QString AndNode::toSql() const {
     }
     //    qDebug() << "[SEARCHQUERY] [AndNode::toSql()] -> queryFragments = " << queryFragments;
     return concatSqlClauses(queryFragments, "AND");
+}
+
+std::unique_ptr<QueryNodeBuilder> AndNode::toBuilder() const {
+    QList<QueryNodeBuilder> builders;
+    for (const auto& pNode : m_nodes) {
+        builders.append(*pNode->toBuilder());
+    }
+    return make_unique<GroupQueryNodeBuilder>(QueryCombinatorType::And, builders);
 }
 
 bool OrNode::match(const TrackPointer& pTrack) const {
@@ -157,6 +169,14 @@ QString OrNode::toSql() const {
     return concatSqlClauses(queryFragments, "OR");
 }
 
+std::unique_ptr<QueryNodeBuilder> OrNode::toBuilder() const {
+    QList<QueryNodeBuilder> builders;
+    for (const auto& pNode : m_nodes) {
+        builders.append(*pNode->toBuilder());
+    }
+    return make_unique<GroupQueryNodeBuilder>(QueryCombinatorType::Or, builders);
+}
+
 bool NotNode::match(const TrackPointer& pTrack) const {
     return !m_pNode->match(pTrack);
 }
@@ -173,6 +193,12 @@ QString NotNode::toSql() const {
         //                 << "NOT (" % sql % ")";
         return "NOT (" % sql % ")";
     }
+}
+
+std::unique_ptr<QueryNodeBuilder> NotNode::toBuilder() const {
+    auto pBuilder = m_pNode->toBuilder();
+    pBuilder->setInverted(!pBuilder->isInverted());
+    return pBuilder;
 }
 
 TextFilterNode::TextFilterNode(const QSqlDatabase& database,
@@ -255,6 +281,10 @@ QString TextFilterNode::toSql() const {
         //        [TextFilterNode::toSql()] -> searchClauses " << searchClauses;
     }
     return concatSqlClauses(searchClauses, "OR");
+}
+
+std::unique_ptr<QueryNodeBuilder> TextFilterNode::toBuilder() const {
+    return make_unique<GroupQueryNodeBuilder>(QueryCombinatorType::And, builders);
 }
 
 bool NullOrEmptyTextFilterNode::match(const TrackPointer& pTrack) const {
