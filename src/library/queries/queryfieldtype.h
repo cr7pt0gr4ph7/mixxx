@@ -55,7 +55,7 @@ class QueryFieldTypeInfo {
     }
 
     /// Gets the list of query operators supported by fields of this type.
-    const QList<QueryOperator> supportedOperators() const {
+    QList<QueryOperator> supportedOperators() const {
         return m_supportedOperators;
     }
 
