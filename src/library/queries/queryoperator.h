@@ -109,10 +109,10 @@ enum class QueryOperator {
 class QueryOperatorInfo {
   public:
     /// Gets the detailed metadata for the specified query operator type.
-    static const QueryOperatorInfo get(QueryOperator kind);
+    static QueryOperatorInfo get(QueryOperator kind);
 
     /// Returns a list of all available query operators.
-    static const QList<QueryOperatorInfo> allOperators();
+    static QList<QueryOperatorInfo> allOperators();
 
     QueryOperator kind() const {
         return m_type;
