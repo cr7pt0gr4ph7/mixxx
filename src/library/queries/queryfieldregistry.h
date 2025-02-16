@@ -43,7 +43,7 @@ class QueryFieldCategory {
     QString m_name;
     QString m_localizedName;
     QList<QueryFieldInfo> m_fields;
-}
+};
 
 /// Provides access to the list of fields that are available
 /// for use in search queries.
@@ -62,7 +62,7 @@ class QueryFieldRegistry {
     QList<QueryFieldInfo> allFields() const;
 
     /// Returns a list of all fields grouped into logical groups.
-    QList<QueryFieldCategory> allFieldsByGroup() const;
+    QList<QueryFieldCategory> allFieldsByCategory() const;
 
     /// Adds the default fields to this registry.
     ///
