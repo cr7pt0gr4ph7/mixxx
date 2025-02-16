@@ -40,7 +40,7 @@ class QueryFieldInfo {
     QueryFieldTypeInfo type() const;
 
     /// Gets the list of query operators supported by this field.
-    const QList<QueryOperatorType> supportedOperators() const;
+    const QList<QueryOperator> supportedOperators() const;
 
     /// Returns whether instance of this field support the specified query operator.
     bool isSupported(QueryOperator op) const;
