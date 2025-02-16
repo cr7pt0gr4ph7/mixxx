@@ -34,11 +34,11 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
                 { LIBRARYTABLE_COMPOSER }),
         QueryFieldInfo(
                 QStringLiteral("grouping"),
-                QueryFieldType::Text
+                QueryFieldType::Text,
                 { LIBRARYTABLE_GROUPING }),
         QueryFieldInfo(
                 QStringLiteral("comment"),
-                QueryFieldType::Text
+                QueryFieldType::Text,
                 { LIBRARYTABLE_COMMENT }),
         QueryFieldInfo(
                 QStringLiteral("type"), // aka. filetype
