@@ -43,7 +43,7 @@ QList<QueryFieldTypeInfo> QueryFieldTypeInfo::s_allTypes = {
                 }),
         QueryFieldTypeInfo(QueryFieldType::Year,
                 "year",
-                {ea756e906f6eda1c7fd605ddfd8ab153a6c586c6
+                {
                         // Could also be translated as LessThan
                         QueryOperator::Before,
                         // Could also be translated as GreaterThan
