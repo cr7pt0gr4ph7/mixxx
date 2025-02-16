@@ -47,7 +47,7 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
         QueryFieldInfo(
                 QStringLiteral("location"),
                 QueryFieldType::Text,
-                { /* Not yet implemented */ }),
+                QList(/* Not yet implemented */)),
         QueryFieldInfo(
                 QStringLiteral("year"),
                 QueryFieldType::Year,
@@ -105,19 +105,19 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
         QueryFieldInfo(
                 QStringLiteral("track_in"), // aka. track:
                 QueryFieldType::Track,
-                { /* Requires special handling */ }),
+                QList(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("playlist"),
                 QueryFieldType::Playlist,
-                { /* Requires special handling */ }),
+                QList(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("crate"),
                 QueryFieldType::Crate,
-                { /* Requires special handling */ }),
+                QList(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("history"),
                 QueryFieldType::History,
-                { /* Requires special handling */ }),
+                QList(/* Requires special handling */)),
 };
 
  QueryFieldCategory(const QString& name, const QString& localizedName, const QList<QueryFieldInfo>& fields)
