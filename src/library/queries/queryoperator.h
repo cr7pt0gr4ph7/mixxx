@@ -120,13 +120,13 @@ class QueryOperatorInfo {
 
     /// Gets the name for this query operator.
     QString name(bool inverted) const {
-        return m_name;
+        return inverted ? m_invertedName : m_name;
     }
 
     /// Gets the localized name for this query operator.
     QString localizedName(bool inverted) const {
         // FIXME(cr7pt0gr4ph7): Translate the name using tr("...")
-        return m_name;
+        return inverted ? m_invertedName : m_name;
     }
 
     /// Gets the symbol representing this query operator.
