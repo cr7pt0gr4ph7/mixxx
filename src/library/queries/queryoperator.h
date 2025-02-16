@@ -151,7 +151,7 @@ class QueryOperatorInfo {
 
     /// External consumers should use get() and allTypes() to obtain
     /// the metadata for a given field type.
-    QueryOperatorInfo(const QueryFieldType kind,
+    QueryOperatorInfo(const QueryOperator kind,
             const QString& name,
             const QString& invertedName,
             const QString& symbol,
