@@ -62,7 +62,7 @@ class QueryFieldRegistry {
     QList<QueryFieldInfo> allFields() const;
 
     /// Returns a list of all fields grouped into logical groups.
-    QList<QueryFieldGroup> allFieldsByGroup() const;
+    QList<QueryFieldCategory> allFieldsByGroup() const;
 
     /// Adds the default fields to this registry.
     ///
