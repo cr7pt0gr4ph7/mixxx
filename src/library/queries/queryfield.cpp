@@ -10,7 +10,7 @@ QueryFieldTypeInfo QueryFieldInfo::type() const {
     return QueryFieldTypeInfo::get(m_type);
 }
 
-const QList<QueryOperator> QueryFieldInfo::supportedOperators() const {
+QList<QueryOperator> QueryFieldInfo::supportedOperators() const {
     return type().supportedOperators();
 }
 
