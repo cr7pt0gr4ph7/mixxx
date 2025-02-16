@@ -35,7 +35,7 @@ class QueryFieldCategory {
     }
 
     /// Gets the fields that belong to this group.
-    const QList<QueryFieldInfo> fields() const {
+    QList<QueryFieldInfo> fields() const {
         return m_fields;
     }
 
@@ -56,13 +56,13 @@ class QueryFieldRegistry {
     ///
     /// Returns a QueryFieldInfo with QueryFieldType::Invalid when the specified
     /// name does not refer to a known field.
-    const QueryFieldInfo get(const QString& name) const;
+    QueryFieldInfo get(const QString& name) const;
 
     /// Returns a list of all available fields.
-    const QList<QueryFieldInfo> allFields() const;
+    QList<QueryFieldInfo> allFields() const;
 
     /// Returns a list of all fields grouped into logical groups.
-    const QList<QueryFieldGroup> allFieldsByGroup() const;
+    QList<QueryFieldGroup> allFieldsByGroup() const;
 
     /// Adds the default fields to this registry.
     ///
