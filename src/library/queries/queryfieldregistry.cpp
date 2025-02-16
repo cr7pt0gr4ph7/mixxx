@@ -46,7 +46,8 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
                 { LIBRARYTABLE_FILETYPE }),
         QueryFieldInfo(
                 QStringLiteral("location"),
-                QueryFieldType::Text),
+                QueryFieldType::Text,
+                { /* Not yet implemented */ }),
         QueryFieldInfo(
                 QStringLiteral("year"),
                 QueryFieldType::Year,
