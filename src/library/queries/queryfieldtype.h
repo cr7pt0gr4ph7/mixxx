@@ -33,10 +33,10 @@ enum class QueryFieldType {
 class QueryFieldTypeInfo {
   public:
     /// Gets the detailed metadata for the specified query field type.
-    static const QueryFieldTypeInfo get(QueryFieldType kind);
+    static QueryFieldTypeInfo get(QueryFieldType kind);
 
     /// Gets a list of all available query field types.
-    static const QList<QueryFieldTypeInfo> allTypes();
+    static QList<QueryFieldTypeInfo> allTypes();
 
     /// Gets the query field type represented by this instance.
     QueryFieldType kind() const {
