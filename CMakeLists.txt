@@ -1225,6 +1225,7 @@ add_library(
   src/library/parserpls.cpp
   src/library/playlisttablemodel.cpp
   src/library/proxytrackmodel.cpp
+  src/library/queries/queryfield.cpp
   src/library/queries/queryfieldtype.cpp
   src/library/queries/queryoperator.cpp
   src/library/recording/dlgrecording.cpp
