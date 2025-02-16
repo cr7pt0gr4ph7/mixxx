@@ -46,7 +46,7 @@ class QueryFieldInfo {
     bool isSupported(QueryOperator op) const;
 
     /// Returns whether instances of this field support the specified query operator.
-    bool isSupported(const QueryOperatorInfo op) const;
+    bool isSupported(const QueryOperatorInfo& op) const;
 
   private:
     static QList<QueryFieldInfo> s_allFields;
