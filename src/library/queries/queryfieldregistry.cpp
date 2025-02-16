@@ -47,7 +47,7 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
         QueryFieldInfo(
                 QStringLiteral("location"),
                 QueryFieldType::Text,
-                QList(/* Not yet implemented */)),
+                QList<QueryOperator>(/* Not yet implemented */)),
         QueryFieldInfo(
                 QStringLiteral("year"),
                 QueryFieldType::Year,
@@ -105,22 +105,22 @@ QList<QueryFieldInfo> QueryFieldRegistry::s_defaultFields = {
         QueryFieldInfo(
                 QStringLiteral("track_in"), // aka. track:
                 QueryFieldType::Track,
-                QList(/* Requires special handling */)),
+                QList<QueryOperator>(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("playlist"),
                 QueryFieldType::Playlist,
-                QList(/* Requires special handling */)),
+                QList<QueryOperator>(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("crate"),
                 QueryFieldType::Crate,
-                QList(/* Requires special handling */)),
+                QList<QueryOperator>(/* Requires special handling */)),
         QueryFieldInfo(
                 QStringLiteral("history"),
                 QueryFieldType::History,
-                QList(/* Requires special handling */)),
+                QList<QueryOperator>(/* Requires special handling */)),
 };
 
- QueryFieldCategory(const QString& name, const QString& localizedName, const QList<QueryFieldInfo>& fields)
+ QueryFieldCategory::QueryFieldCategory(const QString& name, const QString& localizedName, const QList<QueryFieldInfo>& fields)
    : m_name(name),
      m_localizedName(localizedName),
      m_fields(fields) {
@@ -143,7 +143,7 @@ QueryFieldInfo QueryFieldRegistry::get(const QString& name) const {
     return lookupResult.value();
 }
 
-QList<QString> QueryFieldRegistry::allFields() const {
+QList<QueryFieldInfo> QueryFieldRegistry::allFields() const {
     return m_allFields;
 }
 
