@@ -26,6 +26,8 @@ const QRegularExpression kDurationRegex(QStringLiteral("^(\\d+)(m|:)?([0-5]?\\d)
 // > are not necessarily greedy.
 const QRegularExpression kNumericOperatorRegex(QStringLiteral("^(<=|>=|=|<|>)(.*)$"));
 
+const QRegularExpression kDateRangeOperatorRegex(QStringLiteral("^(.*)\\|(.*)$"));
+
 const QRegularExpression kNullRegex(QStringLiteral("^([0.,]+)$"));
 
 QVariant getTrackValueForColumn(const TrackPointer& pTrack, const QString& column) {
@@ -791,6 +793,119 @@ QString BpmFilterNode::toSql() const {
     default: // MatchMode::Invalid
         return QString("bpm IS NULL");
     }
+}
+
+DateFilterNode::DateFilterNode(const QSqlDatabase& database,
+        const QStringList& sqlColumns,
+        const QString& argument)
+        : m_database(database),
+          m_sqlColumns(sqlColumns),
+          m_operator(QStringLiteral("=")),
+          m_bNullQuery(false) {
+    if (argument == kMissingFieldSearchTerm || argument == "-") {
+        m_bNullQuery = true;
+        return;
+    }
+
+    QRegularExpressionMatch opMatch = kNumericOperatorRegex.match(argument);
+    if (opMatch.hasMatch()) {
+        m_operator = opMatch.captured(1);
+        m_argument = opMatch.captured(2);
+        return;
+    }
+
+    QRegularExpressionMatch rangeMatch = kDateRangeOperatorRegex.match(argument);
+    if (rangeMatch.hasMatch()) {
+        m_operator = "|";
+        m_minDate = rangeMatch.captured(1);
+        m_maxDate = rangeMatch.captured(2);
+    }
+}
+
+bool DateFilterNode::match(const TrackPointer& pTrack) const {
+    for (const auto& sqlColumn : m_sqlColumns) {
+        QVariant value = getTrackValueForColumn(pTrack, sqlColumn);
+        if (!value.isValid() || !value.canConvert<QString>()) {
+            continue;
+        }
+
+        QString strValue = value.toString();
+        mixxx::DbConnection::makeStringLatinLow(&strValue);
+        if (m_operator == "=") {
+            if (strValue == m_argument) {
+                return true;
+            }
+        } else if (m_operator == "<") {
+            if (strValue < m_argument) {
+                return true;
+            }
+        } else if (m_operator == "<=") {
+            if (strValue <= m_argument) {
+                return true;
+            }
+        } else if (m_operator == ">") {
+            if (strValue > m_argument) {
+                return true;
+            }
+        } else if (m_operator == ">=") {
+            if (strValue >= m_argument) {
+                return true;
+            }
+        } else if (m_operator == "|") {
+            if (m_minDate < m_maxDate) {
+                if (strValue >= m_minDate && strValue >= m_maxDate) {
+                    return true;
+                }
+            } else if (m_minDate > m_maxDate) {
+                if (strValue >= m_maxDate && strValue >= m_minDate) {
+                    return true;
+                }
+            } else if (m_minDate == m_maxDate) {
+                if (strValue == m_minDate) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+QString DateFilterNode::toSql() const {
+    if (m_bNullQuery) {
+        if (!m_sqlColumns.isEmpty()) {
+            // only use the major column
+            return QString("%1 IS NULL OR %1 IS ''").arg(m_sqlColumns.first());
+        }
+        return QString();
+    }
+
+    FieldEscaper escaper(m_database);
+
+    const argDate = QStringLiteral("strftime('%Y-%m-%d','%1')")
+                            .arg(escaper.escapeString(m_argument));
+    const minDate = QStringLiteral("strftime('%Y-%m-%d','%1')")
+                            .arg(escaper.escapeString(m_minDate));
+    const maxDate = QStringLiteral("strftime('%Y-%m-%d','%1')")
+                            .arg(escaper.escapeString(m_maxDate));
+
+    QStringList searchClauses;
+    for (const auto& sqlColumn : m_sqlColumns) {
+        const fieldValue = QStringLiteral("strftime('%Y-%m-%d',library.%1)").arg(sqlColumn);
+
+        if (m_operator == "=" || m_operator == "<" || m_operator == "<=" ||
+                m_operator == ">" || m_operator == ">=") {
+            searchClauses.append(fieldValue + " " + m_operator + " " + argDate);
+        } else if (m_operator == "|") {
+            if (m_minDate < m_maxDate) {
+                searchClauses.append(fieldValue + " BETWEEN " + minDate + " AND " + maxDate);
+            } else if (m_minDate > m_maxDate) {
+                searchClauses.append(fieldValue + " BETWEEN " + maxDate + " AND " + minDate);
+            } else if (m_minDate == m_maxDate) {
+                searchClauses.append(fieldValue + " = " + minDate);
+            }
+        }
+    }
+    return concatSqlClauses(searchClauses, "OR");
 }
 
 KeyFilterNode::KeyFilterNode(mixxx::track::io::key::ChromaticKey key,

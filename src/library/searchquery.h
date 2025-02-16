@@ -234,6 +234,26 @@ class BpmFilterNode : public QueryNode {
     static double s_relativeRange;
 };
 
+class DateFilterNode : public QueryNode {
+  public:
+    DateFilterNode(const QStringList& sqlColumns,
+            const QString& argument,
+            bool negate = false);
+
+    bool match(const TrackPointer& pTrack) const override;
+    QString toSql() const override;
+
+  private:
+    QSqlDatabase m_database;
+    QStringList m_sqlColumns;
+
+    bool m_bNullQuery;
+    QString m_operator;
+    QString m_argument;
+    QString m_minDate;
+    QString m_maxDate;
+};
+
 class KeyFilterNode : public QueryNode {
   public:
     KeyFilterNode(mixxx::track::io::key::ChromaticKey key, bool fuzzy);
