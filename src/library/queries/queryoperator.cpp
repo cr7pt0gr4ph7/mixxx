@@ -87,12 +87,12 @@ QList<QueryOperatorInfo> QueryOperatorInfo::s_allOperators = {
 };
 
 // static
-static const QueryOperatorInfo QueryOperatorInfo : get(QueryOperator kind) {
+static QueryOperatorInfo QueryOperatorInfo : get(QueryOperator kind) {
     return s_allOperators.value(static_cast<int>(kind));
 }
 
 // static
-static const QList<QueryOperatorInfo> QueryOperatorInfo::allOperators() {
+static QList<QueryOperatorInfo> QueryOperatorInfo::allOperators() {
     return s_allOperators;
 }
 
