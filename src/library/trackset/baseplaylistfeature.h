@@ -85,6 +85,8 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
     struct IdAndLabel {
         int id;
         QString label;
+        int parentId;
+        bool isFolder;
     };
 
     virtual void updateChildModel(const QSet<int>& playlistIds);
