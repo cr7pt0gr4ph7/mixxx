@@ -65,6 +65,12 @@ PlaylistFeature::PlaylistFeature(Library* pLibrary, UserSettingsPointer pConfig)
             &QAction::triggered,
             this,
             &PlaylistFeature::slotCreateFolder);
+
+    m_pMovePlaylistAction = make_parented<QAction>(tr("Move to Folder"), this);
+    connect(m_pMovePlaylistAction,
+            &QAction::triggered,
+            this,
+            &PlaylistFeature::slotMovePlaylist);
 }
 
 QVariant PlaylistFeature::title() {
@@ -81,6 +87,7 @@ void PlaylistFeature::onRightClick(const QPoint& globalPos) {
     menu.addAction(m_pDeleteAllUnlockedPlaylistsAction);
     menu.addSeparator();
     menu.addAction(m_pCreateImportPlaylistAction);
+    menu.addAction(m_pMovePlaylistAction);
 #ifdef __ENGINEPRIME__
     menu.addSeparator();
     menu.addAction(m_pExportAllPlaylistsToEngineAction);
@@ -127,6 +134,7 @@ void PlaylistFeature::onRightClickChild(
     menu.addAction(m_pImportPlaylistAction);
     menu.addAction(m_pExportPlaylistAction);
     menu.addAction(m_pExportTrackFilesAction);
+    menu.addAction(m_pMovePlaylistAction);
 #ifdef __ENGINEPRIME__
     menu.addAction(m_pExportPlaylistToEngineAction);
 #endif
@@ -552,5 +560,54 @@ void PlaylistFeature::slotCreateFolder() {
                 m_pSidebarWidget,
                 tr("Playlists"),
                 tr("An error occurred while creating folder: %1").arg(name));
+    }
+}
+
+void PlaylistFeature::slotMovePlaylist() {
+    if (!m_lastRightClickedIndex.isValid()) {
+        return;
+    }
+    int playlistId = playlistIdFromIndex(m_lastRightClickedIndex);
+    if (playlistId == kInvalidPlaylistId) {
+        return;
+    }
+
+    // Build list of folders
+    QList<QPair<int, QString>> folders = m_playlistDao.getAllFolders();
+    QStringList names;
+    QList<int> ids;
+    names << tr("Top Level");
+    ids << kInvalidPlaylistId;
+    for (const auto& p : folders) {
+        ids << p.first;
+        names << p.second;
+    }
+
+    bool ok = false;
+    QString chosen = QInputDialog::getItem(
+            m_pSidebarWidget,
+            tr("Move Playlist"),
+            tr("Select destination folder:"),
+            names,
+            0,
+            false,
+            &ok);
+    if (!ok) {
+        return;
+    }
+
+    int idx = names.indexOf(chosen);
+    if (idx < 0) {
+        return;
+    }
+    int destId = ids.value(idx, kInvalidPlaylistId);
+
+    if (!moveToParent(playlistId, destId, true)) {
+        QMessageBox::warning(m_pSidebarWidget,
+                tr("Playlists"),
+                tr("Failed to move playlist."));
+    } else {
+        // TODO(cr7pt0g4ph7): Won't this be triggered anyway by PlaylistDAO::movePlaylist?
+        slotPlaylistTableChanged(playlistId);
     }
 }
