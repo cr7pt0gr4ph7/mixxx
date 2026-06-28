@@ -59,6 +59,12 @@ PlaylistFeature::PlaylistFeature(Library* pLibrary, UserSettingsPointer pConfig)
             &QAction::triggered,
             this,
             &PlaylistFeature::slotDeleteAllUnlockedPlaylists);
+
+    m_pCreateFolderAction = make_parented<QAction>(tr("Create New Folder"), this);
+    connect(m_pCreateFolderAction.get(),
+            &QAction::triggered,
+            this,
+            &PlaylistFeature::slotCreateFolder);
 }
 
 QVariant PlaylistFeature::title() {
@@ -69,6 +75,7 @@ void PlaylistFeature::onRightClick(const QPoint& globalPos) {
     m_lastRightClickedIndex = QModelIndex();
     QMenu menu(m_pSidebarWidget);
     menu.addAction(m_pCreatePlaylistAction);
+    menu.addAction(m_pCreateFolderAction);
     menu.addSeparator();
     menu.addAction(m_pUnlockPlaylistsAction);
     menu.addAction(m_pDeleteAllUnlockedPlaylistsAction);
@@ -99,6 +106,7 @@ void PlaylistFeature::onRightClickChild(
 
     QMenu menu(m_pSidebarWidget);
     menu.addAction(m_pCreatePlaylistAction);
+    menu.addAction(m_pCreateFolderAction);
     menu.addSeparator();
     // TODO If playlist is selected and has more than one track selected
     // show "Shuffle selected tracks", else show "Shuffle playlist"?
@@ -496,4 +504,29 @@ int PlaylistFeature::getParentIdForNewItem() const {
         }
     }
     return kInvalidPlaylistId;
+}
+
+void PlaylistFeature::slotCreateFolder() {
+    QString name = QInputDialog::getText(
+            m_pSidebarWidget,
+            tr("New Folder"),
+            tr("Enter folder name:"))
+                    .trimmed();
+
+    if (name.isEmpty()) {
+        return;
+    }
+
+    int parentId = getParentIdForNewItem();
+    int folderId = m_playlistDao.createUniquePlaylist(
+            &name, PlaylistDAO::PLHT_NOT_HIDDEN, parentId, true);
+
+    if (folderId != kInvalidPlaylistId) {
+        slotPlaylistTableChanged(folderId);
+    } else {
+        QMessageBox::warning(
+                m_pSidebarWidget,
+                tr("Playlists"),
+                tr("An error occurred while creating folder: %1").arg(name));
+    }
 }

@@ -40,6 +40,7 @@ class PlaylistFeature : public BasePlaylistFeature {
     void slotOrderTracksByCurrentPosition();
     void slotUnlockAllPlaylists();
     void slotDeleteAllUnlockedPlaylists();
+    void slotCreateFolder();
 
   protected:
     int getParentIdForNewItem() const override;
@@ -50,6 +51,7 @@ class PlaylistFeature : public BasePlaylistFeature {
   private:
     QString getRootViewHtml() const override;
 
+    parented_ptr<QAction> m_pCreateFolderAction;
     parented_ptr<QAction> m_pShufflePlaylistAction;
     parented_ptr<QAction> m_pOrderByCurrentPosAction;
     parented_ptr<QAction> m_pUnlockPlaylistsAction;
