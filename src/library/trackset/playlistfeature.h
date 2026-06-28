@@ -46,7 +46,7 @@ class PlaylistFeature : public BasePlaylistFeature {
   protected:
     int getParentIdForNewItem() const override;
     void decorateChild(TreeItem* pChild, int playlistId) override;
-    QList<IdAndLabel> createPlaylistLabels();
+    QList<IdAndLabel> createPlaylistLabels(bool useFullPaths); // Needed for QML support
     QModelIndex constructChildModel(int selectedId);
 
   private:

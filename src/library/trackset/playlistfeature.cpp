@@ -204,7 +204,7 @@ bool PlaylistFeature::dragMoveAcceptChild(const QModelIndex& index, const QList<
     return DragAndDropHelper::urlsContainSupportedTrackFiles(urls, true);
 }
 
-QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels() {
+QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels(bool useFullPaths) {
     QSqlDatabase database =
             m_pLibrary->trackCollectionManager()->internalCollection()->database();
 
@@ -214,6 +214,8 @@ QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels() {
             "AS SELECT "
             "  Playlists.id AS id, "
             "  Playlists.name AS name, "
+            "  Playlists.parent_id AS parent_id, "
+            "  Playlists.is_folder AS is_folder, "
             "  LOWER(Playlists.name) AS sort_name, "
             "  COUNT(case library.mixxx_deleted when 0 then 1 else null end) "
             "    AS count, "
@@ -238,40 +240,81 @@ QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels() {
     }
 
     // Setup the sidebar playlist model
-    QSqlTableModel playlistTableModel(this, database);
-    playlistTableModel.setTable("PlaylistsCountsDurations");
-    playlistTableModel.select();
-    while (playlistTableModel.canFetchMore()) {
-        playlistTableModel.fetchMore();
+    QString selectString = QStringLiteral("SELECT id, name, parent_id, is_folder, count, durationSeconds FROM %1 ")
+                        .arg(m_countsDurationTableName);
+    selectString.append(mixxx::DbConnection::collateLexicographically(" ORDER BY is_folder DESC, sort_name"));
+
+    QSqlQuery selectQuery(database);
+    if (!selectQuery.exec(selectString)) {
+        LOG_FAILED_QUERY(selectQuery);
     }
-    QSqlRecord record = playlistTableModel.record();
+
+    QSqlRecord record = selectQuery.record();
     int nameColumn = record.indexOf("name");
     int idColumn = record.indexOf("id");
+    int parentIdColumn = record.indexOf("parentId");
+    int isFolderColumn = record.indexOf("isFolder");
     int countColumn = record.indexOf("count");
     int durationColumn = record.indexOf("durationSeconds");
 
-    for (int row = 0; row < playlistTableModel.rowCount(); ++row) {
-        int id =
-                playlistTableModel
-                        .data(playlistTableModel.index(row, idColumn))
-                        .toInt();
-        QString name =
-                playlistTableModel
-                        .data(playlistTableModel.index(row, nameColumn))
-                        .toString();
-        int count =
-                playlistTableModel
-                        .data(playlistTableModel.index(row, countColumn))
-                        .toInt();
-        int duration =
-                playlistTableModel
-                        .data(playlistTableModel.index(row, durationColumn))
-                        .toInt();
-        BasePlaylistFeature::IdAndLabel idAndLabel;
-        idAndLabel.id = id;
-        idAndLabel.label = createPlaylistLabel(name, count, duration);
-        playlistLabels.append(idAndLabel);
+    struct TempItem {
+        QString name;
+        int parentId;
+        bool isFolder;
+        int count;
+        int duration;
+    };
+    QHash<int, TempItem> allItemsCache;
+    QList<int> orderedIds;
+
+    while (selectQuery.next()) {
+        TempItem ti;
+        ti.name = selectQuery.value(nameColumn).toString();
+        ti.parentId = selectQuery.value(parentIdColumn).isNull() ? kInvalidPlaylistId : selectQuery.value(parentIdColumn).toInt();
+        ti.isFolder = selectQuery.value(isFolderColumn).toInt() == 1;
+        ti.count = selectQuery.value(countColumn).toInt();
+        ti.duration = selectQuery.value(durationColumn).toInt();
+
+        allItemsCache[id] = ti;
+        orderedIds.append(id);
     }
+
+    for (int id : orderedIds) {
+        const TempItem& ti = allItemsCache[id];
+        QString prefix = QStringLiteral("");
+
+        if (useFullPaths && ti.parentId != kInvalidPlaylistId) {
+            int currentParentId = ti.parentId;
+            QStringList parentNames;
+
+            while (currentParentId != kInvalidPlaylistId) {
+                if (allItemsCache.contains(currentParentId)) {
+                    parentNames.prepend(allItemsCache[currentParentId].name);
+                    currentParentId = allItemsCache[currentParentId].parentId;
+                } else {
+                    break;
+                }
+            }
+
+            if (!parentNames.isEmpty()) {
+                prefix = parentNames.join(QStringLiteral(" > ")) + QStringLiteral(" > ");
+            }
+        }
+
+        BasePlaylistFeature::IdAndLabel item;
+        item.id = id;
+        item.parentId = ti.parentId;
+        item.isFolder = ti.isFolder;
+
+        if (ti.isFolder) {
+            item.label = prefix + ti.name;
+        } else {
+            item.label = prefix + createPlaylistLabel(ti.name, ti.count, ti.duration);
+        }
+
+        playlistLabels.append(item);
+    }
+
     return playlistLabels;
 }
 
@@ -387,7 +430,7 @@ QModelIndex PlaylistFeature::constructChildModel(int selectedId) {
     int selectedRow = -1;
 
     int row = 0;
-    const QList<IdAndLabel> playlistLabels = createPlaylistLabels();
+    const QList<IdAndLabel> playlistLabels = createPlaylistLabels(false);
     for (const auto& idAndLabel : playlistLabels) {
         int playlistId = idAndLabel.id;
         QString playlistLabel = idAndLabel.label;
