@@ -41,6 +41,7 @@ class PlaylistFeature : public BasePlaylistFeature {
     void slotUnlockAllPlaylists();
     void slotDeleteAllUnlockedPlaylists();
     void slotCreateFolder();
+    void slotMovePlaylist();
 
   protected:
     int getParentIdForNewItem() const override;
@@ -59,4 +60,5 @@ class PlaylistFeature : public BasePlaylistFeature {
     parented_ptr<QAction> m_pOrderByCurrentPosAction;
     parented_ptr<QAction> m_pUnlockPlaylistsAction;
     parented_ptr<QAction> m_pDeleteAllUnlockedPlaylistsAction;
+    parented_ptr<QAction> m_pMovePlaylistAction;
 };
