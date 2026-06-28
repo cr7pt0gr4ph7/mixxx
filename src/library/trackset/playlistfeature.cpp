@@ -467,3 +467,33 @@ QString PlaylistFeature::getRootViewHtml() const {
                         .arg(createPlaylistLink));
     return html;
 }
+
+int PlaylistFeature::getParentIdForNewItem() const {
+    if (!m_lastRightClickedIndex.isValid()) {
+        return kInvalidPlaylistId;
+    }
+
+    int clickedId = playlistIdFromIndex(m_lastRightClickedIndex);
+    if (clickedId == kInvalidPlaylistId) {
+        return kInvalidPlaylistId;
+    }
+
+    if (m_playlistDao.isFolder(clickedId)) {
+        return clickedId;
+    }
+
+    TreeItem* pClickedItem = m_pSidebarModel->getItem(m_lastRightClickedIndex);
+    if (!pClickedItem) {
+        return kInvalidPlaylistId;
+    }
+
+    TreeItem* pParentItem = pClickedItem->parent();
+    if (pParentItem && !pParentItem->isRoot()) {
+        bool ok = false;
+        int parentCandidate = pParentItem->getData().toInt(&ok);
+        if (ok) {
+            return parentCandidate;
+        }
+    }
+    return kInvalidPlaylistId;
+}

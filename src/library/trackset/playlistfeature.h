@@ -42,6 +42,7 @@ class PlaylistFeature : public BasePlaylistFeature {
     void slotDeleteAllUnlockedPlaylists();
 
   protected:
+    int getParentIdForNewItem() const override;
     void decorateChild(TreeItem* pChild, int playlistId) override;
     QList<IdAndLabel> createPlaylistLabels();
     QModelIndex constructChildModel(int selectedId);
