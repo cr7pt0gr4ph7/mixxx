@@ -593,4 +593,13 @@ reapplying those migrations.
       ALTER TABLE library ADD COLUMN tuning_frequency_hz FLOAT DEFAULT 0.0;
     </sql>
   </revision>
+  <revision version="41" min_compatible="3">
+    <description>
+      Add parent_id and is_folder columns to the Playlists table to allow for nested playlists.
+    </description>
+    <sql>
+      ALTER TABLE Playlists ADD COLUMN parent_id INTEGER REFERENCES Playlists(id) DEFAULT NULL;
+      ALTER TABLE Playlists ADD COLUMN is_folder INTEGER DEFAULT 0 NOT NULL;
+    </sql>
+  </revision>
 </schema>
