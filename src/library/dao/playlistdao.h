@@ -68,6 +68,10 @@ class PlaylistDAO : public QObject, public virtual DAO {
     unsigned int playlistCount() const;
     // Get all playlist ids and names of a specific type
     QList<QPair<int, QString>> getPlaylists(const HiddenType hidden) const;
+    // Get playlist ids and names that belong to a specific folder
+    QList<QPair<int, QString>> getPlaylistsInFolder(const int parentId, const HiddenType hidden) const;
+    // Check if a playlist ID is actually a folder
+    bool isFolder(const int playlistId) const;
     QList<QPair<int, QString>> getUnlockedPlaylists(const HiddenType hidden) const;
     // Find out the name of the playlist at the given Id
     QString getPlaylistName(const int playlistId) const;
@@ -132,6 +136,11 @@ class PlaylistDAO : public QObject, public virtual DAO {
     }
 
     void setAutoDJProcessor(AutoDJProcessor* pAutoDJProcessor);
+
+    // Move a playlist to a new parent folder (use kInvalidPlaylistId for top-level)
+    bool movePlaylist(int playlistId, int newParentId) ;
+    // Return all folders as id/name pairs
+    QList<QPair<int, QString>> getAllFolders() const;
 
   signals:
     void added(int playlistId);

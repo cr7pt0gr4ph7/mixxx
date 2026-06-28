@@ -102,6 +102,70 @@ int PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden, co
     return playlistId;
 }
 
+bool PlaylistDAO::movePlaylist(int playlistId, int newParentId) {
+    // Fallback initialization for DAO instances that were created before a
+    // database connection is available.
+    if (!m_database.isOpen()) {
+        m_database = QSqlDatabase::database(QStringLiteral("MIXXX"));
+        if (!m_database.isOpen() && !QSqlDatabase::connectionNames().isEmpty()) {
+            m_database = QSqlDatabase::database(QSqlDatabase::connectionNames().first());
+        }
+    }
+
+    qDebug() << "=== PLAYLIST MOVEMENT OVERRIDE ===";
+    qDebug() << "DAO m_database kapcsolat neve:" << m_database.connectionName();
+    qDebug() << "DAO m_database nyitva:" << m_database.isOpen();
+
+    // Use the regular database connection directly, just like createPlaylist.
+    ScopedTransaction transaction(m_database);
+    QSqlQuery query(m_database);
+
+    query.prepare(QStringLiteral("UPDATE Playlists SET parent_id = :parent_id, date_modified = CURRENT_TIMESTAMP WHERE id = :id"));
+
+    if (newParentId == kInvalidPlaylistId || newParentId == -1) {
+        query.bindValue(QStringLiteral(":parent_id"), QVariant(QMetaType(QMetaType::Int)));
+    } else {
+        query.bindValue(QStringLiteral(":parent_id"), newParentId);
+    }
+    query.bindValue(QStringLiteral(":id"), playlistId);
+
+    if (!query.exec()) {
+        LOG_FAILED_QUERY(query);
+        return false;
+    }
+
+    transaction.commit();
+    qDebug() << "DAO: database update completed";
+
+    // Defer the sidebar refresh until the current drag/drop interaction has
+    // finished so the UI model does not get rebuilt in the middle of a move.
+    QTimer::singleShot(0, this, [this, playlistId] {
+        emit added(playlistId);
+    });
+
+    return true;
+}
+
+QList<QPair<int, QString>> PlaylistDAO::getAllFolders() const {
+    QSqlQuery query(m_database);
+    query.prepare(
+            mixxx::DbConnection::collateLexicographically(
+                    QString("SELECT id, name FROM Playlists WHERE is_folder = 1 ORDER BY name")));
+
+    QList<QPair<int, QString>> folders;
+    if (!query.exec()) {
+        LOG_FAILED_QUERY(query);
+        return folders;
+    }
+
+    while (query.next()) {
+        const int id = query.value(0).toInt();
+        const QString name = query.value(1).toString();
+        folders.append(qMakePair(id, name));
+    }
+    return folders;
+}
+
 int PlaylistDAO::createUniquePlaylist(QString* pName, const HiddenType hidden, const int parentId, const bool isFolder) {
     int playlistId = getPlaylistIdFromName(*pName, parentId);
     int i = 1;
@@ -611,11 +675,11 @@ QList<QPair<int, QString>> PlaylistDAO::getPlaylists(const HiddenType hidden) co
 
     QSqlQuery query(m_database);
     query.prepare(
-            mixxx::DbConnection::collateLexicographically(
+                mixxx::DbConnection::collateLexicographically(
                     QString("SELECT id, name FROM Playlists "
-                            "WHERE hidden = %1 "
-                            "ORDER BY name")
-                            .arg(hidden)));
+                        "WHERE hidden = %1 AND parent_id IS NULL "
+                        "ORDER BY name")
+                        .arg(hidden)));
 
     QList<QPair<int, QString>> playlists;
 
@@ -631,6 +695,43 @@ QList<QPair<int, QString>> PlaylistDAO::getPlaylists(const HiddenType hidden) co
     }
     return playlists;
 }
+
+QList<QPair<int, QString>> PlaylistDAO::getPlaylistsInFolder(const int parentId, const HiddenType hidden) const {
+    QSqlQuery query(m_database);
+
+    query.prepare(
+            mixxx::DbConnection::collateLexicographically(
+                    QString("SELECT id, name FROM Playlists "
+                            "WHERE hidden = %1 AND parent_id = %2 "
+                            "ORDER BY is_folder DESC, name") // First list folders, then sort by name
+                            .arg(QString::number(hidden), QString::number(parentId))));
+
+    QList<QPair<int, QString>> playlists;
+
+    if (!query.exec()) {
+        LOG_FAILED_QUERY(query);
+        return playlists;
+    }
+
+    while (query.next()) {
+        const int id = query.value(0).toInt();
+        const QString name = query.value(1).toString();
+        playlists.append(qMakePair(id, name));
+    }
+    return playlists;
+}
+
+bool PlaylistDAO::isFolder(const int playlistId) const {
+    QSqlQuery query(m_database);
+    query.prepare(QStringLiteral("SELECT is_folder FROM Playlists WHERE id = :id"));
+    query.bindValue(":id", playlistId);
+
+    if (query.exec() && query.next()) {
+        return query.value(0).toInt() == 1;
+    }
+    return false;
+}
+
 QList<QPair<int, QString>> PlaylistDAO::getUnlockedPlaylists(const HiddenType hidden) const {
     // qDebug() << "PlaylistDAO::getPlaylists(hidden =" << hidden
     //          << QThread::currentThread() << m_database.connectionName();
