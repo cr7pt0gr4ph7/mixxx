@@ -505,6 +505,34 @@ void PlaylistFeature::slotPlaylistTableChanged(int playlistId) {
         return;
     }
 
+    SidebarModel* pSidebarModel = nullptr;
+    if (m_pSidebarWidget && m_pSidebarWidget->model()) {
+        pSidebarModel = qobject_cast<SidebarModel*>(m_pSidebarWidget->model());
+    }
+
+    // Store expansion state of playlist tree items to restore it later
+    QSet<int> expandedPlaylistIds;
+    if (m_pSidebarWidget && pSidebarModel) {
+        auto collectExpanded = [&](auto&& self, const QModelIndex& parent) -> void {
+            for (int row = 0; row < pSidebarModel->rowCount(parent); ++row) {
+                QModelIndex childIndex = pSidebarModel->index(row, 0, parent);
+                if (!childIndex.isValid()) {
+                    continue;
+                }
+                if (m_pSidebarWidget->isExpanded(childIndex)) {
+                    const QVariant idVariant = childIndex.data(SidebarModel::DataRole);
+                    bool ok = false;
+                    const int expandedPlaylistId = idVariant.toInt(&ok);
+                    if (ok && expandedPlaylistId != kInvalidPlaylistId) {
+                        expandedPlaylistIds.insert(expandedPlaylistId);
+                    }
+                }
+                self(self, childIndex);
+            }
+        };
+        collectExpanded(collectExpanded, QModelIndex());
+    }
+
     // Store current selection
     int selectedPlaylistId = kInvalidPlaylistId;
     if (isChildIndexSelectedInSidebar(m_lastClickedIndex)) {
@@ -520,6 +548,16 @@ void PlaylistFeature::slotPlaylistTableChanged(int playlistId) {
 
     clearChildModel();
     QModelIndex newIndex = constructChildModel(selectedPlaylistId);
+
+    // Restore the expansion state of the tree items
+    for (int expandedPlaylistId : std::as_const(expandedPlaylistIds)) {
+        QModelIndex expandedIndex = indexFromPlaylistId(expandedPlaylistId);
+        if (!expandedIndex.isValid()) {
+            continue;
+        }
+        m_pSidebarWidget->setChildIndexExpanded(expandedIndex, true);
+    }
+
     if (selectedPlaylistId != kInvalidPlaylistId && newIndex.isValid()) {
         // If a child index was selected and we got a new valid index select that.
         // Else (root item was selected or for some reason no index could be created)
