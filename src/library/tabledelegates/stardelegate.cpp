@@ -1,5 +1,6 @@
 #include "library/tabledelegates/stardelegate.h"
 
+#include <QEvent>
 #include <QTableView>
 #include <QTimer>
 
