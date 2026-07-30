@@ -133,7 +133,7 @@ merge_branch rtm_beatspinbox # Rebased onto upstream/main
 # merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
 merge_branch wip_toast-notifications # Conflicts expected
 merge_branch rtm_style-active-search-control # Rebased onto upstream/main
-merge_branch wip_ready-for-merge/autodj-search # Rebased onto upstream/main
+merge_branch ready-for-merge/autodj-search # Rebased onto upstream/main
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
 merge_branch rtm_sidebardragdrop_reuse-qtreeview-dnd # Rebased onto upstream/main
 # merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
