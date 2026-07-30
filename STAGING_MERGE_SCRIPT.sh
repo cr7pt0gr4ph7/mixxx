@@ -123,11 +123,11 @@ fi
 # This script assumes that we are on the most current version of the
 # main branch. At the last update of this script that was commit
 # 9893d7510cc60c5922672e1116829993619acbcd.
-# merge_branch configurable-edit-item-shortcut ready-for-merge # Already merged into 2.6
+# merge_branch configurable-edit-item-shortcut ready-for-merge # Already merged into upstream/2.6
 merge_branch autodj-time-remaining ready-for-merge
 merge_branch ready-for-merge/fix-star-rating-editor
-merge_branch ready-for-merge/sound-device-reload
-merge_branch search-in-tracks-shortcut ready-for-merge
+# merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
+# merge_branch search-in-tracks-shortcut ready-for-merge # Alaredy merged into upstream/main
 merge_branch ready-for-merge/track-info-dialog
 merge_branch wip/better-beatspinbox-usability
 merge_branch wip/more-hotcue-buttons
