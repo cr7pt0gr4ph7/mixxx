@@ -124,26 +124,22 @@ fi
 # main branch. At the last update of this script that was commit
 # 9893d7510cc60c5922672e1116829993619acbcd.
 # merge_branch configurable-edit-item-shortcut ready-for-merge # Already merged into upstream/2.6
-merge_branch autodj-time-remaining ready-for-merge
-merge_branch ready-for-merge/fix-star-rating-editor
+merge_branch autodj-time-remaining ready-for-merge # Rebased onto upstream/main
+merge_branch ready-for-merge/fix-star-rating-editor # Rebased onto upstream/main
 # merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
 # merge_branch search-in-tracks-shortcut ready-for-merge # Alaredy merged into upstream/main
-merge_branch ready-for-merge/track-info-dialog
-merge_branch wip/better-beatspinbox-usability
-merge_branch wip/more-hotcue-buttons
-merge_branch wip/toast-notifications  # Conflicts expected
-merge_branch wip/style-active-search-control
-merge_branch ready-for-merge/autodj-search
-merge_branch wip/auto-fade-controller
-merge_branch wip/style-active-search-control
-merge_branch ready-for-merge/sidebar-dnd/reuse-qtreeview-dnd
-merge_branch ready-for-merge/crate-folders
-merge_branch ready-for-merge/sidebar-dnd/improvements
-merge_branch ready-for-merge/sidebar-dnd/more-improvements
-merge_branch ready-for-merge/trigger-repair-database
-merge_branch wip/soft-pitch-ramp
-merge_branch wip/metadata-push
-merge_branch ext/daschuer/gh13707-write-metadata-via-symlink # https://github.com/mixxxdj/mixxx/pull/13711
-merge_branch ext/daschuer/gh13734-adj-unrelated-decks-check # https://github.com/mixxxdj/mixxx/pull/13762
+merge_branch ready-for-merge/track-info-dialog # Rebased onto upstream/main, split into multiple
+merge_branch rtm_beatspinbox # Rebased onto upstream/main
+# merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
+merge_branch wip_toast-notifications # Conflicts expected
+merge_branch rtm_style-active-search-control # Rebased onto upstream/main
+merge_branch wip_ready-for-merge/autodj-search # Rebased onto upstream/main
+# merge_branch wip/auto-fade-controller # Skipped, not necessary yet
+merge_branch ready-for-merge/sidebar-dnd/reuse-qtreeview-dnd # Rebased onto upstream/main
+# merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
+merge_branch ready-for-merge/sidebar-dnd/improvements # Rebased onto upstream/main
+merge_branch ready-for-merge/sidebar-dnd/more-improvements  # Rebased onto upstream/main
+merge_branch ready-for-merge/trigger-repair-database # Skipped
+# merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
+# merge_branch wip/metadata-push # Skipped, not necessary yet
 merge_branch ext/rons0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
-merge_branch ext/rons0/lib-multi-prop-fix # https://github.com/mixxxdj/mixxx/pull/13631
