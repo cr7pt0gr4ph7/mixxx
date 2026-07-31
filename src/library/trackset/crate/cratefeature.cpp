@@ -210,9 +210,9 @@ QString CrateFeature::formatRootViewHtml() const {
     html.append(QStringLiteral("<p>%1</p>").arg(cratesSummary));
     html.append(QStringLiteral("<p>%1</p>").arg(cratesSummary2));
     html.append(QStringLiteral("<p>%1</p>").arg(cratesSummary3));
-    //Colorize links in lighter blue, instead of QT default dark blue.
-    //Links are still different from regular text, but readable on dark/light backgrounds.
-    //https://github.com/mixxxdj/mixxx/issues/9103
+    // Colorize links in lighter blue, instead of QT default dark blue.
+    // Links are still different from regular text, but readable on dark/light backgrounds.
+    // https://github.com/mixxxdj/mixxx/issues/9103
     html.append(
             QStringLiteral("<a style=\"color:#0496FF;\" href=\"create\">%1</a>")
                     .arg(createCrateLink));
@@ -380,7 +380,7 @@ void CrateFeature::onRightClick(const QPoint& globalPos) {
 
 void CrateFeature::onRightClickChild(
         const QPoint& globalPos, const QModelIndex& index) {
-    //Save the model index so we can get it in the action slots...
+    // Save the model index so we can get it in the action slots...
     m_lastRightClickedIndex = index;
     CrateId crateId(crateIdFromIndex(index));
     if (!crateId.isValid()) {
@@ -645,7 +645,7 @@ QModelIndex CrateFeature::indexFromCrateId(CrateId crateId) const {
 }
 
 void CrateFeature::slotImportPlaylist() {
-    //qDebug() << "slotImportPlaylist() row:" ; //<< m_lastRightClickedIndex.data();
+    // qDebug() << "slotImportPlaylist() row:" ; //<< m_lastRightClickedIndex.data();
 
     QString playlistFile = getPlaylistFile();
     if (playlistFile.isEmpty()) {
@@ -784,7 +784,7 @@ void CrateFeature::slotExportAllCratesToPlaylist() {
     // name to the playlist name.
     const QString baseFileLocation = getFilePathWithVerifiedExtensionFromFileDialog(
             tr("Export Crate"),
-            lastCrateDirectory.append("/").append("PLACEHOLDER"),
+            lastCrateDirectory.append("/").append("[Crate]"),
             tr("M3U Playlist (*.m3u);;M3U8 Playlist (*.m3u8);;PLS Playlist "
                "(*.pls);;Text CSV (*.csv);;Readable Text (*.txt)"),
             tr("M3U Playlist (*.m3u)"));
@@ -823,8 +823,12 @@ void CrateFeature::slotExportAllCratesToPlaylist() {
         pCrateTableModel->selectCrate(crateId);
         pCrateTableModel->select();
 
-        QFileInfo fileInfo(baseFileInfo.absoluteDir(), crate.getName().append(baseFileInfo.completeSuffix()));
-        QString fileLocation = fileInfo.absolutePath();
+        // TODO: Sanitize the crate names if they contain characters prohibited in file names,
+        //       like e.g. `/`.
+        QString fileLocation = baseFileLocation.replace(
+                QStringLiteral("[Crate]"),
+                crate.getName(),
+                Qt::CaseInsensitive);
 
         if (fileLocation.endsWith(".csv", Qt::CaseInsensitive)) {
             ParserCsv::writeCSVFile(baseFileLocation, pCrateTableModel.get(), useRelativePath);
