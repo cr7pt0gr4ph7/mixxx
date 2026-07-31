@@ -135,7 +135,6 @@ merge_branch wip_toast-notifications # Conflicts expected
 merge_branch rtm_style-active-search-control
 merge_branch ready-for-merge/autodj-search
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
-merge_branch rtm_sidebar_dragdrop
 # merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
 merge_branch rtm_sidebar_dragdrop
 merge_branch rtm_sidebar_longhover
