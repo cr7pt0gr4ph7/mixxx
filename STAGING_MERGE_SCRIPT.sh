@@ -128,7 +128,7 @@ merge_branch autodj-time-remaining ready-for-merge
 merge_branch rtm_fix-star-rating-editor
 # merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
 # merge_branch search-in-tracks-shortcut ready-for-merge # Alaredy merged into upstream/main
-merge_branch ready-for-merge/track-info-dialog, split into multiple
+merge_branch ready-for-merge/track-info-dialog # Split into multiple PRs
 merge_branch rtm_beatspinbox
 # merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
 merge_branch wip_toast-notifications # Conflicts expected
