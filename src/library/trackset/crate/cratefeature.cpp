@@ -118,6 +118,11 @@ void CrateFeature::initActions() {
             &QAction::triggered,
             this,
             &CrateFeature::slotCreateImportCrate);
+    m_pExportAllCratesToPlaylistAction = make_parented<QAction>(tr("Export All as Playlists"), this);
+    connect(m_pExportAllCratesToPlaylistAction.get(),
+            &QAction::triggered,
+            this,
+            &CrateFeature::slotExportAllCratesToPlaylist);
     m_pExportPlaylistAction = make_parented<QAction>(tr("Export Crate as Playlist"), this);
     connect(m_pExportPlaylistAction.get(),
             &QAction::triggered,
@@ -365,8 +370,9 @@ void CrateFeature::onRightClick(const QPoint& globalPos) {
     menu.addAction(m_pCreateCrateAction.get());
     menu.addSeparator();
     menu.addAction(m_pCreateImportPlaylistAction.get());
-#ifdef __ENGINEPRIME__
     menu.addSeparator();
+    menu.addAction(m_pExportAllCratesToPlaylistAction.get());
+#ifdef __ENGINEPRIME__
     menu.addAction(m_pExportAllCratesToEngineDJAction.get());
 #endif
     menu.exec(globalPos);
@@ -764,6 +770,78 @@ void CrateFeature::slotAnalyzeCrate() {
                 }
             }
             emit analyzeTracks(tracks);
+        }
+    }
+}
+
+void CrateFeature::slotExportAllCratesToPlaylist() {
+    QString lastCrateDirectory = m_pConfig->getValue(
+            kConfigKeyLastImportExportCrateDirectoryKey,
+            QStandardPaths::writableLocation(QStandardPaths::MusicLocation));
+
+    // Open a dialog to let the user choose the file location for crate export.
+    // The location is set to the last used directory for import/export and the file
+    // name to the playlist name.
+    const QString baseFileLocation = getFilePathWithVerifiedExtensionFromFileDialog(
+            tr("Export Crate"),
+            lastCrateDirectory.append("/").append("PLACEHOLDER"),
+            tr("M3U Playlist (*.m3u);;M3U8 Playlist (*.m3u8);;PLS Playlist "
+               "(*.pls);;Text CSV (*.csv);;Readable Text (*.txt)"),
+            tr("M3U Playlist (*.m3u)"));
+    // Exit method if user cancelled the open dialog.
+    if (baseFileLocation.isEmpty()) {
+        return;
+    }
+    // Update the import/export crate directory
+    QFileInfo baseFileInfo(baseFileLocation);
+    m_pConfig->set(kConfigKeyLastImportExportCrateDirectoryKey,
+            ConfigValue(baseFileInfo.absoluteDir().canonicalPath()));
+
+    // The user has picked a new directory via a file dialog. This means the
+    // system sandboxer (if we are sandboxed) has granted us permission to this
+    // folder. We don't need access to this file on a regular basis so we do not
+    // register a security bookmark.
+
+    // check config if relative paths are desired
+    bool useRelativePath =
+            m_pConfig->getValue<bool>(
+                    kUseRelativePathOnExportConfigKey);
+
+    // Create list of files of the crate
+    // Create a new table model since the main one might have an active search.
+    std::unique_ptr<CrateTableModel> pCrateTableModel =
+            std::make_unique<CrateTableModel>(this, m_pLibrary->trackCollectionManager());
+
+    // Iterate over all crates and export them one by one
+    CrateSelectResult crates(
+            m_pTrackCollection->crates().selectCrates());
+    Crate crate;
+    while (crates.populateNext(&crate)) {
+        CrateId crateId = crate.getId();
+        qDebug() << "Exporting crate" << crateId << crate;
+
+        pCrateTableModel->selectCrate(crateId);
+        pCrateTableModel->select();
+
+        QFileInfo fileInfo(baseFileInfo.absoluteDir(), crate.getName().append(baseFileInfo.completeSuffix()));
+        QString fileLocation = fileInfo.absolutePath();
+
+        if (fileLocation.endsWith(".csv", Qt::CaseInsensitive)) {
+            ParserCsv::writeCSVFile(baseFileLocation, pCrateTableModel.get(), useRelativePath);
+        } else if (fileLocation.endsWith(".txt", Qt::CaseInsensitive)) {
+            ParserCsv::writeReadableTextFile(baseFileLocation, pCrateTableModel.get(), false);
+        } else {
+            // populate a list of files of the crate
+            QList<QString> playlistItems;
+            int rows = pCrateTableModel->rowCount();
+            for (int i = 0; i < rows; ++i) {
+                QModelIndex index = pCrateTableModel->index(i, 0);
+                playlistItems << pCrateTableModel->getTrackLocation(index);
+            }
+            exportPlaylistItemsIntoFile(
+                    fileLocation,
+                    playlistItems,
+                    useRelativePath);
         }
     }
 }
