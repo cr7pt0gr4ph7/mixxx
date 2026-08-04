@@ -522,6 +522,13 @@ void CrateFeature::createNewCrate(CrateId parentId, bool selectAfterCreation) {
     }
 }
 
+void CrateFeature::slotMoveToParent(CrateId destinationId) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    CrateId crateToMoveId(crateIdFromIndex(m_lastRightClickedIndex));
+    moveToParent(destinationId, crateToMoveId, true);
+}
+
 bool CrateFeature::moveToParent(CrateId destinationId, const QList<CrateId>& cratesToMove) {
     // Note: An "invalid"/NULL destination is not actually invalid
     //       for this function, but instead represents the root folder.

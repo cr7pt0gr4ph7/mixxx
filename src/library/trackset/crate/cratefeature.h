@@ -65,6 +65,7 @@ class CrateFeature : public BaseTrackSetFeature {
     void slotDeleteCrate();
     void slotRenameCrate();
     void slotDuplicateCrate();
+    void slotMoveToParent(CrateId destinationId);
     void slotAutoDjTrackSourceChanged();
     void slotToggleCrateLock();
     void slotImportPlaylist();
