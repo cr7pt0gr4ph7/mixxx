@@ -523,7 +523,9 @@ bool SidebarModel::dropMimeData(const QMimeData* data,
         int row,
         int column,
         const QModelIndex& parent) {
-    Q_UNUSED(action);
+    if constexpr (kDebug) {
+        qDebug() << "SidebarModel::dropMimeData() action=" << action << " row=" << row << " column=" << column << " parent=" << parent;
+    }
     QModelIndex index = resolveDropIndex(row, column, parent);
 
     if (data->hasUrls()) {
