@@ -11,6 +11,13 @@
 #include "util/defs.h"
 #include "util/dnd.h"
 
+namespace {
+
+/// Enables additional debugging output.
+constexpr bool kDebug = false;
+
+} // anonymous namespace
+
 WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
           WBaseWidget(this),
@@ -61,7 +68,9 @@ void WLibrarySidebar::setSourceOfCurrentDragDropEvent(QObject* pSource) {
 
 /// Drag enter event, happens when a dragged item enters the track sources view
 void WLibrarySidebar::dragEnterEvent(QDragEnterEvent* pEvent) {
-    qDebug() << "WLibrarySidebar::dragEnterEvent" << pEvent->mimeData()->formats();
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::dragEnterEvent" << pEvent->mimeData()->formats();
+    }
     toggleDragHoverPropertyAndUpdateStyle(true);
 
     // QTreeView::dragEnterEvent will, through some indirection,
@@ -88,7 +97,9 @@ void WLibrarySidebar::dragEnterEvent(QDragEnterEvent* pEvent) {
 /// Drag leave event, happens when the dragged item leaves the track sources view
 /// or when the drag is aborted through Escape or other means.
 void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* pEvent) {
-    // qDebug() << "WLibrarySidebar::dragLeaveEvent";
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::dragLeaveEvent";
+    }
     m_autoExpandIndex = QModelIndex();
     toggleDragHoverPropertyAndUpdateStyle(false);
     m_longHover.clearState();
@@ -97,7 +108,9 @@ void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* pEvent) {
 
 /// Drag move event, happens when a dragged item hovers over the track sources view...
 void WLibrarySidebar::dragMoveEvent(QDragMoveEvent* pEvent) {
-    // qDebug() << "WLibrarySidebar::dragMoveEvent" << pEvent->mimeData()->formats();
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::dragMoveEvent" << pEvent->mimeData()->formats();
+    }
 
     // QTreeView::dragMoveEvent will, through some indirection,
     // call SidebarModel::canDropMimeData, which will call one of either
@@ -175,7 +188,9 @@ void WLibrarySidebar::timerEvent(QTimerEvent *event) {
 
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
 void WLibrarySidebar::dropEvent(QDropEvent* pEvent) {
-    // qDebug() << "WLibrarySidebar::dropEvent";
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::dropEvent";
+    }
     m_autoExpandIndex = QModelIndex();
     toggleDragHoverPropertyAndUpdateStyle(false);
 
@@ -280,26 +295,34 @@ bool WLibrarySidebar::isLeafNodeSelected() {
 }
 
 bool WLibrarySidebar::isChildIndexSelected(const QModelIndex& index) {
-    // qDebug() << "WLibrarySidebar::isChildIndexSelected" << index;
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::isChildIndexSelected" << index;
+    }
     QModelIndex selIndex = selectedIndex();
     if (!selIndex.isValid()) {
         return false;
     }
     SidebarModel* pSidebarModel = qobject_cast<SidebarModel*>(model());
     VERIFY_OR_DEBUG_ASSERT(pSidebarModel) {
-        // qDebug() << " >> model() is not SidebarModel";
+        if constexpr (kDebug) {
+            qDebug() << " >> model() is not SidebarModel";
+        }
         return false;
     }
     QModelIndex translated = pSidebarModel->translateChildIndex(index);
     if (!translated.isValid()) {
-        // qDebug() << " >> index can't be translated";
+        if constexpr (kDebug) {
+            qDebug() << " >> index can't be translated";
+        }
         return false;
     }
     return translated == selIndex;
 }
 
 bool WLibrarySidebar::isFeatureRootIndexSelected(LibraryFeature* pFeature) {
-    // qDebug() << "WLibrarySidebar::isFeatureRootIndexSelected";
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::isFeatureRootIndexSelected";
+    }
     QModelIndex selIndex = selectedIndex();
     if (!selIndex.isValid()) {
         return false;
@@ -419,7 +442,9 @@ void WLibrarySidebar::focusInEvent(QFocusEvent* pEvent) {
 }
 
 void WLibrarySidebar::selectIndex(const QModelIndex& index, bool scrollToIndex) {
-    // qDebug() << "WLibrarySidebar::selectIndex" << index << scrollToIndex;
+    if constexpr (kDebug) {
+        qDebug() << "WLibrarySidebar::selectIndex" << index << scrollToIndex;
+    }
     if (!index.isValid()) {
         return;
     }
@@ -450,7 +475,9 @@ void WLibrarySidebar::selectIndex(const QModelIndex& index, bool scrollToIndex) 
 void WLibrarySidebar::selectChildIndex(const QModelIndex& index, bool selectItem) {
     SidebarModel* pSidebarModel = qobject_cast<SidebarModel*>(model());
     VERIFY_OR_DEBUG_ASSERT(pSidebarModel) {
-        qDebug() << "model() is not SidebarModel";
+        if constexpr (kDebug) {
+            qDebug() << "model() is not SidebarModel";
+        }
         return;
     }
     QModelIndex translated = pSidebarModel->translateChildIndex(index);
