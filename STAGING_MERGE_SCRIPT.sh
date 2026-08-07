@@ -137,7 +137,12 @@ merge_branch ready-for-merge/autodj-search
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
 # merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
 merge_branch rtm_sidebar_dragdrop
+merge_branch rtm_sidebar_autocollapse
 merge_branch rtm_sidebar_longhover
+merge_branch rtm_sidebar_restore
+merge_branch rtm_treeitem_url
+merge_branch rtm_treeitem_index
+merge_branch rtm_subcrates
 merge_branch rtm_cli_trigger-repair-database # Skipped
 # merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
 # merge_branch wip/metadata-push # Skipped, not necessary yet
