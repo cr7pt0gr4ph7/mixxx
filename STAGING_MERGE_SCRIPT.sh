@@ -127,7 +127,6 @@ fi
 merge_branch autodj-time-remaining ready-for-merge
 merge_branch rtm_fix-star-rating-editor
 # merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
-# merge_branch search-in-tracks-shortcut ready-for-merge # Alaredy merged into upstream/main
 merge_branch ready-for-merge/track-info-dialog # Split into multiple PRs
 merge_branch rtm_beatspinbox
 # merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
@@ -143,7 +142,9 @@ merge_branch rtm_sidebar_restore
 merge_branch rtm_treeitem_url
 merge_branch rtm_treeitem_index
 merge_branch rtm_subcrates
-merge_branch rtm_cli_trigger-repair-database # Skipped
+merge_branch rtm_crates_moremenu
+merge_branch rtm_playlists_moremenu
+merge_branch rtm_cli_repairdatabase
 # merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
 # merge_branch wip/metadata-push # Skipped, not necessary yet
 merge_branch ext/rons0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
