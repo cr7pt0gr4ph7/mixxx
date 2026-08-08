@@ -43,6 +43,7 @@
 #include "util/widgethelper.h"
 #include "widget/findonweblast.h"
 #include "widget/findonwebmenufactory.h"
+#include "widget/wcheckableaction.h"
 #include "widget/wcolorpickeraction.h"
 #include "widget/wcoverartlabel.h"
 #include "widget/wcoverartmenu.h"
@@ -1670,56 +1671,115 @@ void WTrackMenu::slotPopulateCrateMenu() {
                     ->crates()
                     .selectCratesWithTrackCount(trackIds));
 
+    typedef enum TrackCount {
+        None = 0,
+        Some = 1,
+        All = 2,
+    } TrackCount;
+
+    QHash<CrateId, WCheckableAction*> idToAction;
+    QHash<CrateId, WMenu*> idToMenu;
+    QHash<CrateId, TrackCount> idToTrackCount;
+
     CrateSummary crate;
     while (allCrates.populateNext(&crate)) {
-        auto pAction = make_parented<QWidgetAction>(
-                m_pCrateMenu);
-        // Use a custom QCheckBox with fixed hover behavior.
-        auto pCheckBox = make_parented<WMenuCheckBox>(
-                mixxx::escapeTextPropertyWithoutShortcuts(crate.getFullPath()),
-                m_pCrateMenu);
-        pCheckBox->setProperty("crateId", QVariant::fromValue(crate.getId()));
-        pCheckBox->setEnabled(!crate.isLocked());
-        // Strangely, the normal styling of QActions does not automatically
-        // apply to QWidgetActions. The :selected pseudo-state unfortunately
-        // does not work with QWidgetAction. :hover works for selecting items
-        // with the mouse, but not with the keyboard. :focus works for the
-        // keyboard but with the mouse, the last clicked item keeps the style
-        // after the mouse cursor is moved to hover over another item.
-
-        // ronso0 Disabling this stylesheet allows to override the OS style
-        // of the :hover and :focus state.
-        //        pCheckBox->setStyleSheet(
-        //            QString("QCheckBox {color: %1;}").arg(
-        //                    pCheckBox->palette().text().color().name()) + "\n" +
-        //            QString("QCheckBox:hover {background-color: %1;}").arg(
-        //                    pCheckBox->palette().highlight().color().name()));
-        pAction->setEnabled(!crate.isLocked());
-        pAction->setDefaultWidget(pCheckBox.get());
-
-        if (crate.getTrackCount() == 0) {
-            pCheckBox->setChecked(false);
-        } else if (crate.getTrackCount() == (uint)trackIds.length()) {
-            pCheckBox->setChecked(true);
+        // Determine the parent menu item that this crate should be attached to,
+        // i.e. either the root menu for top-level crates, or the menu of its containing crate.
+        //
+        // The code is a bit convoluted because we do not depend on the order in which
+        // the query returns the crates, and so we might see a child crate before its
+        // parent crate, or vice versa.
+        parented_ptr<QMenu> pParentMenu;
+        CrateId parentId(crate.getParentId());
+        if (!parentId.isValid()) {
+            // Top-level crate
+            pParentMenu = parented_ptr<QMenu>(m_pCrateMenu.get());
         } else {
-            pCheckBox->setTristate(true);
-            pCheckBox->setCheckState(Qt::PartiallyChecked);
+            // Nested crate -> Find menu for parent crate
+            auto i = idToMenu.find(parentId);
+            if (i != idToMenu.end()) {
+                // Parent menu was already created
+                pParentMenu = parented_ptr<QMenu>(i.value());
+            } else {
+                // Parent menu was not yet created....
+                pParentMenu = make_parented<QMenu>(m_pCrateMenu);
+                idToMenu.insert(parentId, pParentMenu.get());
+
+                // ...but the QAction might have been
+                auto i = idToAction.find(parentId);
+                if (i != idToAction.end()) {
+                    auto pParentAction = i.value();
+                    pParentAction->setMenu(pParentMenu.get());
+                }
+            }
         }
 
-        m_pCrateMenu->addAction(pAction.get());
-        connect(pAction.get(), &QAction::triggered, this, [this, pCheckBox{pCheckBox.get()}] { updateSelectionCrates(pCheckBox); });
+        // Use a custom checkable QAction implementation that allows for tristate values.
+        auto pAction = make_parented<WCheckableAction>(
+                mixxx::escapeTextPropertyWithoutShortcuts(crate.getFullPath()),
+                pParentMenu);
+        pAction->setCheckable(true);
+        pAction->setProperty("crateId", QVariant::fromValue(crate.getId()));
+        pAction->setEnabled(!crate.isLocked());
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
-        connect(pCheckBox.get(),
-                &QCheckBox::checkStateChanged,
-                this,
-                [this, pCheckBox{pCheckBox.get()}] {
-                    updateSelectionCrates(pCheckBox);
-                });
-#else
-        connect(pCheckBox.get(), &QCheckBox::stateChanged, this, [this, pCheckBox{pCheckBox.get()}] { updateSelectionCrates(pCheckBox); });
-#endif
+
+        // Attach the submenu if one already exists
+        auto j = idToMenu.find(crate.getId());
+        if (j != idToMenu.end()) {
+            pAction->setMenu(j.value());
+        }
+        idToAction.insert(crate.getId(), pAction.get());
+
+        TrackCount trackCount;
+        if (crate.getTrackCount() == 0) {
+            trackCount = TrackCount::None;
+        } else if (crate.getTrackCount() == (uint)trackIds.length()) {
+            trackCount = TrackCount::All;
+        } else {
+            trackCount = TrackCount::Some;
+        }
+
+        idToTrackCount.insert(
+                crate.getId(),
+                std::max(trackCount, idToTrackCount.value(crate.getId(), TrackCount::None)));
+
+        if (trackCount > 0) {
+            auto ancestorIds = crate.getAncestorIds();
+            for (auto it = ancestorIds.begin(); it != ancestorIds.end(); ++it) {
+                idToTrackCount.insert(
+                        *it,
+                        std::max(std::min(trackCount, TrackCount::Some),
+                                 idToTrackCount.value(*it, TrackCount::None)));
+            }
+        }
+
+        pParentMenu->addAction(pAction.get());
+        const QString crateName = crate.getName();
+        connect(pAction.get(), &QAction::triggered, this, [this, crateName{crateName}, pAction{pAction.get()}] {
+            updateSelectionCrates(pAction);
+        });
     }
+
+    for (auto it = idToAction.begin(); it != idToAction.end(); ++it) {
+        auto pAction = it.value();
+        auto trackCount = idToTrackCount.value(it.key(), TrackCount::None);
+        if (trackCount == TrackCount::None) {
+            pAction->setChecked(false);
+        } else if (trackCount == TrackCount::All) {
+            pAction->setChecked(true);
+        } else {
+            pAction->setTristate(true);
+            pAction->setCheckState(Qt::PartiallyChecked);
+        }
+
+        connect(pAction,
+                &WCheckableAction::checkStateChanged,
+                this,
+                [this, pAction] {
+                    updateSelectionCrates(pAction);
+                });
+    }
+
     m_pCrateMenu->addSeparator();
     auto newCrateAction = make_parented<QAction>(tr("Add to New Crate"), m_pCrateMenu);
     m_pCrateMenu->addAction(newCrateAction);
@@ -1727,13 +1787,8 @@ void WTrackMenu::slotPopulateCrateMenu() {
     m_bCrateMenuLoaded = true;
 }
 
-void WTrackMenu::updateSelectionCrates(QWidget* pWidget) {
-    auto* pCheckBox = qobject_cast<QCheckBox*>(pWidget);
-    VERIFY_OR_DEBUG_ASSERT(pCheckBox) {
-        qWarning() << "crateId is not of CrateId type";
-        return;
-    }
-    CrateId crateId = pCheckBox->property("crateId").value<CrateId>();
+void WTrackMenu::updateSelectionCrates(WCheckableAction* pAction) {
+    CrateId crateId = pAction->property("crateId").value<CrateId>();
 
     const TrackIdList trackIds = getTrackIds();
 
@@ -1743,8 +1798,10 @@ void WTrackMenu::updateSelectionCrates(QWidget* pWidget) {
     }
 
     // we need to disable tristate again as the mixed state will now be gone and can't be brought back
-    pCheckBox->setTristate(false);
-    if (!pCheckBox->isChecked()) {
+    if (pAction->checkState() != Qt::PartiallyChecked) {
+        pAction->setTristate(false);
+    }
+    if (!pAction->isChecked()) {
         if (crateId.isValid()) {
             m_pLibrary->trackCollectionManager()
                     ->internalCollection()
