@@ -199,6 +199,13 @@ bool CmdlineArgs::parse(const QStringList& arguments, CmdlineArgs::ParseMode mod
                             : QString());
     parser.addOption(rescanLibrary);
 
+    const QCommandLineOption migrateDatabase(QStringLiteral("migrate-database"),
+            forUserFeedback ? QCoreApplication::translate("CmdlineArgs",
+                                      "Force a database migration, pretending the database is at the given version.")
+                            : QString(),
+            QString("currentVersion"));
+    parser.addOption(migrateDatabase);
+
     // An option with a value
     const QCommandLineOption settingsPath(QStringLiteral("settings-path"),
             forUserFeedback ? QCoreApplication::translate("CmdlineArgs",
