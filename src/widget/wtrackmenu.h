@@ -25,6 +25,7 @@ class ExternalTrackCollection;
 class FindOnWebLast;
 class Library;
 class TrackModel;
+class WCheckableAction;
 class WColorPickerAction;
 class WCoverArtMenu;
 class WFindOnWebMenu;
@@ -243,7 +244,7 @@ class WTrackMenu : public WMenu {
     bool featureIsEnabled(Feature flag) const;
 
     void addSelectionToPlaylist(int iPlaylistId);
-    void updateSelectionCrates(QWidget* pWidget);
+    void updateSelectionCrates(WCheckableAction* pAction);
 
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
     void addToAnalysis(AnalyzerTrack::Options options = AnalyzerTrack::Options());
