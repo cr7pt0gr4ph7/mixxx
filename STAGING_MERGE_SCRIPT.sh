@@ -123,8 +123,16 @@ fi
 # This script assumes that we are on the most current version of the
 # main branch. At the last update of this script that was commit
 # 17be527d6c96f4f94e345216974c40218e87f8cc
+
+# Calculate remaining play time for the Auto DJ queue
+# merge_branch rtm_autodj_deckattributes
+# merge_branch rtm_autodj_trackattributes
 merge_branch autodj-time-remaining ready-for-merge
+
+# Keyboard controls for editing the star rating in the tracks table
 merge_branch rtm_fix-star-rating-editor
+
+# Track Info Dialog fixes & improvements
 merge_branch rtm_trackinfo_leftright
 merge_branch rtm_trackinfo_simplefixes
 # merge_branch rtm_trackinfo_lastplayed
@@ -133,10 +141,18 @@ merge_branch rtm_trackinfo_multiline
 merge_branch rtm_trackinfo_button
 merge_branch rtm_trackinfo_alignment
 merge_branch rtm_trackinfo_starrating
+
+# Usability improvements for the loop size & beat jump size controls
 merge_branch rtm_beatspinbox
-merge_branch wip_toast-notifications # Conflicts expected
+
+# Toast notifications when tracks are added to / removed from playlists and the Auto DJ queue
+merge_branch wip_toast-notifications
+
+# Re-enable search in the Auto DJ view
 merge_branch rtm_style-active-search-control
 merge_branch ready-for-merge/autodj-search
+
+# Subcrates & necessary foundational improvements to drag & drop
 merge_branch rtm_sidebar_dragdrop
 merge_branch rtm_sidebar_autocollapse
 merge_branch rtm_sidebar_longhover
@@ -144,9 +160,14 @@ merge_branch rtm_sidebar_restore
 merge_branch rtm_treeitem_url
 merge_branch rtm_treeitem_index
 merge_branch rtm_subcrates
+
+# Context menu uncluttering for crates & playlists
 merge_branch rtm_crates_moremenu
 merge_branch rtm_playlists_moremenu
+
+# --repair-database CLI option
 merge_branch rtm_cli_repairdatabase
+
 # merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
 # merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
