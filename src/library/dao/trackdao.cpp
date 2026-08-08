@@ -694,6 +694,7 @@ bool insertTrackLibrary(
         const QDateTime& trackDateAdded) {
     bindTrackLibraryValues(pTrackLibraryInsert, trackRecord, pBeats);
 
+    // TODO: It's strange that we use both trackDateAdded and trackRecord.getDateAdded()....
     if (!trackRecord.getDateAdded().isNull()) {
         kLogger.debug() << "insertTrackLibrary: Track"
                         << fileInfo
@@ -702,11 +703,11 @@ bool insertTrackLibrary(
     }
     pTrackLibraryInsert->bindValue(":datetime_added", trackDateAdded);
 
-    // Written only once upon insert
-    pTrackLibraryInsert->bindValue(":location", trackLocationId.toVariant());
-
     // Column datetime_added is set implicitly
     //pTrackLibraryInsert->bindValue(":datetime_added", track.getDateAdded());
+
+    // Written only once upon insert
+    pTrackLibraryInsert->bindValue(":location", trackLocationId.toVariant());
 
     pTrackLibraryInsert->bindValue(":mixxx_deleted", 0);
 
