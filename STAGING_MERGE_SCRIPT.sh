@@ -122,19 +122,21 @@ fi
 
 # This script assumes that we are on the most current version of the
 # main branch. At the last update of this script that was commit
-# 9893d7510cc60c5922672e1116829993619acbcd.
-# merge_branch configurable-edit-item-shortcut ready-for-merge # Already merged into upstream/2.6
+# 17be527d6c96f4f94e345216974c40218e87f8cc
 merge_branch autodj-time-remaining ready-for-merge
 merge_branch rtm_fix-star-rating-editor
-# merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
-merge_branch ready-for-merge/track-info-dialog # Split into multiple PRs
+merge_branch rtm_trackinfo_leftright
+merge_branch rtm_trackinfo_simplefixes
+# merge_branch rtm_trackinfo_lastplayed
+merge_branch rtm_trackinfo_colorpicker
+merge_branch rtm_trackinfo_multiline
+merge_branch rtm_trackinfo_button
+merge_branch rtm_trackinfo_alignment
+merge_branch rtm_trackinfo_starrating
 merge_branch rtm_beatspinbox
-# merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
 merge_branch wip_toast-notifications # Conflicts expected
 merge_branch rtm_style-active-search-control
 merge_branch ready-for-merge/autodj-search
-# merge_branch wip/auto-fade-controller # Skipped, not necessary yet
-# merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
 merge_branch rtm_sidebar_dragdrop
 merge_branch rtm_sidebar_autocollapse
 merge_branch rtm_sidebar_longhover
@@ -145,6 +147,10 @@ merge_branch rtm_subcrates
 merge_branch rtm_crates_moremenu
 merge_branch rtm_playlists_moremenu
 merge_branch rtm_cli_repairdatabase
+# merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
+# merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
+# merge_branch wip/auto-fade-controller # Skipped, not necessary yet
+# merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
 # merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
 # merge_branch wip/metadata-push # Skipped, not necessary yet
 merge_branch ext/rons0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
