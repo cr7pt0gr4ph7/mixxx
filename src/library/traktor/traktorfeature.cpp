@@ -16,6 +16,8 @@
 #include "library/queryutil.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
+#include "library/traktor/traktorplaylistid.h"
+#include "library/traktor/traktortrackid.h"
 #include "library/treeitem.h"
 #include "moc_traktorfeature.cpp"
 #include "track/keyutils.h"
@@ -582,11 +584,11 @@ void TraktorFeature::parsePlaylistEntries(
         return;
     }
 
-    //playlist_id = id_query.lastInsertId().toInt();
-    int playlist_id = kInvalidPlaylistId;
+    //playlist_id = TraktorPlaylistId(id_query.lastInsertId());
+    TraktorPlaylistId playlist_id;
     const int idColumn = id_query.record().indexOf("id");
     while (id_query.next()) {
-        playlist_id = id_query.value(idColumn).toInt();
+        playlist_id = TraktorPlaylistId(id_query.value(idColumn));
     }
 
     int playlist_position = 1;
@@ -605,7 +607,7 @@ void TraktorFeature::parsePlaylistEntries(
                     #endif
 
                     //insert to database
-                    int track_id = -1;
+                    TraktorTrackId track_id;
                     QSqlQuery finder_query(m_database);
                     finder_query.prepare("select id from traktor_library where location=:path");
                     finder_query.bindValue(":path", key);
@@ -616,11 +618,12 @@ void TraktorFeature::parsePlaylistEntries(
                     }
 
                     if (finder_query.next()) {
-                        track_id = finder_query.value(finder_query.record().indexOf("id")).toInt();
+                        const int idColumn = finder_query.record().indexOf("id");
+                        track_id = TraktorTrackId(finder_query.value(idColumn));
                     }
 
-                    pQueryInsertIntoPlaylistTracks->bindValue(":playlist_id", playlist_id);
-                    pQueryInsertIntoPlaylistTracks->bindValue(":track_id", track_id);
+                    pQueryInsertIntoPlaylistTracks->bindValue(":playlist_id", playlist_id.toVariant());
+                    pQueryInsertIntoPlaylistTracks->bindValue(":track_id", track_id.toVariant());
                     pQueryInsertIntoPlaylistTracks->bindValue(":position", playlist_position++);
                     if (!pQueryInsertIntoPlaylistTracks->exec()) {
                         LOG_FAILED_QUERY(*pQueryInsertIntoPlaylistTracks)
