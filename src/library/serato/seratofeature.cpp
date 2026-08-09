@@ -11,7 +11,10 @@
 #include "library/dao/trackschema.h"
 #include "library/library.h"
 #include "library/queryutil.h"
+#include "library/serato/seratoplaylistid.h"
 #include "library/serato/seratoplaylistmodel.h"
+#include "library/serato/seratoplaylisttrackid.h"
+#include "library/serato/seratotrackid.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
 #include "library/treeitem.h"
@@ -19,6 +22,7 @@
 #include "util/assert.h"
 #include "util/db/dbconnectionpooled.h"
 #include "util/db/dbconnectionpooler.h"
+#include "util/db/fwdsqlquery.h"
 #include "widget/wlibrary.h"
 #include "widget/wlibrarytextbrowser.h"
 
@@ -94,37 +98,39 @@ const QString kSeratoPlaylistTracksTable = QStringLiteral("serato_playlist_track
 
 constexpr int kHeaderSize = 2 * sizeof(quint32);
 
-int createPlaylist(const QSqlDatabase& database, const QString& name, const QString& databasePath) {
-    QSqlQuery query(database);
-    query.prepare(
-            "INSERT INTO serato_playlists (name, serato_db)"
-            "VALUES (:name, :serato_db)");
+SeratoPlaylistId createPlaylist(const QSqlDatabase& database, const QString& name, const QString& databasePath) {
+    FwdSqlQuery query(database,
+            QStringLiteral("INSERT INTO serato_playlists "
+                           "(name, serato_db)"
+                           "VALUES (:name, :serato_db)"));
+
     query.bindValue(":name", name);
     query.bindValue(":serato_db", databasePath);
 
-    if (!query.exec()) {
+    if (!query.execPrepared()) {
         LOG_FAILED_QUERY(query) << "databasePath: " << databasePath;
-        return -1;
+        return SeratoPlaylistId();
     }
 
-    return query.lastInsertId().toInt();
+    return SeratoPlaylistId(query.lastInsertId());
 }
 
-int insertTrackIntoPlaylist(const QSqlDatabase& database, int playlistId, int trackId, int position) {
-    QSqlQuery query(database);
-    query.prepare(
-            "INSERT INTO serato_playlist_tracks (playlist_id, track_id, position) "
-            "VALUES (:playlist_id, :track_id, :position)");
+SeratoPlaylistTrackId insertTrackIntoPlaylist(const QSqlDatabase& database, SeratoPlaylistId playlistId, SeratoTrackId trackId, int position) {
+    FwdSqlQuery query(database,
+            QStringLiteral("INSERT INTO serato_playlist_tracks "
+                           "(playlist_id, track_id, position) "
+                           "VALUES (:playlist_id, :track_id, :position)"));
+
     query.bindValue(":playlist_id", playlistId);
     query.bindValue(":track_id", trackId);
-    query.bindValue(":position", position);
+    query.bindValue(":position", QVariant(position));
 
-    if (!query.exec()) {
+    if (!query.execPrepared()) {
         LOG_FAILED_QUERY(query);
-        return -1;
+        return SeratoPlaylistTrackId();
     }
 
-    return query.lastInsertId().toInt();
+    return SeratoPlaylistTrackId(query.lastInsertId());
 }
 
 inline QString utf16beToQString(const QByteArray& data, const quint32 size) {
@@ -333,7 +339,7 @@ QString parseCrate(
         const QSqlDatabase& database,
         const QString& databasePath,
         const QString& crateFilePath,
-        const QMap<QString, int>& trackIdMap) {
+        const QMap<QString, SeratoTrackId>& trackIdMap) {
     QString crateName = QFileInfo(crateFilePath).baseName();
     qDebug() << "Parsing crate"
              << crateName
@@ -356,8 +362,8 @@ QString parseCrate(
         return QString();
     }
 
-    int playlistId = createPlaylist(database, crateFilePath, databasePath);
-    if (playlistId < 0) {
+    auto playlistId = createPlaylist(database, crateFilePath, databasePath);
+    if (!playlistId.isValid()) {
         qWarning() << "Failed to create library playlist for "
                    << crateFilePath;
         return QString();
@@ -396,7 +402,7 @@ QString parseCrate(
             buffer.open(QIODevice::ReadOnly);
             QString location = parseCrateTrackPath(&buffer);
             if (!location.isEmpty()) {
-                int trackId = trackIdMap.value(location, -1);
+                auto trackId = trackIdMap.value(location);
                 insertTrackIntoPlaylist(database, playlistId, trackId, trackCount);
                 trackCount++;
                 break;
@@ -538,15 +544,15 @@ QString parseDatabase(mixxx::DbConnectionPoolPtr dbConnectionPool, TreeItem* dat
         return QString();
     }
 
-    int playlistId = createPlaylist(database, databaseFilePath, databaseDir.path());
-    if (playlistId < 0) {
+    auto playlistId = createPlaylist(database, databaseFilePath, databaseDir.path());
+    if (!playlistId.isValid()) {
         qWarning() << "Failed to create library playlist for "
                    << databaseFilePath;
         return QString();
     }
 
     int trackCount = 0;
-    QMap<QString, int> trackIdMap;
+    QMap<QString, SeratoTrackId> trackIdMap;
     QByteArray headerData = databaseFile.read(kHeaderSize);
     while (headerData.length() == kHeaderSize) {
         quint32 fieldId = bytesToUInt32(headerData.mid(0, sizeof(quint32)));
@@ -601,7 +607,7 @@ QString parseDatabase(mixxx::DbConnectionPoolPtr dbConnectionPool, TreeItem* dat
                 if (!query.exec()) {
                     LOG_FAILED_QUERY(query);
                 } else {
-                    int trackId = query.lastInsertId().toInt();
+                    SeratoTrackId trackId(query.lastInsertId());
                     insertTrackIntoPlaylist(database, playlistId, trackId, trackCount);
                     trackIdMap.insert(track.location, trackId);
                     trackCount++;
