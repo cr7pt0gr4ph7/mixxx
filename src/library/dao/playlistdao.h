@@ -5,6 +5,7 @@
 #include <QSet>
 
 #include "library/dao/dao.h"
+#include "library/trackset/playlist/playlistid.h"
 #include "track/trackid.h"
 #include "util/class.h"
 
