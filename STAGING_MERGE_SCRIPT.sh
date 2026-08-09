@@ -125,22 +125,25 @@ fi
 # 17be527d6c96f4f94e345216974c40218e87f8cc
 
 # Calculate remaining play time for the Auto DJ queue
-# merge_branch rtm_autodj_deckattributes
-# merge_branch rtm_autodj_trackattributes
-merge_branch autodj-time-remaining ready-for-merge
+merge_branch rtm_autodj_deckattributes
+merge_branch rtm_autodj_trackattributes
+merge_branch rtm_autodj_calculatetransition
+merge_branch rtm_autodj_displayremaining
+merge_branch rtm_autodj_remaining
 
 # Keyboard controls for editing the star rating in the tracks table
 merge_branch rtm_fix-star-rating-editor
 
 # Track Info Dialog fixes & improvements
+merge_branch rtm_trackinfo_readonlyfields
 merge_branch rtm_trackinfo_leftright
-merge_branch rtm_trackinfo_simplefixes
 # merge_branch rtm_trackinfo_lastplayed
 merge_branch rtm_trackinfo_colorpicker
 merge_branch rtm_trackinfo_multiline
 merge_branch rtm_trackinfo_button
 merge_branch rtm_trackinfo_alignment
 merge_branch rtm_trackinfo_starrating
+merge_branch rtm_trackinfo_updown
 
 # Usability improvements for the loop size & beat jump size controls
 merge_branch rtm_beatspinbox
@@ -150,7 +153,7 @@ merge_branch wip_toast-notifications
 
 # Re-enable search in the Auto DJ view
 merge_branch rtm_style-active-search-control
-merge_branch ready-for-merge/autodj-search
+merge_branch rtm_autodj_search
 
 # Subcrates & necessary foundational improvements to drag & drop
 merge_branch rtm_sidebar_dragdrop
@@ -159,19 +162,33 @@ merge_branch rtm_sidebar_longhover
 merge_branch rtm_sidebar_restore
 merge_branch rtm_treeitem_url
 merge_branch rtm_treeitem_index
+# merge_branch rtm_treeitem_expandable # Not needed
 merge_branch rtm_subcrates
+# merge_branch rtm_subcrates_more
 
 # Context menu uncluttering for crates & playlists
 merge_branch rtm_crates_moremenu
 merge_branch rtm_playlists_moremenu
 
+# "Export all" for crates
+merge_branch rtm_crates_enginedj
+merge_branch rtm_crates_exportall
+
 # --repair-database CLI option
 merge_branch rtm_cli_repairdatabase
+
+# Currently not used
+# merge_branch wip_misc_stuff
+# merge_branch rtm_serato_id
+# merge_branch rtm_traktor_id
+# merge_branch rtm_rekordbox_id
+# merge_branch rtm_playlist_id
 
 # merge_branch ready-for-merge/sound-device-reload # Skipped, not necessary yet
 # merge_branch wip/more-hotcue-buttons # Skipped, not necessary yet
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
-# merge_branch ready-for-merge/crate-folders # Skipped, not necessary yet
 # merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
 # merge_branch wip/metadata-push # Skipped, not necessary yet
 merge_branch ext/rons0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
+# merge_branch ext/makszim/playlist-folder-structure # https://github.com/mixxxdj/mixxx/pull/16669
+# merge_branch ext/coaux/patch_plexport # https://github.com/mixxxdj/mixxx/pull/16698
