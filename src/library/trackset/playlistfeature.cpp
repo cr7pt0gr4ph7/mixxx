@@ -12,6 +12,7 @@
 #include "library/sidebarmodel.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
+#include "library/trackset/playlist/playlisturls.h"
 #include "library/treeitem.h"
 #include "library/treeitemmodel.h"
 #include "moc_playlistfeature.cpp"
@@ -168,6 +169,15 @@ bool PlaylistFeature::moveToParent(int destinationId, int playlistToMoveId, bool
     return false;
 }
 
+bool PlaylistFeature::dropAccept(const QList<QUrl>& urls, QObject* pSource) {
+    Q_UNUSED(pSource);
+    QList<int> playlistIds = PlaylistURLs::parsePlaylistUrls(urls);
+    if (playlistIds.isEmpty()) {
+        return false;
+    }
+    return moveToParent(kInvalidPlaylistId, playlistIds);
+}
+
 bool PlaylistFeature::dropAcceptChild(
         const QModelIndex& index, const QList<QUrl>& urls, QObject* pSource) {
     int playlistId = playlistIdFromIndex(index);
@@ -177,6 +187,10 @@ bool PlaylistFeature::dropAcceptChild(
     VERIFY_OR_DEBUG_ASSERT(!m_playlistDao.isPlaylistLocked(playlistId)) {
         return false;
     }
+
+    bool movedPlaylists = false;
+    bool movedTracks = false;
+
     // If a track is dropped onto a playlist's name, but the track isn't in the
     // library, then add the track to the library before adding it to the
     // playlist.
@@ -187,12 +201,20 @@ bool PlaylistFeature::dropAcceptChild(
             DragAndDropHelper::supportedTracksFromUrls(urls, false, true);
     const QList<TrackId> trackIds =
             m_pLibrary->trackCollectionManager()->resolveTrackIds(fileInfos, pSource);
-    if (trackIds.isEmpty()) {
-        return false;
+    if (!trackIds.isEmpty()) {
+        movedTracks = m_playlistDao.appendTracksToPlaylist(trackIds, playlistId);
     }
 
-    // Return whether appendTracksToPlaylist succeeded.
-    return m_playlistDao.appendTracksToPlaylist(trackIds, playlistId);
+    const QList<int> playlistIds = PlaylistURLs::parsePlaylistURLs(urls);
+    if (!playlistIds.isEmpty()) {
+        movedPlaylists = moveToParent(playlistId, playlistIds);
+    }
+
+    return movedTracks || movedPlaylists;
+}
+
+bool PlaylistFeature::dragMoveAccept(const QList<QUrl>& urls) {
+    return !PlaylistURLs::parsePlaylistUrls(urls).isEmpty();
 }
 
 bool PlaylistFeature::dragMoveAcceptChild(const QModelIndex& index, const QList<QUrl>& urls) {
@@ -200,11 +222,9 @@ bool PlaylistFeature::dragMoveAcceptChild(const QModelIndex& index, const QList<
     if (playlistId == kInvalidPlaylistId) {
         return false;
     }
-    if (m_playlistDao.isPlaylistLocked(playlistId)) {
-        return false;
-    }
-
-    return DragAndDropHelper::urlsContainSupportedTrackFiles(urls, true);
+    return (!m_playlistDao.isPlaylistLocked(playlistId) &&
+                   DragAndDropHelper::urlsContainSupportedTrackFiles(urls, true)) ||
+            !PlaylistURLs::parsePlaylistUrls(urls).isEmpty();
 }
 
 QList<BasePlaylistFeature::IdAndLabel> PlaylistFeature::createPlaylistLabels(bool useFullPaths) {
