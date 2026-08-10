@@ -3,14 +3,17 @@
 #include <QMenu>
 #include <QSqlTableModel>
 #include <QtDebug>
+#include <unordered_map>
 
 #include "library/library.h"
 #include "library/parser.h"
 #include "library/playlisttablemodel.h"
 #include "library/queryutil.h"
+#include "library/sidebarmodel.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
 #include "library/treeitem.h"
+#include "library/treeitemmodel.h"
 #include "moc_playlistfeature.cpp"
 #include "sources/soundsourceproxy.h"
 #include "util/db/dbconnection.h"
@@ -426,36 +429,63 @@ void PlaylistFeature::slotDeleteAllUnlockedPlaylists() {
 /// @param selectedId entry which should be selected
 QModelIndex PlaylistFeature::constructChildModel(int selectedId) {
     // qDebug() << "PlaylistFeature::constructChildModel() id:" << selectedId;
-    std::vector<std::unique_ptr<TreeItem>> childrenToAdd;
-    int selectedRow = -1;
+    std::vector<std::unique_ptr<TreeItem>> rootItemsToAdd;
+    TreeItem* pSelectedItem = nullptr;
 
-    int row = 0;
+    // Build a hierarchical tree from the flat list using parent_id.
+    // Assemble tree robustly even if children come before parents.
     const QList<IdAndLabel> playlistLabels = createPlaylistLabels(false);
+    rootItemsToAdd.reserve(playlistLabels.size());
+
+    // Map of playlist id -> owned TreeItem
+    std::unordered_map<int, std::pair<TreeItem*, std::unique_ptr<TreeItem>>> items;
+    items.reserve(playlistLabels.size());
+
+    // First pass: Create all tree items
     for (const auto& idAndLabel : playlistLabels) {
         int playlistId = idAndLabel.id;
         QString playlistLabel = idAndLabel.label;
-
-        if (selectedId == playlistId) {
-            // save index for selection
-            selectedRow = row;
-        }
-
-        // Create the TreeItem whose parent is the invisible root item
         auto pItem = std::make_unique<TreeItem>(playlistLabel, playlistId);
         pItem->setBold(m_playlistIdsOfSelectedTrack.contains(playlistId));
-
         decorateChild(pItem.get(), playlistId);
-        childrenToAdd.push_back(std::move(pItem));
-
-        ++row;
+        if (selectedId != kInvalidPlaylistId && playlistId == selectedId) {
+            pSelectedItem = pItem.get();
+        }
+        items.emplace(playlistId, std::make_pair(pItem.get(), std::move(pItem)));
     }
 
-    // Append all the newly created TreeItems in a dynamic way to the childmodel
-    m_pSidebarModel->insertTreeItemRows(std::move(childrenToAdd), 0);
-    if (selectedRow == -1) {
+    // Second pass: Attach all items to the correct locations in the tree
+    for (const auto& idAndLabel : playlistLabels) {
+        auto it = items.find(idAndLabel.id);
+        VERIFY_OR_DEBUG_ASSERT(it != items.end()) {
+            continue;
+        }
+
+        int parentId = idAndLabel.parentId;
+        if (parentId == kInvalidPlaylistId) {
+            // Top-level -> move to root
+            rootItemsToAdd.push_back(std::move(it->second));
+        } else {
+            // Nested -> Try to attach to parent
+            auto placedParent = items.find(parentId);
+            if (placedParent != placed.end()) {
+                TreeItem* pParent = placedParent->first;
+                pParent->insertChild(pParent->childRows(), std::move(it->second));
+            } else {
+                // Error: Parent does not exist, attach to root instead
+                rootItemsToAdd.push_back(std::move(it->second));
+            }
+        }
+    }
+
+    // Insert into sidebar model
+    m_pSidebarModel->insertTreeItemRows(std::move(rootItemsToAdd), 0);
+
+    // Find the previously selected playlist
+    if (pSelectedItem == nullptr) {
         return QModelIndex();
     }
-    return m_pSidebarModel->index(selectedRow, 0);
+    return m_pSidebarModel->index(pSelectedItem);
 }
 
 void PlaylistFeature::decorateChild(TreeItem* item, int playlistId) {
