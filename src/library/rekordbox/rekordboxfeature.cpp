@@ -27,6 +27,7 @@
 #include "util/color/color.h"
 #include "util/db/dbconnectionpooled.h"
 #include "util/db/dbconnectionpooler.h"
+#include "util/db/fwdsqlquery.h"
 #include "util/sandbox.h"
 #include "waveform/waveform.h"
 #include "widget/wlibrary.h"
@@ -296,32 +297,33 @@ QString getText(rekordbox_pdb_t::device_sql_string_t* deviceString) {
 int createDevicePlaylist(QSqlDatabase& database, const QString& devicePath) {
     int playlistID = kInvalidPlaylistId;
 
-    QSqlQuery queryInsertIntoDevicePlaylist(database);
-    queryInsertIntoDevicePlaylist.prepare(
-            "INSERT INTO " + kRekordboxPlaylistsTable +
-            " (name) "
-            "VALUES (:name)");
+    FwdSqlQuery queryInsertIntoDevicePlaylist(database,
+            QStringLiteral("INSERT INTO %1 (name) VALUES (:name)")
+                    .arg(kRekordboxPlaylistsTable));
 
     queryInsertIntoDevicePlaylist.bindValue(":name", devicePath);
 
-    if (!queryInsertIntoDevicePlaylist.exec()) {
+    if (!queryInsertIntoDevicePlaylist.execPrepared()) {
         LOG_FAILED_QUERY(queryInsertIntoDevicePlaylist)
                 << "devicePath: " << devicePath;
         return playlistID;
     }
 
-    QSqlQuery idQuery(database);
-    idQuery.prepare("select id from " + kRekordboxPlaylistsTable + " where name=:path");
+    FwdSqlQuery idQuery(database,
+            QStringLiteral("SELECT id FROM %1 WHERE name=:path")
+                    .arg(kRekordboxPlaylistsTable));
     idQuery.bindValue(":path", devicePath);
 
-    if (!idQuery.exec()) {
+    if (!idQuery.execPrepared()) {
         LOG_FAILED_QUERY(idQuery)
                 << "devicePath: " << devicePath;
         return playlistID;
     }
 
+    const auto idColumn = idQuery.fieldIndex("id");
+
     while (idQuery.next()) {
-        playlistID = idQuery.value(idQuery.record().indexOf("id")).toInt();
+        playlistID = idQuery.fieldValue(idColumn).toInt();
     }
 
     return playlistID;
@@ -352,8 +354,8 @@ mixxx::RgbColor colorFromID(int colorID) {
 void insertTrack(
         QSqlDatabase& database,
         rekordbox_pdb_t::track_row_t* track,
-        QSqlQuery& query,
-        QSqlQuery& queryInsertIntoDevicePlaylistTracks,
+        FwdSqlQuery& query,
+        FwdSqlQuery& queryInsertIntoDevicePlaylistTracks,
         QMap<uint32_t, QString>& artistsMap,
         QMap<uint32_t, QString>& albumsMap,
         QMap<uint32_t, QString>& genresMap,
@@ -397,31 +399,34 @@ void insertTrack(
             mixxx::RgbColor::toQVariant(
                     colorFromID(static_cast<int>(track->color_id()))));
 
-    if (!query.exec()) {
+    if (!query.execPrepared()) {
         LOG_FAILED_QUERY(query);
     }
 
     int trackID = -1;
-    QSqlQuery finderQuery(database);
-    finderQuery.prepare("select id from " + kRekordboxLibraryTable +
-            " where rb_id=:rb_id and device=:device");
+    FwdSqlQuery finderQuery(database,
+            QStringLiteral("SELECT id FROM %1 "
+                           "WHERE rb_id=:rb_id AND device=:device")
+                    .arg(kRekordboxLibraryTable));
     finderQuery.bindValue(":rb_id", rbID);
     finderQuery.bindValue(":device", device);
 
-    if (!finderQuery.exec()) {
+    if (!finderQuery.execPrepared()) {
         LOG_FAILED_QUERY(finderQuery)
                 << "rbID:" << rbID;
     }
 
+    const auto idColumn = finderQuery.fieldIndex("id");
+
     if (finderQuery.next()) {
-        trackID = finderQuery.value(finderQuery.record().indexOf("id")).toInt();
+        trackID = finderQuery.fieldValue(idColumn).toInt();
     }
 
     // Insert into device all tracks playlist
     queryInsertIntoDevicePlaylistTracks.bindValue(":track_id", trackID);
     queryInsertIntoDevicePlaylistTracks.bindValue(":position", audioFilesCount);
 
-    if (!queryInsertIntoDevicePlaylistTracks.exec()) {
+    if (!queryInsertIntoDevicePlaylistTracks.execPrepared()) {
         LOG_FAILED_QUERY(queryInsertIntoDevicePlaylistTracks)
                 << "trackID:" << trackID
                 << "position:" << audioFilesCount;
@@ -469,25 +474,26 @@ QString parseDeviceDB(mixxx::DbConnectionPoolPtr dbConnectionPool, TreeItem* dev
 
     ScopedTransaction transaction(database);
 
-    QSqlQuery query(database);
-    query.prepare("INSERT INTO " + kRekordboxLibraryTable +
-            " (rb_id, artist, title, album, year,"
-            "genre,comment,tracknumber,bpm, bitrate,duration, location,"
-            "rating,key,analyze_path,device,color) VALUES (:rb_id, :artist, "
-            ":title, :album, :year,:genre,"
-            ":comment, :tracknumber,:bpm, :bitrate,:duration, :location,"
-            ":rating,:key,:analyze_path,:device,:color)");
+    FwdSqlQuery query(database,
+            QStringLiteral(
+                    "INSERT INTO %1 "
+                    " (rb_id, artist, title, album, year,"
+                    "genre,comment,tracknumber,bpm, bitrate,duration, location,"
+                    "rating,key,analyze_path,device,color) VALUES (:rb_id, :artist, "
+                    ":title, :album, :year,:genre,"
+                    ":comment, :tracknumber,:bpm, :bitrate,:duration, :location,"
+                    ":rating,:key,:analyze_path,:device,:color)")
+                    .arg(kRekordboxLibraryTable));
 
     int audioFilesCount = 0;
 
     // Create a playlist for all the tracks on a device
     int playlistID = createDevicePlaylist(database, devicePath);
 
-    QSqlQuery queryInsertIntoDevicePlaylistTracks(database);
-    queryInsertIntoDevicePlaylistTracks.prepare(
-            "INSERT INTO " + kRekordboxPlaylistTracksTable +
-            " (playlist_id, track_id, position) "
-            "VALUES (:playlist_id, :track_id, :position)");
+    FwdSqlQuery queryInsertIntoDevicePlaylistTracks(database,
+            QStringLiteral("INSERT INTO %1 (playlist_id, track_id, position) "
+                           "VALUES (:playlist_id, :track_id, :position)")
+                    .arg(kRekordboxPlaylistTracksTable));
 
     queryInsertIntoDevicePlaylistTracks.bindValue(":playlist_id", playlistID);
 
@@ -677,40 +683,39 @@ void buildPlaylistTree(
                 QVariant(QList<QString>{currentPath, IS_NOT_RECORDBOX_DEVICE}));
 
         // Create a playlist for this child
-        QSqlQuery queryInsertIntoPlaylist(database);
-        queryInsertIntoPlaylist.prepare(
-                "INSERT INTO " + kRekordboxPlaylistsTable +
-                " (name) "
-                "VALUES (:name)");
+        FwdSqlQuery queryInsertIntoPlaylist(database,
+                QStringLiteral("INSERT INTO %1 (name) VALUES (:name)")
+                        .arg(kRekordboxPlaylistsTable));
 
         queryInsertIntoPlaylist.bindValue(":name", currentPath);
 
-        if (!queryInsertIntoPlaylist.exec()) {
+        if (!queryInsertIntoPlaylist.execPrepared()) {
             LOG_FAILED_QUERY(queryInsertIntoPlaylist)
                     << "currentPath" << currentPath;
             return;
         }
 
-        QSqlQuery idQuery(database);
-        idQuery.prepare("select id from " + kRekordboxPlaylistsTable + " where name=:path");
+        FwdSqlQuery idQuery(database,
+                QStringLiteral("SELECT id FROM %1 WHERE name=:path")
+                        .arg(kRekordboxPlaylistsTable));
         idQuery.bindValue(":path", currentPath);
 
-        if (!idQuery.exec()) {
+        if (!idQuery.execPrepared()) {
             LOG_FAILED_QUERY(idQuery)
                     << "currentPath" << currentPath;
             return;
         }
 
+        const auto idColumn = idQuery.fieldIndex("id");
         int playlistID = kInvalidPlaylistId;
         while (idQuery.next()) {
-            playlistID = idQuery.value(idQuery.record().indexOf("id")).toInt();
+            playlistID = idQuery.fieldValue(idColumn).toInt();
         }
 
-        QSqlQuery queryInsertIntoPlaylistTracks(database);
-        queryInsertIntoPlaylistTracks.prepare(
-                "INSERT INTO " + kRekordboxPlaylistTracksTable +
-                " (playlist_id, track_id, position) "
-                "VALUES (:playlist_id, :track_id, :position)");
+        FwdSqlQuery queryInsertIntoPlaylistTracks(database,
+                QStringLiteral("INSERT INTO %1 (playlist_id, track_id, position) "
+                               "VALUES (:playlist_id, :track_id, :position)")
+                        .arg(kRekordboxPlaylistTracksTable));
 
         if (playlistTrackMap.contains(childID)) {
             // Add playlist tracks for children
@@ -719,14 +724,14 @@ void buildPlaylistTree(
                     trackIndex++) {
                 uint32_t rbTrackID = playlistTrackMap[childID][trackIndex];
 
-                int trackID = -1;
-                QSqlQuery finderQuery(database);
-                finderQuery.prepare("select id from " + kRekordboxLibraryTable +
-                        " where rb_id=:rb_id and device=:device");
+                RekordboxTrackId trackID;
+                FwdSqlQuery finderQuery(database,
+                        QStringLiteral("SELECT id FROM %1 WHERE rb_id=:rb_id AND device=:device")
+                                .arg(kRekordboxLibraryTable));
                 finderQuery.bindValue(":rb_id", rbTrackID);
                 finderQuery.bindValue(":device", device);
 
-                if (!finderQuery.exec()) {
+                if (!finderQuery.execPrepared()) {
                     LOG_FAILED_QUERY(finderQuery)
                             << "rbTrackID:" << rbTrackID
                             << "device:" << device;
@@ -734,14 +739,15 @@ void buildPlaylistTree(
                 }
 
                 if (finderQuery.next()) {
-                    trackID = finderQuery.value(finderQuery.record().indexOf("id")).toInt();
+                    const auto idColumn = finderQuery.fieldIndex("id");
+                    trackID = finderQuery.fieldValue(idColumn).toInt();
                 }
 
                 queryInsertIntoPlaylistTracks.bindValue(":playlist_id", playlistID);
                 queryInsertIntoPlaylistTracks.bindValue(":track_id", trackID);
                 queryInsertIntoPlaylistTracks.bindValue(":position", static_cast<int>(trackIndex));
 
-                if (!queryInsertIntoPlaylistTracks.exec()) {
+                if (!queryInsertIntoPlaylistTracks.execPrepared()) {
                     LOG_FAILED_QUERY(queryInsertIntoPlaylistTracks)
                             << "playlistID:" << playlistID
                             << "trackID:" << trackID
@@ -772,62 +778,67 @@ void clearDeviceTables(QSqlDatabase& database, TreeItem* child) {
 
     int trackID = -1;
     int playlistID = kInvalidPlaylistId;
-    QSqlQuery tracksQuery(database);
-    tracksQuery.prepare("select id from " + kRekordboxLibraryTable + " where device=:device");
+    FwdSqlQuery tracksQuery(database,
+            QStringLiteral("SELECT id FROM %1 WHERE device=:device")
+                    .arg(kRekordboxLibraryTable));
     tracksQuery.bindValue(":device", child->getLabel());
 
-    QSqlQuery deletePlaylistsQuery(database);
-    deletePlaylistsQuery.prepare("delete from " + kRekordboxPlaylistsTable + " where id=:id");
+    FwdSqlQuery deletePlaylistsQuery(database,
+            QStringLiteral("DELETE FROM %1 WHERE id=:id")
+                    .arg(kRekordboxPlaylistsTable));
 
-    QSqlQuery deletePlaylistTracksQuery(database);
-    deletePlaylistTracksQuery.prepare("delete from " +
-            kRekordboxPlaylistTracksTable + " where playlist_id=:playlist_id");
+    FwdSqlQuery deletePlaylistTracksQuery(database,
+            QStringLiteral("DELETE FROM %1 WHERE playlist_id=:playlist_id")
+                    .arg(kRekordboxPlaylistTracksTable));
 
-    if (!tracksQuery.exec()) {
+    FwdSqlQuery playlistTracksQuery(database,
+            QStringLiteral("SELECT playlist_id FROM %1 WHERE track_id=:track_id")
+                    .arg(kRekordboxPlaylistTracksTable));
+
+    if (!tracksQuery.execPrepared()) {
         LOG_FAILED_QUERY(tracksQuery)
                 << "device:" << child->getLabel();
     }
 
-    while (tracksQuery.next()) {
-        trackID = tracksQuery.value(tracksQuery.record().indexOf("id")).toInt();
+    const auto idColumn = tracksQuery.fieldIndex("id");
 
-        QSqlQuery playlistTracksQuery(database);
-        playlistTracksQuery.prepare("select playlist_id from " +
-                kRekordboxPlaylistTracksTable + " where track_id=:track_id");
+    while (tracksQuery.next()) {
+        trackID = tracksQuery.fieldValue(idColumn).toInt();
+
         playlistTracksQuery.bindValue(":track_id", trackID);
 
-        if (!playlistTracksQuery.exec()) {
+        if (!playlistTracksQuery.execPrepared()) {
             LOG_FAILED_QUERY(playlistTracksQuery)
                     << "trackID:" << trackID;
         }
 
+        const auto playlistIdColumn = playlistTracksQuery.fieldIndex("playlist_id");
+
         while (playlistTracksQuery.next()) {
-            playlistID = playlistTracksQuery
-                                 .value(playlistTracksQuery.record().indexOf(
-                                         "playlist_id"))
-                                 .toInt();
+            playlistID = playlistTracksQuery.fieldValue(playlistIdColumn).toInt();
 
             deletePlaylistsQuery.bindValue(":id", playlistID);
 
-            if (!deletePlaylistsQuery.exec()) {
+            if (!deletePlaylistsQuery.execPrepared()) {
                 LOG_FAILED_QUERY(deletePlaylistsQuery)
                         << "playlistID:" << playlistID;
             }
 
             deletePlaylistTracksQuery.bindValue(":playlist_id", playlistID);
 
-            if (!deletePlaylistTracksQuery.exec()) {
+            if (!deletePlaylistTracksQuery.execPrepared()) {
                 LOG_FAILED_QUERY(deletePlaylistTracksQuery)
                         << "playlistID:" << playlistID;
             }
         }
     }
 
-    QSqlQuery deleteTracksQuery(database);
-    deleteTracksQuery.prepare("delete from " + kRekordboxLibraryTable + " where device=:device");
+    FwdSqlQuery deleteTracksQuery(database,
+            QStringLiteral("DELETE FROM %1 WHERE device=:device")
+                    .arg(kRekordboxLibraryTable));
     deleteTracksQuery.bindValue(":device", child->getLabel());
 
-    if (!deleteTracksQuery.exec()) {
+    if (!deleteTracksQuery.execPrepared()) {
         LOG_FAILED_QUERY(deleteTracksQuery)
                 << "device:" << child->getLabel();
     }
