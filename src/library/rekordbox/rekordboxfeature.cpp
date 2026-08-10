@@ -16,6 +16,8 @@
 #include "library/library.h"
 #include "library/queryutil.h"
 #include "library/rekordbox/rekordboxconstants.h"
+#include "library/rekordbox/rekordboxplaylistid.h"
+#include "library/rekordbox/rekordboxtrackid.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
 #include "library/treeitem.h"
@@ -294,8 +296,8 @@ QString getText(rekordbox_pdb_t::device_sql_string_t* deviceString) {
     return text.remove(QChar('\x0'));
 }
 
-int createDevicePlaylist(QSqlDatabase& database, const QString& devicePath) {
-    int playlistID = kInvalidPlaylistId;
+RekordboxPlaylistId createDevicePlaylist(QSqlDatabase& database, const QString& devicePath) {
+    RekordboxPlaylistId playlistID;
 
     FwdSqlQuery queryInsertIntoDevicePlaylist(database,
             QStringLiteral("INSERT INTO %1 (name) VALUES (:name)")
@@ -323,7 +325,7 @@ int createDevicePlaylist(QSqlDatabase& database, const QString& devicePath) {
     const auto idColumn = idQuery.fieldIndex("id");
 
     while (idQuery.next()) {
-        playlistID = idQuery.fieldValue(idColumn).toInt();
+        playlistID = RekordboxPlaylistId(idQuery.fieldValue(idColumn));
     }
 
     return playlistID;
@@ -403,7 +405,7 @@ void insertTrack(
         LOG_FAILED_QUERY(query);
     }
 
-    int trackID = -1;
+    RekordboxTrackId trackID;
     FwdSqlQuery finderQuery(database,
             QStringLiteral("SELECT id FROM %1 "
                            "WHERE rb_id=:rb_id AND device=:device")
@@ -419,7 +421,7 @@ void insertTrack(
     const auto idColumn = finderQuery.fieldIndex("id");
 
     if (finderQuery.next()) {
-        trackID = finderQuery.fieldValue(idColumn).toInt();
+        trackID = RekordboxTrackId(finderQuery.fieldValue(idColumn));
     }
 
     // Insert into device all tracks playlist
@@ -488,7 +490,7 @@ QString parseDeviceDB(mixxx::DbConnectionPoolPtr dbConnectionPool, TreeItem* dev
     int audioFilesCount = 0;
 
     // Create a playlist for all the tracks on a device
-    int playlistID = createDevicePlaylist(database, devicePath);
+    auto playlistID = createDevicePlaylist(database, devicePath);
 
     FwdSqlQuery queryInsertIntoDevicePlaylistTracks(database,
             QStringLiteral("INSERT INTO %1 (playlist_id, track_id, position) "
@@ -707,9 +709,10 @@ void buildPlaylistTree(
         }
 
         const auto idColumn = idQuery.fieldIndex("id");
-        int playlistID = kInvalidPlaylistId;
+
+        RekordboxPlaylistId playlistID;
         while (idQuery.next()) {
-            playlistID = idQuery.fieldValue(idColumn).toInt();
+            playlistID = RekordboxPlaylistId(idQuery.fieldValue(idColumn));
         }
 
         FwdSqlQuery queryInsertIntoPlaylistTracks(database,
@@ -740,7 +743,7 @@ void buildPlaylistTree(
 
                 if (finderQuery.next()) {
                     const auto idColumn = finderQuery.fieldIndex("id");
-                    trackID = finderQuery.fieldValue(idColumn).toInt();
+                    trackID = RekordboxTrackId(finderQuery.fieldValue(idColumn));
                 }
 
                 queryInsertIntoPlaylistTracks.bindValue(":playlist_id", playlistID);
@@ -776,8 +779,8 @@ void buildPlaylistTree(
 void clearDeviceTables(QSqlDatabase& database, TreeItem* child) {
     ScopedTransaction transaction(database);
 
-    int trackID = -1;
-    int playlistID = kInvalidPlaylistId;
+    RekordboxTrackId trackID;
+    RekordboxPlaylistId playlistID;
     FwdSqlQuery tracksQuery(database,
             QStringLiteral("SELECT id FROM %1 WHERE device=:device")
                     .arg(kRekordboxLibraryTable));
@@ -803,7 +806,7 @@ void clearDeviceTables(QSqlDatabase& database, TreeItem* child) {
     const auto idColumn = tracksQuery.fieldIndex("id");
 
     while (tracksQuery.next()) {
-        trackID = tracksQuery.fieldValue(idColumn).toInt();
+        trackID = RekordboxTrackId(tracksQuery.fieldValue(idColumn));
 
         playlistTracksQuery.bindValue(":track_id", trackID);
 
@@ -815,7 +818,7 @@ void clearDeviceTables(QSqlDatabase& database, TreeItem* child) {
         const auto playlistIdColumn = playlistTracksQuery.fieldIndex("playlist_id");
 
         while (playlistTracksQuery.next()) {
-            playlistID = playlistTracksQuery.fieldValue(playlistIdColumn).toInt();
+            playlistID = RekordboxPlaylistId(playlistTracksQuery.fieldValue(playlistIdColumn));
 
             deletePlaylistsQuery.bindValue(":id", playlistID);
 
