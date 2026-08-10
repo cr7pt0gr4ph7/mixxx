@@ -515,7 +515,8 @@ void PlaylistFeature::decorateChild(TreeItem* item, int playlistId) {
         item->setIcon(
                 QIcon(":/images/library/ic_library_locked_tracklist.svg"));
     } else if (m_playlistDao.isFolder(playlistId)) {
-        pItem->setIcon(QIcon::fromTheme(QStringLiteral("folder")));
+        item->setIcon(
+                QIcon(":/images/library/ic_library_folder.svg"));
     } else {
         item->setIcon(QIcon());
     }
