@@ -51,6 +51,9 @@ class PlaylistFeature : public BasePlaylistFeature {
   private:
     QString getRootViewHtml() const override;
 
+    bool moveToParent(int destinationId, int playlistToMoveId, bool selectAfterMove);
+    bool moveToParent(int destinationId, const QList<int>& playlistsToMove);
+
     parented_ptr<QAction> m_pCreateFolderAction;
     parented_ptr<QAction> m_pShufflePlaylistAction;
     parented_ptr<QAction> m_pOrderByCurrentPosAction;
