@@ -133,6 +133,30 @@ void PlaylistFeature::onRightClickChild(
     menu.exec(globalPos);
 }
 
+bool PlaylistFeature::moveToParent(int destinationId, const QList<int>& playlistsToMove) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    bool success = false;
+    for (int playlistToMoveId : playlistsToMove) {
+        success |= moveToParent(destinationId, playlistToMoveId, false);
+    }
+    return success;
+}
+
+bool PlaylistFeature::moveToParent(int destinationId, int playlistToMoveId, bool selectAfterMove) {
+    // Note: An "invalid"/NULL destination is not actually invalid
+    //       for this function, but instead represents the root folder.
+    if (m_pPlaylistDAO->playlistExists(playlistToMoveId)) {
+        const bool success = m_pPlaylistDAO->movePlaylist(destinationId, playlistToMoveID);
+        if (success && selectAfterMove) {
+            // Scroll to new location of the selected crate/folder
+            m_pSidebarWidget->selectChildIndex(indexFromPlaylistId(playlistToMoveId), false);
+        }
+        return success;
+    }
+    return false;
+}
+
 bool PlaylistFeature::dropAcceptChild(
         const QModelIndex& index, const QList<QUrl>& urls, QObject* pSource) {
     int playlistId = playlistIdFromIndex(index);
