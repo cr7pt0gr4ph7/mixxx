@@ -96,10 +96,10 @@ int PlaylistDAO::createUniquePlaylist(QString* pName, const HiddenType hidden) {
     PlaylistId playlistId = getPlaylistIdFromName(*pName);
     int i = 1;
 
-    if (playlistId != kInvalidPlaylistId) {
+    if (playlistId.isValid()) {
         // Calculate a unique name
         *pName += "(%1)";
-        while (playlistId != kInvalidPlaylistId) {
+        while (playlistId.isValid()) {
             i++;
             playlistId = getPlaylistIdFromName(pName->arg(i));
         }
@@ -667,7 +667,7 @@ int PlaylistDAO::getPlaylistId(const int index) const {
 PlaylistDAO::HiddenType PlaylistDAO::getHiddenType(PlaylistId playlistId) const {
     // qDebug() << "PlaylistDAO::getHiddenType"
     //          << QThread::currentThread() << m_database.connectionName();
-    if (playlistId == kInvalidPlaylistId) { // type is known, save a query
+    if (!playlistId.isValid()) { // type is known, save a query
         return PlaylistDAO::PLHT_UNKNOWN;
     }
 
@@ -1173,7 +1173,7 @@ int PlaylistDAO::tracksInPlaylist(PlaylistId playlistId) const {
 void PlaylistDAO::orderTracksByCurrPos(PlaylistId playlistId,
         QList<std::pair<TrackId, int>>& newOrder) {
     if (newOrder.isEmpty() ||
-            playlistId == kInvalidPlaylistId ||
+            !playlistId.isValid() ||
             isPlaylistLocked(playlistId) ||
             newOrder.size() != tracksInPlaylist(playlistId)) {
         return;
@@ -1502,7 +1502,7 @@ void PlaylistDAO::setAutoDJProcessor(AutoDJProcessor* pAutoDJProcessor) {
 
 void PlaylistDAO::addTracksToAutoDJQueue(const QList<TrackId>& trackIds, AutoDJSendLoc loc) {
     int iAutoDJPlaylistId = getPlaylistIdFromName(AUTODJ_TABLE);
-    if (iAutoDJPlaylistId == kInvalidPlaylistId) {
+    if (!iAutoDJPlaylistId.isValid()) {
         return;
     }
 
