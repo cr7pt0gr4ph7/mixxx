@@ -46,7 +46,7 @@ void PlaylistDAO::populatePlaylistMembershipCache() {
     }
 }
 
-int PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden) {
+PlaylistId PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden) {
     //qDebug() << "PlaylistDAO::createPlaylist"
     //         << QThread::currentThread()
     //         << m_database.connectionName();
@@ -85,14 +85,14 @@ int PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden) {
         return PlaylistId();
     }
 
-    PlaylistId playlistId = query.lastInsertId().toInt();
+    PlaylistId playlistId(query.lastInsertId());
     // Commit the transaction
     transaction.commit();
     emit added(playlistId);
     return playlistId;
 }
 
-int PlaylistDAO::createUniquePlaylist(QString* pName, const HiddenType hidden) {
+PlaylistId PlaylistDAO::createUniquePlaylist(QString* pName, const HiddenType hidden) {
     PlaylistId playlistId = getPlaylistIdFromName(*pName);
     int i = 1;
 
@@ -990,7 +990,7 @@ void PlaylistDAO::addPlaylistToAutoDJQueue(PlaylistId playlistId, AutoDJSendLoc 
     addTracksToAutoDJQueue(trackIds, loc);
 }
 
-int PlaylistDAO::getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const {
+PlaylistId PlaylistDAO::getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const {
     QSqlQuery query(m_database);
     query.prepare(QStringLiteral(
             "SELECT max(id) as id FROM Playlists "
@@ -1004,12 +1004,14 @@ int PlaylistDAO::getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hi
     }
 
     if (query.next()) {
-        return query.value(query.record().indexOf("id")).toInt();
+        const int idColumn = query.record().indexOf("id");
+        return PlaylistId(query.value(idColumn));
     }
+
     return PlaylistId();
 }
 
-int PlaylistDAO::getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const {
+PlaylistId PlaylistDAO::getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const {
     QSqlQuery query(m_database);
     query.prepare(QStringLiteral(
             "SELECT max(id) as id FROM Playlists "
@@ -1023,8 +1025,10 @@ int PlaylistDAO::getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden
     }
 
     if (query.next()) {
-        return query.value(query.record().indexOf("id")).toInt();
+        const int idColumn = query.record().indexOf("id");
+        return PlaylistId(query.value(idColumn));
     }
+
     return PlaylistId();
 }
 

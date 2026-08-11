@@ -36,9 +36,9 @@ class PlaylistDAO : public QObject, public virtual DAO {
     void initialize(const QSqlDatabase& database) override;
 
     // Create a playlist, fails with -1 if already exists
-    int createPlaylist(const QString& name, const HiddenType type = PLHT_NOT_HIDDEN);
+    PlaylistId createPlaylist(const QString& name, const HiddenType type = PLHT_NOT_HIDDEN);
     // Create a playlist, appends "(n)" if already exists, name becomes the new name
-    int createUniquePlaylist(QString* pName, const HiddenType type = PLHT_NOT_HIDDEN);
+    PlaylistId createUniquePlaylist(QString* pName, const HiddenType type = PLHT_NOT_HIDDEN);
     // Delete a playlist
     void deletePlaylist(PlaylistId playlistId);
     // Delete a set of playlists.
@@ -107,10 +107,10 @@ class PlaylistDAO : public QObject, public virtual DAO {
     void addTracksToAutoDJQueue(const QList<TrackId>& trackIds, AutoDJSendLoc loc);
     // Get the preceding playlist of currentPlaylistId with the HiddenType
     // hidden. Returns -1 if no such playlist exists.
-    int getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const;
+    PlaylistId getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const;
     // Get the following playlist of currentPlaylistId with the HiddenType
     // hidden. Returns -1 if no such playlist exists.
-    int getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const;
+    PlaylistId getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const;
     // Append all the tracks in the source playlist to the target playlist.
     bool copyPlaylistTracks(PlaylistId sourcePlaylistID, PlaylistId targetPlaylistID);
     // Returns the number of tracks in the given playlist.
@@ -162,7 +162,7 @@ class PlaylistDAO : public QObject, public virtual DAO {
                                  int* pTrackDistance);
     void populatePlaylistMembershipCache();
 
-    QMultiHash<TrackId, int> m_playlistsTrackIsIn;
+    QMultiHash<TrackId, PlaylistId> m_playlistsTrackIsIn;
     PlaylistId m_currentHistoryPlaylist;
     AutoDJProcessor* m_pAutoDJProcessor;
     DISALLOW_COPY_AND_ASSIGN(PlaylistDAO);
