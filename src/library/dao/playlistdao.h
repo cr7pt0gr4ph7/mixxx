@@ -128,7 +128,7 @@ class PlaylistDAO : public QObject, public virtual DAO {
 
     void getPlaylistsTrackIsIn(TrackId trackId, QSet<int>* playlistSet) const;
 
-    void setCurrentHistoryPlaylistId(int id) {
+    void setCurrentHistoryPlaylistId(PlaylistId id) {
         m_currentHistoryPlaylist = id;
     }
 
@@ -163,7 +163,7 @@ class PlaylistDAO : public QObject, public virtual DAO {
     void populatePlaylistMembershipCache();
 
     QMultiHash<TrackId, int> m_playlistsTrackIsIn;
-    int m_currentHistoryPlaylist;
+    PlaylistId m_currentHistoryPlaylist;
     AutoDJProcessor* m_pAutoDJProcessor;
     DISALLOW_COPY_AND_ASSIGN(PlaylistDAO);
 };

@@ -13,8 +13,7 @@
 #include "util/math.h"
 
 PlaylistDAO::PlaylistDAO()
-        : m_currentHistoryPlaylist(kInvalidPlaylistId),
-          m_pAutoDJProcessor(nullptr) {
+        : m_pAutoDJProcessor(nullptr) {
 }
 
 void PlaylistDAO::initialize(const QSqlDatabase& database) {
