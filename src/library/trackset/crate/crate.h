@@ -1,23 +1,16 @@
 #pragma once
 
 #include "library/trackset/crate/crateid.h"
-#include "util/db/dbnamedentity.h"
+#include "util/db/dbnesteddentity.h"
 
-class Crate : public DbNamedEntity<CrateId> {
+class Crate : public DbNestedEntity<CrateId> {
   public:
     explicit Crate(CrateId id = CrateId())
-            : DbNamedEntity(id),
+            : DbNestedEntity(id),
               m_locked(false),
               m_autoDjSource(false) {
     }
     ~Crate() override = default;
-
-    CrateId getParentId() const {
-        return m_parentId;
-    }
-    void setParentId(CrateId parentId) {
-        m_parentId = parentId;
-    }
 
     bool isLocked() const {
         return m_locked;
@@ -34,7 +27,6 @@ class Crate : public DbNamedEntity<CrateId> {
     }
 
   private:
-    CrateId m_parentId;
     bool m_locked;
     bool m_autoDjSource;
 };
