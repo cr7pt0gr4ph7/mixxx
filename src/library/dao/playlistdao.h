@@ -135,12 +135,12 @@ class PlaylistDAO : public QObject, public virtual DAO {
     void setAutoDJProcessor(AutoDJProcessor* pAutoDJProcessor);
 
   signals:
-    void added(int playlistId);
-    void deleted(int playlistId);
-    void renamed(int playlistId, const QString& newName);
+    void added(PlaylistId playlistId);
+    void deleted(PlaylistId playlistId);
+    void renamed(PlaylistId playlistId, const QString& newName);
     void lockChanged(const QSet<int>& playlistIds);
-    void trackAdded(int playlistId, TrackId trackId, int position);
-    void trackRemoved(int playlistId, TrackId trackId, int position);
+    void trackAdded(PlaylistId playlistId, TrackId trackId, int position);
+    void trackRemoved(PlaylistId playlistId, TrackId trackId, int position);
     // added / removed / un/locked. Triggers playlist features to update the sidebar
     void playlistContentChanged(const QSet<int>& playlistIds);
     // Separate signals for PlaylistTableModel

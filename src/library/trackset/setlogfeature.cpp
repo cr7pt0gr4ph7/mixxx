@@ -663,7 +663,7 @@ void SetlogFeature::slotPlayingTrackChanged(TrackPointer currentPlayingTrack) {
     }
 }
 
-void SetlogFeature::slotPlaylistTableChanged(int playlistId) {
+void SetlogFeature::slotPlaylistTableChanged(PlaylistId playlistId) {
     // qDebug() << "SetlogFeature::slotPlaylistTableChanged() id:" << playlistId;
     PlaylistDAO::HiddenType type = m_playlistDao.getHiddenType(playlistId);
     if (type != PlaylistDAO::PLHT_SET_LOG &&
@@ -732,7 +732,7 @@ void SetlogFeature::slotPlaylistContentOrLockChanged(const QSet<int>& playlistId
     updateChildModel(idsToBeUpdated);
 }
 
-void SetlogFeature::slotPlaylistTableRenamed(int playlistId, const QString& newName) {
+void SetlogFeature::slotPlaylistTableRenamed(PlaylistId playlistId, const QString& newName) {
     Q_UNUSED(newName);
     // qDebug() << "SetlogFeature::slotPlaylistTableRenamed() Id:" << playlistId;
     if (m_playlistDao.getHiddenType(playlistId) == PlaylistDAO::PLHT_SET_LOG) {

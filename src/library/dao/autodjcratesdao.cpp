@@ -53,10 +53,10 @@ int bounded_rand(int highest) {
 } // anonymous namespace
 
 AutoDJCratesDAO::AutoDJCratesDAO(
-        int iAutoDjPlaylistId,
+        PlaylistId autoDjPlaylistId,
         TrackCollectionManager* pTrackCollectionManager,
         UserSettingsPointer pConfig)
-        : m_iAutoDjPlaylistId(iAutoDjPlaylistId),
+        : m_autoDJPlaylistId(autoDjPlaylistId),
           m_pTrackCollectionManager(pTrackCollectionManager),
           m_database(pTrackCollectionManager->internalCollection()->database()),
           m_pConfig(pConfig),
@@ -699,7 +699,7 @@ TrackId AutoDJCratesDAO::getRandomTrackIdFromAutoDj(int percentActive) {
     // SELECT DISTINCT track_id
     // FROM temp_autodj_crates INNER JOIN Playlists
     // ON temp_autodj_crates.track_id = PlaylistsTracks.track_id
-    // AND PlaylistsTracks.playlist_id = m_iAutoDjPlaylistId
+    // AND PlaylistsTracks.playlist_id = m_autoDJPlaylistId
     // ORDER BY temp_autodj_crates.autodjrefs, PlaylistsTracks.position
     // LIMIT 1 OFFSET ABS (RANDOM() % :active);
     oQuery.prepare(QString("SELECT DISTINCT " AUTODJCRATES_TABLE "."
@@ -713,7 +713,7 @@ TrackId AutoDJCratesDAO::getRandomTrackIdFromAutoDj(int percentActive) {
             " LIMIT 1 OFFSET ABS (RANDOM() % :active)")
             .arg(PLAYLISTTRACKSTABLE_TRACKID, // %1
                  PLAYLISTTRACKSTABLE_PLAYLISTID, // %2
-                 QString::number(m_iAutoDjPlaylistId), // %3
+                 QString::number(m_autoDJPlaylistId), // %3
                  PLAYLISTTABLE_POSITION)); // %4
     oQuery.bindValue (":active", iActiveTracks);
     if (!oQuery.exec()) {
@@ -1013,7 +1013,7 @@ void AutoDJCratesDAO::slotCrateTracksChanged(
 }
 
 // Signaled by the playlistDAO when a playlist is added.
-void AutoDJCratesDAO::slotPlaylistAdded(int playlistId) {
+void AutoDJCratesDAO::slotPlaylistAdded(PlaylistId playlistId) {
     // We only care about changes to set-log playlists.
     if (m_pTrackCollectionManager->internalCollection()
                     ->getPlaylistDAO()
@@ -1024,7 +1024,7 @@ void AutoDJCratesDAO::slotPlaylistAdded(int playlistId) {
 }
 
 // Signaled by the playlistDAO when a playlist is deleted.
-void AutoDJCratesDAO::slotPlaylistDeleted(int playlistId) {
+void AutoDJCratesDAO::slotPlaylistDeleted(PlaylistId playlistId) {
     // We only care about changes to set-log playlists.
     int iIndex = m_lstSetLogPlaylistIds.indexOf(playlistId);
     if (iIndex >= 0) {
@@ -1034,10 +1034,10 @@ void AutoDJCratesDAO::slotPlaylistDeleted(int playlistId) {
 }
 
 // Signaled by the playlist DAO when a track is added to a playlist.
-void AutoDJCratesDAO::slotPlaylistTrackAdded(int playlistId, TrackId trackId,
+void AutoDJCratesDAO::slotPlaylistTrackAdded(PlaylistId playlistId, TrackId trackId,
                                              int /* a_iPosition */) {
     // Deal with changes to the auto-DJ playlist.
-    if (playlistId == m_iAutoDjPlaylistId) {
+    if (playlistId == m_autoDJPlaylistId) {
         QSqlQuery oQuery(m_database);
         // UPDATE temp_autodj_crates SET autodjrefs = autodjrefs + 1
         // WHERE track_id = :track_id;
@@ -1059,11 +1059,11 @@ void AutoDJCratesDAO::slotPlaylistTrackAdded(int playlistId, TrackId trackId,
 }
 
 // Signaled by the playlist DAO when a track is removed from a playlist.
-void AutoDJCratesDAO::slotPlaylistTrackRemoved(int playlistId,
+void AutoDJCratesDAO::slotPlaylistTrackRemoved(PlaylistId playlistId,
                                                TrackId trackId,
                                                int /* a_iPosition */) {
     // Deal with changes to the auto-DJ playlist.
-    if (playlistId == m_iAutoDjPlaylistId) {
+    if (playlistId == m_autoDJPlaylistId) {
         QSqlQuery oQuery(m_database);
         // UPDATE temp_autodj_crates SET autodjrefs = autodjrefs - 1 WHERE track_id = :track_id;
         oQuery.prepare("UPDATE " AUTODJCRATES_TABLE " SET "
@@ -1193,7 +1193,7 @@ TrackId AutoDJCratesDAO::getRandomTrackIdFromLibrary(int iPlaylistId) {
     DEBUG_ASSERT(iTotalTracks >= 0);
     if (iTotalTracks == 0) {
         qDebug() << "No tracks available not already in" <<
-                (m_iAutoDjPlaylistId == iPlaylistId ? "Auto DJ queue" :
+                (m_autoDJPlaylistId == iPlaylistId ? "Auto DJ queue" :
                 QString("Playlist %1").arg(iPlaylistId));
         return TrackId();
     }

@@ -384,7 +384,7 @@ void PlaylistFeature::decorateChild(TreeItem* item, int playlistId) {
     }
 }
 
-void PlaylistFeature::slotPlaylistTableChanged(int playlistId) {
+void PlaylistFeature::slotPlaylistTableChanged(PlaylistId playlistId) {
     // qDebug() << "PlaylistFeature::slotPlaylistTableChanged() playlistId:" << playlistId;
     enum PlaylistDAO::HiddenType type = m_playlistDao.getHiddenType(playlistId);
     if (type != PlaylistDAO::PLHT_NOT_HIDDEN &&  // not a regular playlist

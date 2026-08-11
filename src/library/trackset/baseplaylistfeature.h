@@ -44,17 +44,17 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
     virtual void activatePlaylist(int playlistId);
     virtual void htmlLinkClicked(const QUrl& link);
 
-    virtual void slotPlaylistTableChanged(int playlistId) = 0;
-    void slotPlaylistTableChangedAndSelect(int playlistId) {
+    virtual void slotPlaylistTableChanged(PlaylistId playlistId) = 0;
+    void slotPlaylistTableChangedAndSelect(PlaylistId playlistId) {
         slotPlaylistTableChanged(playlistId);
         selectPlaylistInSidebar(playlistId);
     };
-    void slotPlaylistTableChangedAndScrollTo(int playlistId) {
+    void slotPlaylistTableChangedAndScrollTo(PlaylistId playlistId) {
         slotPlaylistTableChanged(playlistId);
         selectPlaylistInSidebar(playlistId, false);
     };
     virtual void slotPlaylistContentOrLockChanged(const QSet<int>& playlistIds) = 0;
-    virtual void slotPlaylistTableRenamed(int playlistId, const QString& newName) = 0;
+    virtual void slotPlaylistTableRenamed(PlaylistId playlistId, const QString& newName) = 0;
     void slotCreatePlaylist();
     void renameItem(const QModelIndex& index) override;
     void deleteItem(const QModelIndex& index) override;

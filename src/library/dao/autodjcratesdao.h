@@ -76,16 +76,16 @@ class AutoDJCratesDAO : public QObject {
     void slotCrateTracksChanged(CrateId crateId, const QList<TrackId>& addedTrackIds, const QList<TrackId>& removedTrackIds);
 
     // Signaled by the playlist DAO when a playlist is added.
-    void slotPlaylistAdded(int playlistId);
+    void slotPlaylistAdded(PlaylistId playlistId);
 
     // Signaled by the playlist DAO when a playlist is deleted.
-    void slotPlaylistDeleted(int playlistId);
+    void slotPlaylistDeleted(PlaylistId playlistId);
 
     // Signaled by the playlist DAO when a track is added to a playlist.
-    void slotPlaylistTrackAdded(int playlistId, TrackId trackId, int position);
+    void slotPlaylistTrackAdded(PlaylistId playlistId, TrackId trackId, int position);
 
     // Signaled by the playlist DAO when a track is removed from a playlist.
-    void slotPlaylistTrackRemoved(int playlistId, TrackId trackId, int position);
+    void slotPlaylistTrackRemoved(PlaylistId playlistId, TrackId trackId, int position);
 
     // Signaled by the PlayerInfo singleton when a track is loaded to, or
     // unloaded from, a deck.
@@ -100,7 +100,7 @@ class AutoDJCratesDAO : public QObject {
     void deleteAutoDjCrate(CrateId crateId);
 
     // The auto-DJ playlist's ID.
-    const int m_iAutoDjPlaylistId;
+    const PlaylistId m_autoDjPlaylistId;
 
     TrackCollectionManager* m_pTrackCollectionManager;
 
