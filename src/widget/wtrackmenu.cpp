@@ -108,7 +108,7 @@ WTrackMenu::WTrackMenu(
         Library* pLibrary,
         Features flags,
         TrackModel* trackModel)
-        : QMenu(parent),
+        : WMenu(parent),
           m_pTrackModel(trackModel),
           m_pConfig(pConfig),
           m_pLibrary(pLibrary),
