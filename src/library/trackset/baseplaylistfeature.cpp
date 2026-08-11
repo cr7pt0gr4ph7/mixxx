@@ -691,21 +691,7 @@ void BasePlaylistFeature::slotExportTrackFiles() {
             Qt::AscendingOrder);
     pPlaylistTableModel->select();
 
-    int rows = pPlaylistTableModel->rowCount();
-    TrackPointerList tracks;
-    for (int i = 0; i < rows; ++i) {
-        QModelIndex index = pPlaylistTableModel->index(i, 0);
-        auto pTrack = pPlaylistTableModel->getTrack(index);
-        VERIFY_OR_DEBUG_ASSERT(pTrack != nullptr) {
-            continue;
-        }
-        tracks.push_back(pTrack);
-    }
-
-    if (tracks.isEmpty()) {
-        return;
-    }
-
+    TrackPointerList tracks = pPlaylistTableModel->getTrackPointers();
     TrackExportWizard track_export(nullptr, m_pConfig, tracks);
     track_export.exportTracks();
 }

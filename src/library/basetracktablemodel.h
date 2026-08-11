@@ -50,6 +50,21 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
         return m_columnCache.endFieldIndex();
     }
 
+    /// Gets the list of all tracks in the current result set.
+    virtual TrackPointerList getTrackPointers() const {
+        const int rows = rowCount();
+        TrackPointerList tracks;
+        for (int i = 0; i < rows; ++i) {
+            QModelIndex index = index(i, 0);
+            auto pTrack = getTrack(index);
+            VERIFY_OR_DEBUG_ASSERT(pTrack != nullptr) {
+                continue;
+            }
+            tracks.push_back(pTrack);
+        }
+        return tracks;
+    }
+
     ///////////////////////////////////////////////////////
     // Inherited from QAbstractItemModel
     ///////////////////////////////////////////////////////

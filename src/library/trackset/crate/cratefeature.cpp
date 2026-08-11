@@ -847,21 +847,7 @@ void CrateFeature::slotExportTrackFiles() {
     pCrateTableModel->selectCrate(crateId);
     pCrateTableModel->select();
 
-    int rows = pCrateTableModel->rowCount();
-    TrackPointerList trackpointers;
-    for (int i = 0; i < rows; ++i) {
-        QModelIndex index = pCrateTableModel->index(i, 0);
-        auto pTrack = pCrateTableModel->getTrack(index);
-        VERIFY_OR_DEBUG_ASSERT(pTrack != nullptr) {
-            continue;
-        }
-        trackpointers.push_back(pTrack);
-    }
-
-    if (trackpointers.isEmpty()) {
-        return;
-    }
-
+    TrackPointerList trackpointers = pCrateTableModel->getTrackPointers();
     TrackExportWizard track_export(nullptr, m_pConfig, trackpointers);
     track_export.exportTracks();
 }
