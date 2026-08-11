@@ -1,23 +1,16 @@
 #pragma once
 
 #include "library/trackset/searchcrate/searchcrateid.h"
-#include "util/db/dbnamedentity.h"
+#include "util/db/dbnestedentity.h"
 
-class SearchCrate : public DbNamedEntity<SearchCrateId> {
+class SearchCrate : public DbNestedEntity<SearchCrateId> {
   public:
     explicit SearchCrate(SearchCrateId id = SearchCrateId())
-            : DbNamedEntity(id),
+            : DbNestedEntity(id),
               m_locked(false),
               m_autoDjSource(false) {
     }
     ~SearchCrate() override = default;
-
-    SearchCrateId getParentId() const {
-        return m_parentId;
-    }
-    void setParentId(SearchCrateId parentId) {
-        m_parentId = parentId;
-    }
 
     QString getQuery() const {
         return m_query;
@@ -41,7 +34,6 @@ class SearchCrate : public DbNamedEntity<SearchCrateId> {
     }
 
   private:
-    SearchCrateId m_parentId;
     QString m_query;
     bool m_locked;
     bool m_autoDjSource;
