@@ -61,7 +61,7 @@ int PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden) {
 
     if (!query.exec()) {
         LOG_FAILED_QUERY(query);
-        return kInvalidPlaylistId;
+        return PlaylistId();
     }
 
     //Get the id of the last playlist.
@@ -82,7 +82,7 @@ int PlaylistDAO::createPlaylist(const QString& name, const HiddenType hidden) {
 
     if (!query.exec()) {
         LOG_FAILED_QUERY(query);
-        return kInvalidPlaylistId;
+        return PlaylistId();
     }
 
     PlaylistId playlistId = query.lastInsertId().toInt();
@@ -189,7 +189,7 @@ int PlaylistDAO::getPlaylistIdFromName(const QString& name) const {
     } else {
         LOG_FAILED_QUERY(query);
     }
-    return kInvalidPlaylistId;
+    return PlaylistId();
 }
 
 void PlaylistDAO::deletePlaylist(PlaylistId playlistId) {
@@ -274,7 +274,7 @@ bool PlaylistDAO::deletePlaylists(const QStringList& idStringList) {
         return false;
     }
 
-    emit deleted(kInvalidPlaylistId);
+    emit deleted(PlaylistId());
     return true;
 }
 
@@ -651,7 +651,7 @@ int PlaylistDAO::getPlaylistId(const int index) const {
 
     if (!query.exec()) {
         LOG_FAILED_QUERY(query);
-        return kInvalidPlaylistId;
+        return PlaylistId();
     }
 
     int currentRow = 0;
@@ -661,7 +661,7 @@ int PlaylistDAO::getPlaylistId(const int index) const {
             return id;
         }
     }
-    return kInvalidPlaylistId;
+    return PlaylistId();
 }
 
 PlaylistDAO::HiddenType PlaylistDAO::getHiddenType(PlaylistId playlistId) const {
@@ -1000,13 +1000,13 @@ int PlaylistDAO::getPreviousPlaylist(PlaylistId currentPlaylistId, HiddenType hi
 
     if (!query.exec()) {
         LOG_FAILED_QUERY(query);
-        return kInvalidPlaylistId;
+        return PlaylistId();
     }
 
     if (query.next()) {
         return query.value(query.record().indexOf("id")).toInt();
     }
-    return kInvalidPlaylistId;
+    return PlaylistId();
 }
 
 int PlaylistDAO::getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden) const {
@@ -1019,13 +1019,13 @@ int PlaylistDAO::getNextPlaylist(PlaylistId currentPlaylistId, HiddenType hidden
 
     if (!query.exec()) {
         LOG_FAILED_QUERY(query);
-        return kInvalidPlaylistId;
+        return PlaylistId();
     }
 
     if (query.next()) {
         return query.value(query.record().indexOf("id")).toInt();
     }
-    return kInvalidPlaylistId;
+    return PlaylistId();
 }
 
 bool PlaylistDAO::copyPlaylistTracks(PlaylistId sourcePlaylistID, PlaylistId targetPlaylistID) {
