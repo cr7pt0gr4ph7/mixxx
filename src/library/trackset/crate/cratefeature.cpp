@@ -822,16 +822,9 @@ void CrateFeature::slotExportPlaylist() {
     } else if (fileLocation.endsWith(".txt", Qt::CaseInsensitive)) {
         ParserCsv::writeReadableTextFile(fileLocation, pCrateTableModel.get(), false);
     } else {
-        // populate a list of files of the crate
-        QList<QString> playlistItems;
-        int rows = pCrateTableModel->rowCount();
-        for (int i = 0; i < rows; ++i) {
-            QModelIndex index = pCrateTableModel->index(i, 0);
-            playlistItems << pCrateTableModel->getTrackLocation(index);
-        }
         exportPlaylistItemsIntoFile(
                 fileLocation,
-                playlistItems,
+                pCrateTableModel->getTrackLocations(),
                 useRelativePath);
     }
 }

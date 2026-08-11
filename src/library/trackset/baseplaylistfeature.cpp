@@ -660,16 +660,9 @@ void BasePlaylistFeature::slotExportPlaylist() {
             ParserCsv::writeReadableTextFile(fileLocation, pPlaylistTableModel.get(), false);
         }
     } else {
-        // Create and populate a list of files of the playlist
-        QList<QString> playlistItems;
-        int rows = pPlaylistTableModel->rowCount();
-        for (int i = 0; i < rows; ++i) {
-            QModelIndex index = pPlaylistTableModel->index(i, 0);
-            playlistItems << pPlaylistTableModel->getTrackLocation(index);
-        }
         exportPlaylistItemsIntoFile(
                 fileLocation,
-                playlistItems,
+                pPlaylistTableModel->getTrackLocations(),
                 useRelativePath);
     }
 }

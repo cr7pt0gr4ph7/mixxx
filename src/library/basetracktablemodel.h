@@ -65,6 +65,17 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
         return tracks;
     }
 
+    /// Gets the list of all track locations in the current result set.
+    virtual QList<QString> getTrackLocations() const {
+        QList<QString> locations;
+        int rows = rowCount();
+        for (int i = 0; i < rows; ++i) {
+            QModelIndex index = index(i, 0);
+            locations << getTrackLocation(index);
+        }
+        return locations;
+    }
+
     ///////////////////////////////////////////////////////
     // Inherited from QAbstractItemModel
     ///////////////////////////////////////////////////////
