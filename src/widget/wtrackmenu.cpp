@@ -108,7 +108,7 @@ WTrackMenu::WTrackMenu(
         Library* pLibrary,
         Features flags,
         TrackModel* trackModel)
-        : QMenu(parent),
+        : WMenu(parent),
           m_pTrackModel(trackModel),
           m_pConfig(pConfig),
           m_pLibrary(pLibrary),
@@ -187,7 +187,7 @@ void WTrackMenu::createMenus() {
     }
 
     if (featureIsEnabled(Feature::Crate)) {
-        m_pCrateMenu = make_parented<QMenu>(this);
+        m_pCrateMenu = make_parented<WMenu>(this);
         m_pCrateMenu->setTitle(tr("Crates"));
         m_pCrateMenu->setObjectName("CratesMenu");
         connect(m_pCrateMenu, &QMenu::aboutToShow, this, &WTrackMenu::slotPopulateCrateMenu);
