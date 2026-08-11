@@ -1,0 +1,145 @@
+#pragma once
+
+#include <QList>
+#include <QModelIndex>
+#include <QPointer>
+#include <QUrl>
+#include <QVariant>
+
+#include "library/trackset/basetracksetfeature.h"
+#include "library/trackset/searchcrate/searchcrate.h"
+#include "library/trackset/searchcrate/searchcratetablemodel.h"
+#include "preferences/usersettings.h"
+#include "track/trackid.h"
+#include "util/parented_ptr.h"
+
+// forward declaration(s)
+class Library;
+class WLibrarySidebar;
+class QAction;
+class QPoint;
+class CrateSummary;
+
+class SearchCrateFeature : public BaseTrackSetFeature {
+    Q_OBJECT
+
+  public:
+    SearchCrateFeature(Library* pLibrary,
+            UserSettingsPointer pConfig);
+    ~SearchCrateFeature() override = default;
+
+    QVariant title() override;
+
+    bool dropAccept(const QList<QUrl>& urls, QObject* pSource) override;
+    bool dropAcceptChild(const QModelIndex& index,
+            const QList<QUrl>& urls,
+            QObject* pSource) override;
+    bool dragMoveAccept(const QList<QUrl>& url) override;
+    bool dragMoveAcceptChild(const QModelIndex& index, const QList<QUrl>& urls) override;
+
+    void bindLibraryWidget(WLibrary* libraryWidget,
+            KeyboardEventFilter* keyboard) override;
+    void bindSidebarWidget(WLibrarySidebar* pSidebarWidget) override;
+
+    TreeItemModel* sidebarModel() const override;
+
+  public slots:
+    void activate() override;
+    void activateChild(const QModelIndex& index) override;
+    void onRightClick(const QPoint& globalPos) override;
+    void onRightClickChild(const QPoint& globalPos, const QModelIndex& index) override;
+    void slotCreateCrate();
+    void deleteItem(const QModelIndex& index) override;
+    void renameItem(const QModelIndex& index) override;
+
+#ifdef __ENGINEPRIME__
+  signals:
+    void exportAllCrates();
+    void exportCrate(CrateId crateId);
+#endif
+
+  private slots:
+    void slotCreateSubCrate();
+    void slotDeleteCrate();
+    void slotRenameCrate();
+    void slotDuplicateCrate();
+    void slotAutoDjTrackSourceChanged();
+    void slotToggleCrateLock();
+    void slotExportPlaylist();
+    // Copy all of the tracks in a crate to a new directory (like a thumbdrive).
+    void slotExportTrackFiles();
+    void slotAnalyzeCrate();
+    void slotCrateTableChanged(SearchCrateId crateId);
+    void slotCrateContentChanged(SearchCrateId crateId);
+    void htmlLinkClicked(const QUrl& link);
+    void slotTrackSelected(TrackId trackId);
+    void slotResetSelectedTrack();
+    void slotUpdateCrateLabels(const QSet<SearchCrateId>& updatedCrateIds);
+
+  private:
+    void initActions();
+    void connectLibrary(Library* pLibrary);
+    void connectTrackCollection();
+
+    // Navigation handling
+    bool activateCrate(SearchCrateId crateId);
+
+    // TreeItem construction
+    TreeItem* getOrCreateTreeItemForCrateId(SearchCrateId crateId);
+    std::unique_ptr<TreeItem> newTreeItemForCrateSummary(
+      const CrateSummary& crateSummary);
+    void updateTreeItemForCrateSummary(
+            TreeItem* pTreeItem,
+            const CrateSummary& crateSummary) const;
+
+    QModelIndex rebuildChildModel(SearchCrateId selectedCrateId = CrateId());
+    void updateChildModel(const QSet<SearchCrateId>& updatedCrateIds);
+
+    // TreeItem mapping
+    SearchCrateId crateIdFromIndex(const QModelIndex& index) const;
+    QModelIndex indexFromCrateId(SearchCrateId crateId) const;
+
+    bool isChildIndexSelectedInSidebar(const QModelIndex& index);
+    bool readLastRightClickedCrate(Crate* pCrate) const;
+
+    // TreeItem actions
+    void createNewCrate(SearchCrateId parentId, bool selectAfterCreation);
+    bool moveToParent(SearchCrateId destinationId, SearchCrateId itemToMoveId, bool selectAfterMove);
+    bool moveToParent(SearchCrateId destinationId, const QList<SearchCrateId>& itemsToMove);
+
+    QString formatRootViewHtml() const;
+
+    const QIcon m_lockedCrateIcon;
+
+    TrackCollection* const m_pTrackCollection;
+
+    SearchCrateTableModel m_crateTableModel;
+
+    QHash<SearchCrateId, TreeItem*> m_idToCrate;
+
+    // Stores the id of a crate in the sidebar that is adjacent to the crate(crateId).
+    void storePrevSiblingCrateId(SearchCrateId crateId);
+    // Can be used to restore a similar selection after the sidebar model was rebuilt.
+    SearchCrateId m_prevSiblingCrate;
+
+    QModelIndex m_lastClickedIndex;
+    QModelIndex m_lastRightClickedIndex;
+    TrackId m_selectedTrackId;
+
+    parented_ptr<QAction> m_pCreateCrateAction;
+    parented_ptr<QAction> m_pCreateSubCrateAction;
+    parented_ptr<QAction> m_pDeleteCrateAction;
+    parented_ptr<QAction> m_pRenameCrateAction;
+    parented_ptr<QAction> m_pLockCrateAction;
+    parented_ptr<QAction> m_pDuplicateCrateAction;
+    parented_ptr<QAction> m_pAutoDjTrackSourceAction;
+    parented_ptr<QAction> m_pExportPlaylistAction;
+    parented_ptr<QAction> m_pExportTrackFilesAction;
+#ifdef __ENGINEPRIME__
+    parented_ptr<QAction> m_pExportAllCratesAction;
+    parented_ptr<QAction> m_pExportCrateAction;
+#endif
+    parented_ptr<QAction> m_pAnalyzeCrateAction;
+
+    QPointer<WLibrarySidebar> m_pSidebarWidget;
+};
