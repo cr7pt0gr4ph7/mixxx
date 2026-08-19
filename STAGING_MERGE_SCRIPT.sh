@@ -122,7 +122,7 @@ fi
 
 # This script assumes that we are on the most current version of the
 # main branch. At the last update of this script that was commit
-# 17be527d6c96f4f94e345216974c40218e87f8cc
+# 86126792a3a11b493a74ea133dc1260890d9c200
 
 # Calculate remaining play time for the Auto DJ queue
 merge_branch rtm_autodj_deckattributes
