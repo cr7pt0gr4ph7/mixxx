@@ -192,5 +192,6 @@ merge_branch rtm_cli_repairdatabase
 merge_branch ext/ronso0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
 merge_branch ext/ronso0/cpu-pinning # https://github.com/mixxxdj/mixxx/pull/12806/
 merge_branch ext/ronso0/waveform-zoom-controlpotmeter # https://github.com/mixxxdj/mixxx/pull/12387
-merge_branch ext/makszim/playlist-folder-structure # https://github.com/mixxxdj/mixxx/pull/16669
+# merge_branch ext/makszim/playlist-folder-structure # https://github.com/mixxxdj/mixxx/pull/16669
+merge_branch rtm_playlists_folders # Custom version of https://github.com/mixxxdj/mixxx/pull/16669
 merge_branch ext/coaux/patch_plexport # https://github.com/mixxxdj/mixxx/pull/16698
