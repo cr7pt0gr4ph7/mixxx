@@ -21,7 +21,8 @@ WBeatSpinBox::WBeatSpinBox(QWidget* parent,
         : QDoubleSpinBox(parent),
           WBaseWidget(this),
           m_valueControl(configKey, this, ControlFlag::NoAssertIfMissing),
-          m_scaleFactor(1.0) {
+          m_scaleFactor(1.0),
+          m_useFineSteps(false) {
     // replace the original QLineEdit by one that supports font scaling.
     setLineEdit(new WBeatLineEdit(this));
     setDecimals(decimals);
@@ -54,7 +55,14 @@ void WBeatSpinBox::stepBy(int steps) {
     QString temp = text();
     int cursorPos = lineEdit()->cursorPosition();
     if (validate(temp, cursorPos) == QValidator::Acceptable) {
-        newValue = valueFromText(temp) * pow(2, steps);
+        newValue = valueFromText(temp);
+        if (!m_useFineSteps) {
+            newValue = newValue * pow(2, steps);
+        } else if (steps < 0) {
+            newValue = std::ceil(newValue) + steps;
+        } else if (steps > 0) {
+            newValue = std::floor(newValue) + steps;
+        }
     } else {
         // here we have an unacceptable edit, going back to the old value first
         newValue = oldValue;
@@ -281,21 +289,50 @@ bool WBeatSpinBox::event(QEvent* pEvent) {
             const_cast<QFont&>(fonti).setPixelSize(
                     static_cast<int>(fonti.pixelSize() * m_scaleFactor));
         }
+    } else if (pEvent->type() == QEvent::KeyPress) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+
+        // Override the behavior of the Tab key to move focus back to the
+        // previously focused library widget (to match the behavior of
+        // Return and Enter), instead of always focusing the library search
+        // box.
+        //
+        // We have to intercept the KeyPress event here to prevent it from
+        // reaching the special Tab handling code in QWidget::event().
+        if (pKeyEvent->key() == Qt::Key_Tab &&
+                !(pKeyEvent->modifiers() &
+                        (Qt::ControlModifier | Qt::AltModifier |
+                                Qt::ShiftModifier))) {
+            // Prevent parents from handling this event, commit the
+            // current value (as if Enter/Return had been pressed)
+            // and move focus back to the library widget.
+            pEvent->accept();
+            interpretText();
+            ControlObject::set(ConfigKey("[Library]", "refocus_prev_widget"), 1);
+            return true;
+        }
     }
     return QDoubleSpinBox::event(pEvent);
 }
 
 void WBeatSpinBox::keyPressEvent(QKeyEvent* pEvent) {
-    // By default, Return & Enter keys apply the current value.
+    // By default, Return and Enter keys apply the current value.
     // Additionally, move focus back to the previously focused library widget.
     if (pEvent->key() == Qt::Key_Return ||
             pEvent->key() == Qt::Key_Enter ||
-            pEvent->key() == Qt::Key_Escape) {
+            pEvent->key() == Qt::Key_Escape ||
+            pEvent->key() == Qt::Key_Tab) {
         QDoubleSpinBox::keyPressEvent(pEvent);
         ControlObject::set(ConfigKey("[Library]", "refocus_prev_widget"), 1);
         return;
     }
+
+    // Holding down the Shift key while pressing Up or Down
+    // causes the value to be incremented or decremented by 1,
+    // instead of multiplying/dividing it by 2.
+    m_useFineSteps = (pEvent->modifiers() & Qt::ShiftModifier);
     QDoubleSpinBox::keyPressEvent(pEvent);
+    m_useFineSteps = false;
 }
 
 bool WBeatLineEdit::event(QEvent* pEvent) {
