@@ -1,5 +1,6 @@
 #include "widget/wlibrarysidebar.h"
 
+#include <QApplication>
 #include <QHeaderView>
 #include <QUrl>
 #include <QtDebug>
@@ -14,7 +15,11 @@ WLibrarySidebar::WLibrarySidebar(QWidget* parent)
         : QTreeView(parent),
           WBaseWidget(this),
           m_hoverExpandDelay(mixxx::library::prefs::kSidebarHoverExpandDelayDefault),
-          m_hoverCollapseDelay(mixxx::library::prefs::kSidebarHoverCollapseDelayDefault) {
+          m_hoverCollapseDelay(mixxx::library::prefs::kSidebarHoverCollapseDelayDefault),
+          m_longHover(this,
+                  300,
+                  100,
+                  20) {
     qRegisterMetaType<FocusWidget>("FocusWidget");
     //Set some properties
     setHeaderHidden(true);
@@ -86,7 +91,7 @@ void WLibrarySidebar::dragLeaveEvent(QDragLeaveEvent* pEvent) {
     // qDebug() << "WLibrarySidebar::dragLeaveEvent";
     m_autoExpandIndex = QModelIndex();
     toggleDragHoverPropertyAndUpdateStyle(false);
-
+    m_longHover.clearState();
     QTreeView::dragLeaveEvent(pEvent);
 }
 
@@ -134,6 +139,7 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent* pEvent) {
     // ========================================================================
     const QPoint pos = pEvent->position().toPoint();
     const QModelIndex index = indexAt(pos);
+    m_longHover.hoveringOnItem(index, pos);
 
     if (m_autoExpandIndex != index) {
         m_autoExpandIndex = index;
@@ -156,28 +162,69 @@ void WLibrarySidebar::dragMoveEvent(QDragMoveEvent* pEvent) {
     }
 }
 
+void WLibrarySidebar::timerEvent(QTimerEvent *event) {
+    if (m_longHover.timerEvent(event)) {
+        return;
+    }
+    QTreeView::timerEvent(event);
+}
+
 // Drag-and-drop "drop" event. Occurs when something is dropped onto the track sources view
 void WLibrarySidebar::dropEvent(QDropEvent* pEvent) {
     // qDebug() << "WLibrarySidebar::dropEvent";
     m_autoExpandIndex = QModelIndex();
     toggleDragHoverPropertyAndUpdateStyle(false);
 
-    // QTreeView::dropEvent will, through some indirection, call
-    // SidebarModel::dropMimeData, which will call one of either
-    // LibraryFeature::dropAccept or LibraryFeature::dropAcceptChild,
-    // depending on where the drop occurred.
-    //
-    // Note: We go through QTreeView here instead of directly calling
-    // SidebarModel to retain other useful features from the base class,
-    // like e.g. auto-scroll behavior when the mouse cursor reaches
-    // the boundaries of the tree view.
-    //
-    // Note: pEvent->source() will be NULL if something is dropped
-    // from a different application. This knowledge is used
-    // inside the LibraryFeature implementations.
-    setSourceOfCurrentDragDropEvent(pEvent->source());
-    QTreeView::dropEvent(pEvent);
-    setSourceOfCurrentDragDropEvent(nullptr);
+    QPoint pos = pEvent->position().toPoint();
+    QModelIndex destIndex = indexAt(pos);
+    auto probableTarget = m_longHover.tryGuessIntendedTarget(destIndex, pos);
+    m_longHover.clearState();
+
+    if (probableTarget.item != destIndex) {
+        // Use the target item that the user likely intended to hit,
+        // instead of the one that is currently under the mouse cursor
+        destIndex = probableTarget.item;
+
+        QDropEvent syntheticEvent(
+                probableTarget.position,
+                pEvent->possibleActions(),
+                pEvent->mimeData(),
+                pEvent->buttons(),
+                pEvent->modifiers(),
+                pEvent->type());
+
+        // Copy mutable state from original event
+        syntheticEvent.setAccepted(pEvent->isAccepted());
+        syntheticEvent.setDropAction(pEvent->dropAction());
+
+        // Execute the original handling logic, but with the
+        // synthetic event instead. See below for more documentation.
+        DEBUG_ASSERT(syntheticEvent.source() == pEvent->source());
+        setSourceOfCurrentDragDropEvent(syntheticEvent.source());
+        QTreeView::dropEvent(pEvent);
+        setSourceOfCurrentDragDropEvent(nullptr);
+
+        // Mirror modifications back to the original event
+        pEvent->setAccepted(syntheticEvent.isAccepted());
+        pEvent->setDropAction(syntheticEvent.dropAction());
+    } else {
+        // QTreeView::dropEvent will, through some indirection, call
+        // SidebarModel::dropMimeData, which will call one of either
+        // LibraryFeature::dropAccept or LibraryFeature::dropAcceptChild,
+        // depending on where the drop occurred.
+        //
+        // Note: We go through QTreeView here instead of directly calling
+        // SidebarModel to retain other useful features from the base class,
+        // like e.g. auto-scroll behavior when the mouse cursor reaches
+        // the boundaries of the tree view.
+        //
+        // Note: pEvent->source() will be NULL if something is dropped
+        // from a different application. This knowledge is used
+        // inside the LibraryFeature implementations.
+        setSourceOfCurrentDragDropEvent(pEvent->source());
+        QTreeView::dropEvent(pEvent);
+        setSourceOfCurrentDragDropEvent(nullptr);
+    }
 }
 
 void WLibrarySidebar::toggleDragHoverPropertyAndUpdateStyle(bool enabled) {
