@@ -554,7 +554,7 @@ void BasePlaylistFeature::slotImportPlaylistFile(const QString& playlistFile,
 
 void BasePlaylistFeature::slotCreateImportPlaylist() {
     // Get file to read
-    const QStringList playlistFiles = LibraryFeature::getPlaylistFiles();
+    const QStringList playlistFiles = BaseTrackSetFeature::getPlaylistFiles();
     if (playlistFiles.isEmpty()) {
         return;
     }
