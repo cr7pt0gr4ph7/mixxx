@@ -1789,6 +1789,7 @@ add_library(
   src/widget/wlibrarytableview.cpp
   src/widget/wlibrarytextbrowser.cpp
   src/widget/wmainmenubar.cpp
+  src/widget/wmenu.cpp
   src/widget/wmenucheckbox.cpp
   src/widget/wnumber.cpp
   src/widget/wnumberdb.cpp
