@@ -109,12 +109,16 @@ WEffectSelector::indicator:unchecked:selected,
   /* checkbox in Crate name context menu: "[ ] Auto DJ Track Source"  */
   WLibrarySidebar QMenu::indicator:checked,
   WTrackTableViewHeader QMenu QCheckBox::indicator:checked,
+  WTrackMenu QMenu::indicator:checked,
   WTrackMenu QMenu QCheckBox::indicator:checked,
   WEffectSelector::indicator:checked,
   #fadeModeCombobox::indicator:checked {
     border-color: #111;
     background-color: #B79E00;
   }
+  WTrackMenu QMenu::indicator:indeterminate,
+  WTrackMenu QMenu::indicator:indeterminate:checked,
+  WTrackMenu QMenu::indicator:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:indeterminate {
     border-color: #111;
     background-color: #897300;
@@ -132,6 +136,7 @@ WEffectSelector::indicator:unchecked:selected,
     border-color: #444;
     color: #444;
   }
+  WTrackMenu QMenu::indicator:disabled,
   WTrackMenu QMenu QCheckBox::indicator:disabled {
     border-color: #444;
     background-color: #666;
