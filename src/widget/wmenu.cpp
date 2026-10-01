@@ -2,6 +2,8 @@
 
 #include "widget/wmenu.h"
 
+#include <QEvent>
+#include <QKeyEvent>
 #include <QStyle>
 #include <QStyleOption>
 
@@ -14,6 +16,17 @@ WMenu::WMenu(QWidget* pParent)
 
 WMenu::WMenu(const QString& title, QWidget* pParent)
         : QMenu(title, pParent) {
+}
+
+bool WMenu::event(QEvent* pEvent) {
+    if (pEvent->type() == QEvent::ShortcutOverride) {
+        QKeyEvent* pKeyEvent = static_cast<QKeyEvent *>(pEvent);
+        if (pKeyEvent->key() == Qt::Key_Space) {
+            pEvent->accept();
+            return true;
+        }
+    }
+    return QMenu::event(pEvent);
 }
 
 void WMenu::initStyleOption(QStyleOptionMenuItem* pOption, const QAction* pAction) const {
