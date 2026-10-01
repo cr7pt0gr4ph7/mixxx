@@ -2464,6 +2464,7 @@ QPlainTextEdit QMenu::item:disabled {
 WLibrarySidebar QMenu::indicator,
 WTrackTableViewHeader QMenu QCheckBox::indicator,
 WEffectChainPresetButton QMenu QCheckBox::indicator,
+WTrackMenu QMenu::indicator,
 WTrackMenu QMenu QCheckBox::indicator {
   background-color: #0f0f0f;
   border: 1px solid #333;
@@ -2472,21 +2473,30 @@ WTrackMenu QMenu QCheckBox::indicator {
   WLibrarySidebar QMenu::indicator:checked,
   WTrackTableViewHeader QMenu QCheckBox::indicator:checked,
   WEffectChainPresetButton QMenu QCheckBox::indicator:checked,
+  WTrackMenu QMenu::indicator:checked,
   WTrackMenu QMenu QCheckBox::indicator:checked {
     image: url(skin:/../Tango/buttons/btn_lib_checkmark.svg);
     border: 1px solid #111;
   }
+  WTrackMenu QMenu::indicator:indeterminate,
+  WTrackMenu QMenu::indicator:indeterminate:checked,
+  WTrackMenu QMenu::indicator:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:indeterminate {
     image: url(skin:/../Tango/buttons/btn_lib_checkmark_indeterminate.svg);
     background-color: #1e1e1e;
   }
   /* disabled menu checkbox */
+  WTrackMenu QMenu::indicator:disabled,
   WTrackMenu QMenu QCheckBox::indicator:disabled {
     background-color: #222;
   }
+  WTrackMenu QMenu::indicator:disabled:checked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:checked {
     image: url(skin:/../Tango/buttons/btn_lib_checkmark_grey.svg);
   }
+  WTrackMenu QMenu::indicator:disabled:indeterminate,
+  WTrackMenu QMenu::indicator:disabled:indeterminate:checked,
+  WTrackMenu QMenu::indicator:disabled:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:indeterminate {
     image: url(skin:/../Tango/buttons/btn_lib_checkmark_indeterminate_grey.svg);
   }

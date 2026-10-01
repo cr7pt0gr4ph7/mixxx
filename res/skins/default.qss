@@ -154,7 +154,7 @@ WLibraryTextBrowser QMenu::icon {
 
 /* Column checkboxes in the table header menu */
 WTrackTableViewHeader QMenu QCheckBox,
-/* items in Crate sub menu and Search related Tracks menu */
+/* items in Search related Tracks menu */
 WTrackMenu QMenu QCheckBox,
 WEffectChainPresetButton QMenu QCheckBox {
   padding: 0.17em 0.6em 0.17em 0.25em;
@@ -162,16 +162,22 @@ WEffectChainPresetButton QMenu QCheckBox {
 
 /* Sidebar with checkbox in Crate name context menu (actually a checkable QAction)
     "[ ] Auto DJ Track Source" */
-WLibrarySidebar QMenu::item {
+WLibrarySidebar QMenu::item,
+/* items in Crate sub menu (:horizontal is (ab-)used to mark checkbox-like actions) */
+WTrackMenu QMenu::item:checked,
+WTrackMenu QMenu::item:unchecked,
+WTrackMenu QMenu::item:indeterminate {
   padding: 0.17em 0.6em 0.17em 0.5em;
 }
-WLibrarySidebar QMenu::indicator {
+
+WLibrarySidebar QMenu::indicator,
+WTrackMenu QMenu::indicator {
   margin: 0em -0.1em 0em 0.3em;
 }
 
 WLibrarySidebar QMenu::indicator,
+WTrackMenu QMenu::indicator,
 WTrackTableViewHeader QMenu QCheckBox::indicator,
-WTrackMenu QMenu QCheckBox::indicator,
 WEffectChainPresetButton QMenu QCheckBox::indicator {
   width: 0.7em;
   height: 0.7em;

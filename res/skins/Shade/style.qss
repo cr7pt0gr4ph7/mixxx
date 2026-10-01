@@ -364,6 +364,7 @@ WEffectSelector QAbstractScrollArea,
   /* checkbox in Crate name context menu: "[ ] Auto DJ Track Source"  */
   WLibrarySidebar QMenu::indicator:checked,
   WTrackTableViewHeader QMenu QCheckBox::indicator:checked,
+  WTrackMenu QMenu::indicator:checked,
   WTrackMenu QMenu QCheckBox::indicator:checked,
   WEffectSelector::indicator:checked,
   #fadeModeCombobox::indicator:checked {
@@ -371,18 +372,23 @@ WEffectSelector QAbstractScrollArea,
     background-color: #f90562;
     image: url(skin:/btn/btn_lib_checkmark_black.svg);
   }
+  WTrackMenu QMenu::indicator:indeterminate,
+  WTrackMenu QMenu::indicator:indeterminate:checked,
+  WTrackMenu QMenu::indicator:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:indeterminate {
     border-color: #1a2025;
     background-color: #aa5f78;
     image: url(skin:/btn/btn_lib_checkmark_dark_grey.svg);
   }
   /* disabled checked box */
+  WTrackMenu QMenu::indicator:disabled:checked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:checked {
     image: url(skin:/btn/btn_lib_checkmark_grey.svg);
   }
   /* unchecked menu checkbox */
   WLibrarySidebar QMenu::indicator:unchecked,
   WTrackTableViewHeader QMenu::indicator:unchecked,
+  WTrackMenu QMenu::indicator:enabled:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:enabled:unchecked {
     border-color: #1a2025;
     /* remove OS focus indicator */

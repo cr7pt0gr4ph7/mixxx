@@ -2363,6 +2363,8 @@ QPlainTextEdit QMenu::separator {
 
 WLibrarySidebar QMenu::indicator,
 WTrackTableViewHeader QMenu QCheckBox::indicator,
+WTrackMenu::indicator,
+WTrackMenu QMenu::indicator,
 WTrackMenu QMenu QCheckBox::indicator {
   border: 1px solid #555;
   border-radius: 1px;
@@ -2392,12 +2394,14 @@ QLineEdit QMenu::item:disabled,
 QPlainTextEdit QMenu::item:disabled {
   color: #555;
 }
+WTrackMenu QMenu::indicator:disabled,
 WTrackMenu QMenu QCheckBox::indicator:disabled {
   border: 1px solid #222;
   background-color: #333;
 }
 WLibrarySidebar QMenu::indicator:checked,
 WTrackTableViewHeader QMenu QCheckBox::indicator:checked,
+WTrackMenu QMenu::indicator:checked,
 WTrackMenu QMenu QCheckBox::indicator:checked {
   image: url(skin:/../Deere/icon/ic_library_checkmark_orange.svg);
 }
@@ -2409,20 +2413,35 @@ WEffectChainPresetSelector::indicator:checked,
 }
 
 /* disabled menu item and checkbox */
+WTrackMenu QMenu::indicator:disabled:unchecked,
+WTrackMenu QMenu::indicator:disabled:checked,
+WTrackMenu QMenu::indicator:indeterminate,
+WTrackMenu QMenu::indicator:indeterminate:checked,
+WTrackMenu QMenu::indicator:indeterminate:unchecked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:unchecked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:checked,
 WTrackMenu QMenu QCheckBox::indicator:indeterminate {
   background-color: #222;
 }
+WTrackMenu QMenu::indicator:disabled:checked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:checked {
   image: url(skin:/../Deere/icon/ic_library_checkmark_grey.svg);
 }
+WTrackMenu QMenu::indicator:indeterminate,
+WTrackMenu QMenu::indicator:indeterminate:checked,
+WTrackMenu QMenu::indicator:indeterminate:unchecked,
 WTrackMenu QMenu QCheckBox::indicator:indeterminate {
   image: url(skin:/../Deere/icon/ic_library_checkmark_indeterminate_orange.svg);
 }
+WTrackMenu QMenu::indicator:disabled:indeterminate,
+WTrackMenu QMenu::indicator:disabled:indeterminate:checked,
+WTrackMenu QMenu::indicator:disabled:indeterminate:unchecked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:indeterminate {
   image: url(skin:/../Deere/icon/ic_library_checkmark_indeterminate_grey.svg);
 }
+
+WTrackMenu QMenu::indicator:disabled:checked,
+WTrackMenu QMenu::indicator:disabled:unchecked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:checked,
 WTrackMenu QMenu QCheckBox::indicator:disabled:unchecked {
   border: 1px solid #222;
