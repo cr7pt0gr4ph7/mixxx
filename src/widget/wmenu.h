@@ -11,4 +11,7 @@ class WMenu : public QMenu {
   public:
     explicit WMenu(QWidget* parent = nullptr);
     explicit WMenu(const QString& title, QWidget* parent = nullptr);
+
+  protected:
+    virtual void initStyleOption(QStyleOptionMenuItem* pOption, const QAction* pAction) const override;
 };
