@@ -34,6 +34,9 @@ void WMenu::initStyleOption(QStyleOptionMenuItem* pOption, const QAction* pActio
 
     const WCheckableAction* pCheckableAction = qobject_cast<const WCheckableAction*>(pAction);
     if (pCheckableAction) {
+        // Clear existing state-related flags set by the base class
+        pOption->state &= ~(QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off);
+
         Qt::CheckState checkState = pCheckableAction->checkState();
         if (checkState == Qt::PartiallyChecked) {
             pOption->state |= QStyle::State_NoChange;
