@@ -13,6 +13,8 @@ class WMenu : public QMenu {
     explicit WMenu(const QString& title, QWidget* parent = nullptr);
 
   protected:
+    void keyPressEvent(QKeyEvent *) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
     bool event(QEvent* pEvent) override;
     virtual void initStyleOption(QStyleOptionMenuItem* pOption, const QAction* pAction) const override;
 };

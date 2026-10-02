@@ -15,6 +15,12 @@ class WCheckableAction : public QAction {
     explicit WCheckableAction(const QString &text, QObject *parent = nullptr);
     explicit WCheckableAction(const QIcon &icon, const QString &text, QObject *parent = nullptr);
 
+    // Toggle the check state without closing the parent menu.
+    void toggle();
+
+    // Calls toggle() for checkable actions, and trigger() for normal actions
+    void toggleOrTrigger();
+
     void setTristate(bool value = true) {
         m_bTriState = value;
     }
