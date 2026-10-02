@@ -44,7 +44,7 @@ void WCheckableAction::setCheckState(Qt::CheckState state) {
 
     const bool bWasChecked = isChecked();
     const Qt::CheckState eWasState = checkState();
-    const bool bChecked = state != Qt::Unchecked;
+    const bool bChecked = state == Qt::Checked;
 
     if (state == Qt::PartiallyChecked) {
         m_bTriState = true;
