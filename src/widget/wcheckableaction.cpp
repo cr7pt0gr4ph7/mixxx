@@ -23,6 +23,27 @@ WCheckableAction::WCheckableAction(const QIcon& icon, const QString& text, QObje
     connect(this, &QAction::toggled, this, &WCheckableAction::onToggled, Qt::DirectConnection);
 }
 
+void WCheckableAction::toggleOrTrigger() {
+    if (isCheckable()) {
+        toggle();
+    } else {
+        trigger();
+    }
+}
+
+void WCheckableAction::toggle() {
+    if (!isCheckable() || !isEnabled()) {
+        // Do nothing if the action is not checkable and enabled
+        return;
+    }
+
+    if (checkState() == Qt::Checked) {
+        setCheckState(Qt::Unchecked);
+    } else {
+        setCheckState(Qt::Checked);
+    }
+}
+
 Qt::CheckState WCheckableAction::checkState() const {
     if (m_bTriState && m_bNoChange)
         return Qt::PartiallyChecked;
@@ -67,7 +88,7 @@ void WCheckableAction::setCheckState(Qt::CheckState state) {
             m_bInSetCheckState = false;
         }
     } else if (state != eWasState) {
-        // This is a transition from Qt::Checked to Qt::PartiallyChecked,
+        // This is a transition from Qt::Unchecked to Qt::PartiallyChecked,
         // or vice versa. isChecked() doesn't change, but checkState() does.
         //
         // Manually sent the change events that would have been sent by QAction::setChecked.
