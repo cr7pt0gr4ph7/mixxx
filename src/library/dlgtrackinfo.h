@@ -33,6 +33,9 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
             const TrackModel* trackModel = nullptr);
     ~DlgTrackInfo() override;
 
+  protected:
+    bool eventFilter(QObject* pObj, QEvent* pEvent) override;
+
   public slots:
     // Not thread safe. Only invoke via AutoConnection or QueuedConnection, not
     // directly!
@@ -136,7 +139,6 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
 
     parented_ptr<WCoverArtMenu> m_pWCoverArtMenu;
     parented_ptr<WCoverArtLabel> m_pWCoverArtLabel;
-    parented_ptr<WStarRating> m_pWStarRating;
     parented_ptr<WColorPickerActionMenu> m_pColorPicker;
 
     std::unique_ptr<DlgTagFetcher> m_pDlgTagFetcher;

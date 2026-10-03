@@ -53,7 +53,6 @@ DlgTrackInfo::DlgTrackInfo(
           m_tapFilter(this, kFilterLength, kMaxInterval),
           m_pWCoverArtMenu(make_parented<WCoverArtMenu>(this)),
           m_pWCoverArtLabel(make_parented<WCoverArtLabel>(this, m_pWCoverArtMenu)),
-          m_pWStarRating(make_parented<WStarRating>(this)),
           m_pColorPicker(make_parented<WColorPickerActionMenu>(
                   WColorPicker::Option::AllowNoColor |
                           // TODO(xxx) remove this once the preferences are themed via QSS
@@ -85,6 +84,7 @@ void DlgTrackInfo::init() {
     m_propertyWidgets.insert("album_artist", txtAlbumArtist);
     m_propertyWidgets.insert("composer", txtComposer);
     m_propertyWidgets.insert("genre", txtGenre);
+    m_propertyWidgets.insert("rating", starRating);
     m_propertyWidgets.insert("year", txtYear);
     m_propertyWidgets.insert(kBpmPropertyName, spinBpm);
     m_propertyWidgets.insert("tracknumber", txtTrackNumber);
@@ -103,13 +103,6 @@ void DlgTrackInfo::init() {
     m_propertyWidgets.insert("track_locations.location", txtLocation);
 
     coverLayout->insertWidget(0, m_pWCoverArtLabel.get());
-
-    starsLayout->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    starsLayout->setSpacing(0);
-    starsLayout->setContentsMargins(0, 0, 0, 0);
-    starsLayout->insertWidget(0, m_pWStarRating.get());
-    // This is necessary to pass on mouseMove events to WStarRating
-    m_pWStarRating->setMouseTracking(true);
 
     // Workaround: Align the baseline of the "Comments" label
     // with the baseline of the text inside the comments field
@@ -335,7 +328,7 @@ void DlgTrackInfo::init() {
             this,
             &DlgTrackInfo::slotReloadCoverArt);
 
-    connect(m_pWStarRating,
+    connect(starRating,
             &WStarRating::ratingChangeRequest,
             this,
             &DlgTrackInfo::slotRatingChanged);
@@ -350,6 +343,72 @@ void DlgTrackInfo::init() {
                 trackColorDialogSetColor(newColor);
                 m_trackRecord.setColor(newColor);
             });
+
+    tabWidget->installEventFilter(this);
+    txtTrackName->installEventFilter(this);
+    txtArtist->installEventFilter(this);
+    txtAlbum->installEventFilter(this);
+    txtAlbumArtist->installEventFilter(this);
+    txtComposer->installEventFilter(this);
+    txtGenre->installEventFilter(this);
+    txtGrouping->installEventFilter(this);
+    txtYear->installEventFilter(this);
+    txtKey->installEventFilter(this);
+    txtTrackNumber->installEventFilter(this);
+    txtDuration->installEventFilter(this);
+    txtBpm->installEventFilter(this);
+    txtDateAdded->installEventFilter(this);
+    txtDateLastPlayed->installEventFilter(this);
+    txtType->installEventFilter(this);
+    txtBpm->installEventFilter(this);
+    txtBitrate->installEventFilter(this);
+    txtSamplerate->installEventFilter(this);
+    txtReplayGain->installEventFilter(this);
+    txtLocation->installEventFilter(this);
+}
+
+bool DlgTrackInfo::eventFilter(QObject* pObj, QEvent* pEvent) {
+    if (pEvent->type() == QEvent::KeyPress) {
+        auto* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+
+        const bool noModifiersPressed = !(pKeyEvent->modifiers() &
+                (Qt::ControlModifier | Qt::AltModifier |
+                        Qt::ShiftModifier | Qt::MetaModifier));
+
+        if (!noModifiersPressed) {
+            return false;
+        }
+
+        if (pObj == this || qobject_cast<QLabel*>(pObj) ||
+                qobject_cast<QLineEdit*>(pObj) ||
+                qobject_cast<QTabWidget*>(pObj))
+
+            if (pKeyEvent->key() == Qt::Key_Up) {
+                if (focusPreviousChild()) {
+                    pEvent->accept();
+                    return true;
+                }
+            } else if (pKeyEvent->key() == Qt::Key_Down) {
+                if (focusNextChild()) {
+                    pEvent->accept();
+                    return true;
+                }
+            }
+    }
+    if (pEvent->type() == QEvent::FocusIn) {
+        auto* pFocusEvent = static_cast<QFocusEvent*>(pEvent);
+
+        if (pFocusEvent->reason() == Qt::TabFocusReason ||
+                pFocusEvent->reason() == Qt::BacktabFocusReason ||
+                pFocusEvent->reason() == Qt::ShortcutFocusReason) {
+            auto* pLabel = qobject_cast<QLabel*>(pObj);
+            if (pLabel && !pLabel->hasSelectedText()) {
+                pLabel->setSelection(0, pLabel->text().size());
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 void DlgTrackInfo::slotApply() {
@@ -439,7 +498,7 @@ void DlgTrackInfo::updateFromTrack(const Track& track) {
 
     reloadTrackBeats(track);
 
-    m_pWStarRating->slotSetRating(m_pLoadedTrack->getRating());
+    starRating->slotSetRating(m_pLoadedTrack->getRating());
 }
 
 void DlgTrackInfo::replaceTrackRecord(
@@ -630,7 +689,7 @@ void DlgTrackInfo::focusField(const QString& property) {
             // If we shall focus the BPM spinbox, switch to BPM tab
             tabWidget->setCurrentIndex(tabWidget->indexOf(tabBPM));
         }
-        it.value()->setFocus();
+        it.value()->setFocus(Qt::ShortcutFocusReason);
     }
 }
 
@@ -759,7 +818,7 @@ void DlgTrackInfo::clear() {
 
     txtLocation->setText("");
 
-    m_pWStarRating->slotSetRating(0);
+    starRating->slotSetRating(0);
 }
 
 void DlgTrackInfo::slotBpmScale(mixxx::Beats::BpmScale bpmScale) {
@@ -958,7 +1017,7 @@ void DlgTrackInfo::slotRatingChanged(int rating) {
     }
     if (m_trackRecord.isValidRating(rating) &&
             rating != m_trackRecord.getRating()) {
-        m_pWStarRating->slotSetRating(rating);
+        starRating->slotSetRating(rating);
         m_trackRecord.setRating(rating);
     }
 }
@@ -1110,7 +1169,7 @@ void DlgTrackInfo::adjustWidgetSizes() {
 
     // Set fixed height on stars widget so it doesn't make the adjacent
     // txtAlbumArtist expand vertically
-    m_pWStarRating->setFixedHeight(txtAlbumArtist->height());
+    starRating->setFixedHeight(txtAlbumArtist->height());
 
     // Set the minimum height for the Comment editor to at least 3 line. Let's
     // use the triple the height of a QLineEdit because they are sized correctly.
