@@ -6,6 +6,7 @@
 
 #include "library/library_decl.h"
 #include "widget/wbasewidget.h"
+#include "widget/wlonghovertracker.h"
 
 class LibraryFeature;
 class QPoint;
@@ -23,6 +24,7 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     void keyPressEvent(QKeyEvent* pEvent) override;
     void mousePressEvent(QMouseEvent* pEvent) override;
     void focusInEvent(QFocusEvent* pEvent) override;
+    void timerEvent(QTimerEvent* pEvent) override;
     void toggleSelectedItem();
     void renameSelectedItem();
     bool isLeafNodeSelected();
@@ -55,4 +57,6 @@ class WLibrarySidebar : public QTreeView, public WBaseWidget {
     int m_hoverExpandDelay;
     int m_hoverCollapseDelay;
     QModelIndex m_autoExpandIndex;
+
+    WLongHoverTracker<QModelIndex> m_longHover;
 };
