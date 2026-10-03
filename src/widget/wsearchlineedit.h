@@ -16,6 +16,8 @@ class QToolButton;
 
 class WSearchLineEdit : public QComboBox, public WBaseWidget {
     Q_OBJECT
+    Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
+
   public:
     // Delay for triggering a search while typing
     static constexpr int kMinDebouncingTimeoutMillis = 100;
@@ -35,6 +37,10 @@ class WSearchLineEdit : public QComboBox, public WBaseWidget {
     explicit WSearchLineEdit(QWidget* pParent, UserSettingsPointer pConfig = nullptr);
     ~WSearchLineEdit();
 
+    bool isEmpty() const {
+        return m_queryEmpty;
+    }
+
     void setup(const QDomNode& node, const SkinContext& context);
     void setupToolTip(const QString& searchInCurrentViewShortcut,
             const QString& searchInAllTracksShortcut);
@@ -50,6 +56,7 @@ class WSearchLineEdit : public QComboBox, public WBaseWidget {
     void keyPressEvent(QKeyEvent* event) override;
 
   signals:
+    void isEmptyChanged();
     void search(const QString& text);
     FocusWidget setLibraryFocus(FocusWidget newFocusWidget,
             Qt::FocusReason focusReason = Qt::OtherFocusReason);
@@ -117,4 +124,5 @@ class WSearchLineEdit : public QComboBox, public WBaseWidget {
     QTimer m_debouncingTimer;
     QTimer m_saveTimer;
     bool m_queryEmitted;
+    bool m_queryEmpty;
 };

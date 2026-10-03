@@ -3263,6 +3263,10 @@ WSearchLineEdit {
   WSearchLineEdit:focus {
     color: #eeeeee;
   }
+  WSearchLineEdit[isEmpty="false"]:!focus {
+    border-color: #ee6100;
+  }
+
   /* Clear button: see /skins/default.qss */
 
 #LibraryFeatureControls QLabel,
