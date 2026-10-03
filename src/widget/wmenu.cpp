@@ -33,13 +33,6 @@ void WMenu::initStyleOption(QStyleOptionMenuItem* pOption, const QAction* pActio
 
     const WCheckableAction* pCheckableAction = qobject_cast<const WCheckableAction*>(pAction);
     if (pCheckableAction) {
-        if (pCheckableAction->isCheckable()) {
-            // (Ab-)use the :horizontal pseudo class to distinguish checkbox-like
-            // tristate menu items from normal checkable menu items in the styles.
-            // Alternatively, we could just style all checkable menu items as checkboxes.
-            pOption->state |= QStyle::State_Horizontal;
-        }
-
         // Clear existing state-related flags set by the base class
         pOption->state &= ~(QStyle::State_NoChange | QStyle::State_On | QStyle::State_Off);
 
