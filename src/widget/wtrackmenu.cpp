@@ -1716,7 +1716,7 @@ void WTrackMenu::slotPopulateCrateMenu() {
 
         // Use a custom checkable QAction implementation that allows for tristate values.
         auto pAction = make_parented<WCheckableAction>(
-                mixxx::escapeTextPropertyWithoutShortcuts(crate.getFullPath()),
+                mixxx::escapeTextPropertyWithoutShortcuts(crate.getName()),
                 pParentMenu);
         pAction->setCheckable(true);
         pAction->setProperty("crateId", QVariant::fromValue(crate.getId()));
