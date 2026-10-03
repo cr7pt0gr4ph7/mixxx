@@ -142,13 +142,13 @@ void CrateFeature::initActions() {
             this,
             &CrateFeature::slotExportTrackFiles);
 #ifdef __ENGINEPRIME__
-    m_pExportAllCratesAction = make_parented<QAction>(tr("Export to Engine DJ"), this);
-    connect(m_pExportAllCratesAction.get(),
+    m_pExportAllCratesToEngineDJAction = make_parented<QAction>(tr("Export to Engine DJ"), this);
+    connect(m_pExportAllCratesToEngineDJAction.get(),
             &QAction::triggered,
             this,
             &CrateFeature::exportAllCrates);
-    m_pExportCrateAction = make_parented<QAction>(tr("Export to Engine DJ"), this);
-    connect(m_pExportCrateAction.get(),
+    m_pExportCrateToEngineDJAction = make_parented<QAction>(tr("Export to Engine DJ"), this);
+    connect(m_pExportCrateToEngineDJAction.get(),
             &QAction::triggered,
             this,
             [this]() {
@@ -435,7 +435,7 @@ void CrateFeature::onRightClick(const QPoint& globalPos) {
     menu.addAction(m_pCreateImportPlaylistAction.get());
 #ifdef __ENGINEPRIME__
     menu.addSeparator();
-    menu.addAction(m_pExportAllCratesAction.get());
+    menu.addAction(m_pExportAllCratesToEngineDJAction.get());
 #endif
     menu.exec(globalPos);
 }
@@ -491,7 +491,7 @@ void CrateFeature::onRightClickChild(
     moreMenu->addAction(m_pExportPlaylistAction.get());
     moreMenu->addAction(m_pExportTrackFilesAction.get());
 #ifdef __ENGINEPRIME__
-    moreMenu->addAction(m_pExportCrateAction.get());
+    moreMenu->addAction(m_pExportCrateToEngineDJAction.get());
 #endif
     menu.exec(globalPos);
 }
