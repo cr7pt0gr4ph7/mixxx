@@ -345,7 +345,7 @@ void DlgTrackInfo::init() {
             });
 
     tabWidget->installEventFilter(this);
-    txtTrackName->installEventFilter(this);
+    txtTitle->installEventFilter(this);
     txtArtist->installEventFilter(this);
     txtAlbum->installEventFilter(this);
     txtAlbumArtist->installEventFilter(this);
@@ -358,7 +358,6 @@ void DlgTrackInfo::init() {
     txtDuration->installEventFilter(this);
     txtBpm->installEventFilter(this);
     txtDateAdded->installEventFilter(this);
-    txtDateLastPlayed->installEventFilter(this);
     txtType->installEventFilter(this);
     txtBpm->installEventFilter(this);
     txtBitrate->installEventFilter(this);

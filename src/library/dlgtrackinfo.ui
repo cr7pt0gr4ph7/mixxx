@@ -218,6 +218,9 @@
             <property name="mouseTracking">
               <bool>true</bool>
             </property>
+            <property name="upDownChangesFocus">
+             <bool>true</bool>
+            </property>
             <property name="focusPolicy">
               <enum>Qt::StrongFocus</enum>
             </property>
@@ -506,6 +509,9 @@
             <property name="tabChangesFocus">
              <bool>true</bool>
             </property>
+            <property name="upDownChangesFocus">
+             <bool>true</bool>
+            </property>
             <property name="horizontalScrollBarPolicy">
              <enum>Qt::ScrollBarAlwaysOff</enum>
             </property>
@@ -631,15 +637,15 @@
            </widget>
           </item>
 
-          <item row="0" column="2">
-           <widget class="QLabel" name="lblType">
+          <item row="1" column="0">
+           <widget class="QLabel" name="lblBpm">
             <property name="text">
-             <string>Filetype:</string>
+             <string>BPM:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
-           <widget class="QLabel" name="txtType">
+          <item row="1" column="1">
+           <widget class="QLabel" name="txtBpm">
             <property name="font">
              <font>
               <weight>75</weight>
@@ -655,15 +661,63 @@
            </widget>
           </item>
 
-          <item row="1" column="0">
-           <widget class="QLabel" name="lblBpm">
+          <item row="2" column="0">
+           <widget class="QLabel" name="lblDateAdded">
             <property name="text">
-             <string>BPM:</string>
+             <string>Date added:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLabel" name="txtBpm">
+          <item row="2" column="1">
+           <widget class="QLabel" name="txtDateAdded">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+
+          <item row="3" column="0">
+           <widget class="QLabel" name="lblReplayGain">
+            <property name="text">
+             <string>ReplayGain:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="txtReplayGain">
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+
+          <item row="0" column="2">
+           <widget class="QLabel" name="lblType">
+            <property name="text">
+             <string>Filetype:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QLabel" name="txtType">
             <property name="font">
              <font>
               <weight>75</weight>
@@ -703,30 +757,6 @@
            </widget>
           </item>
 
-          <item row="2" column="0">
-           <widget class="QLabel" name="lblReplayGain">
-            <property name="text">
-             <string>ReplayGain:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="txtReplayGain">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-
           <item row="2" column="2">
            <widget class="QLabel" name="lblSamplerate">
             <property name="text">
@@ -736,30 +766,6 @@
           </item>
           <item row="2" column="3">
            <widget class="QLabel" name="txtSamplerate">
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-
-          <item row="3" column="0">
-           <widget class="QLabel" name="lblDateAdded">
-            <property name="text">
-             <string>Date added:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="txtDateAdded">
             <property name="font">
              <font>
               <weight>75</weight>
@@ -1193,16 +1199,26 @@ Often results in higher quality beatgrids, but will not do well on tracks that h
   <tabstop>txtAlbumArtist</tabstop>
   <tabstop>starRating</tabstop>
   <tabstop>txtComposer</tabstop>
-  <tabstop>txtYear</tabstop>
   <tabstop>txtGenre</tabstop>
-  <tabstop>txtTrackNumber</tabstop>
   <tabstop>txtGrouping</tabstop>
+  <tabstop>txtComment</tabstop>
+  <tabstop>starRating</tabstop>
+  <tabstop>txtYear</tabstop>
+  <tabstop>txtTrackNumber</tabstop>
   <tabstop>txtKey</tabstop>
   <tabstop>spinTuning</tabstop>
-  <tabstop>txtComment</tabstop>
   <tabstop>btnImportMetadataFromMusicBrainz</tabstop>
   <tabstop>btnImportMetadataFromFile</tabstop>
   <tabstop>btnColorPicker</tabstop>
+  <tabstop>txtDuration</tabstop>
+  <tabstop>txtBpm</tabstop>
+  <tabstop>txtDateAdded</tabstop>
+  <tabstop>txtReplayGain</tabstop>
+  <tabstop>txtType</tabstop>
+  <tabstop>txtBitrate</tabstop>
+  <tabstop>txtSamplerate</tabstop>
+  <tabstop>txtFileSize</tabstop>
+  <tabstop>txtLocation</tabstop>
   <tabstop>btnOpenFileBrowser</tabstop>
   <tabstop>spinBpm</tabstop>
   <tabstop>bpmConst</tabstop>
