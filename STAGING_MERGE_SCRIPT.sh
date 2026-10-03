@@ -164,6 +164,7 @@ merge_branch rtm_treeitem_url
 merge_branch rtm_treeitem_index
 # merge_branch rtm_treeitem_expandable # Not needed
 merge_branch rtm_subcrates
+merge_branch rtm_subcrates_nestedmenus
 # merge_branch rtm_subcrates_more
 
 # Context menu uncluttering for crates & playlists
@@ -189,7 +190,7 @@ merge_branch rtm_cli_repairdatabase
 # merge_branch wip/auto-fade-controller # Skipped, not necessary yet
 # merge_branch wip/soft-pitch-ramp # Skipped, not necessary yet
 # merge_branch wip/metadata-push # Skipped, not necessary yet
-merge_branch ext/ronso0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602
+# merge_branch ext/ronso0/trackmenu-left-close-submenu # https://github.com/mixxxdj/mixxx/pull/13602 # Replaced by rtm_subcrates_nestedmenus
 merge_branch ext/ronso0/cpu-pinning # https://github.com/mixxxdj/mixxx/pull/12806/
 merge_branch ext/ronso0/waveform-zoom-controlpotmeter # https://github.com/mixxxdj/mixxx/pull/12387
 # merge_branch ext/makszim/playlist-folder-structure # https://github.com/mixxxdj/mixxx/pull/16669
