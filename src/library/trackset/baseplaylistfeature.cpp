@@ -367,6 +367,7 @@ void BasePlaylistFeature::slotCreatePlaylist() {
     QString name;
     bool validNameGiven = false;
 
+    int parentId = getParentIdForNewItem();
     while (!validNameGiven) {
         bool ok = false;
         name = QInputDialog::getText(nullptr,
@@ -380,7 +381,7 @@ void BasePlaylistFeature::slotCreatePlaylist() {
             return;
         }
 
-        int existingId = m_playlistDao.getPlaylistIdFromName(name);
+        int existingId = m_playlistDao.getPlaylistIdFromName(name, parentId);
 
         if (existingId != kInvalidPlaylistId) {
             QMessageBox::warning(nullptr,
@@ -395,7 +396,7 @@ void BasePlaylistFeature::slotCreatePlaylist() {
         }
     }
 
-    int playlistId = m_playlistDao.createPlaylist(name);
+    int playlistId = m_playlistDao.createPlaylist(name, PlaylistDAO::PLHT_NOT_HIDDEN, parentId, false);
 
     if (playlistId == kInvalidPlaylistId) {
         QMessageBox::warning(nullptr,
@@ -734,6 +735,10 @@ void BasePlaylistFeature::addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc) {
             m_playlistDao.addPlaylistToAutoDJQueue(playlistId, loc);
         }
     }
+}
+
+int BasePlaylistFeature::getParentIdForNewItem() const {
+    return -1;
 }
 
 void BasePlaylistFeature::slotAnalyzePlaylist() {

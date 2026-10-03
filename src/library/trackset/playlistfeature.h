@@ -23,9 +23,11 @@ class PlaylistFeature : public BasePlaylistFeature {
 
     QVariant title() override;
 
+    bool dropAccept(const QList<QUrl>& urls, QObject* pSource) override;
     bool dropAcceptChild(const QModelIndex& index,
             const QList<QUrl>& urls,
             QObject* pSource) override;
+    bool dragMoveAccept(const QList<QUrl>& url) override;
     bool dragMoveAcceptChild(const QModelIndex& index, const QList<QUrl>& urls) override;
 
   public slots:
@@ -40,17 +42,25 @@ class PlaylistFeature : public BasePlaylistFeature {
     void slotOrderTracksByCurrentPosition();
     void slotUnlockAllPlaylists();
     void slotDeleteAllUnlockedPlaylists();
+    void slotCreateFolder();
+    void slotMovePlaylist();
 
   protected:
+    int getParentIdForNewItem() const override;
     void decorateChild(TreeItem* pChild, int playlistId) override;
-    QList<IdAndLabel> createPlaylistLabels();
+    QList<IdAndLabel> createPlaylistLabels(bool useFullPaths); // Needed for QML support
     QModelIndex constructChildModel(int selectedId);
 
   private:
     QString getRootViewHtml() const override;
 
+    bool moveToParent(int destinationId, int playlistToMoveId, bool selectAfterMove);
+    bool moveToParent(int destinationId, const QList<int>& playlistsToMove);
+
+    parented_ptr<QAction> m_pCreateFolderAction;
     parented_ptr<QAction> m_pShufflePlaylistAction;
     parented_ptr<QAction> m_pOrderByCurrentPosAction;
     parented_ptr<QAction> m_pUnlockPlaylistsAction;
     parented_ptr<QAction> m_pDeleteAllUnlockedPlaylistsAction;
+    parented_ptr<QAction> m_pMovePlaylistAction;
 };
