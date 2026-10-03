@@ -1,12 +1,13 @@
 #pragma once
 
-#include <QMenu>
 #include <QPointer>
+
+#include "widget/wmenu.h"
 
 class Track;
 class FindOnWebLast;
 
-class WFindOnWebMenu : public QMenu {
+class WFindOnWebMenu : public WMenu {
     Q_OBJECT
   public:
     explicit WFindOnWebMenu(const QPointer<QMenu>& pParent, QPointer<FindOnWebLast> pFindOnWebLast);
