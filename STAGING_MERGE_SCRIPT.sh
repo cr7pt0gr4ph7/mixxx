@@ -136,7 +136,7 @@ merge_branch rtm_fix-star-rating-editor
 
 # Track Info Dialog fixes & improvements
 merge_branch rtm_trackinfo_readonlyfields
-merge_branch rtm_trackinfo_leftright
+merge_branch rtm_trackinfo_leftright_original
 # merge_branch rtm_trackinfo_lastplayed
 merge_branch rtm_trackinfo_colorpicker
 merge_branch rtm_trackinfo_multiline
