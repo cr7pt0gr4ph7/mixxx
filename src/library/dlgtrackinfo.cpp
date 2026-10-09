@@ -334,6 +334,71 @@ void DlgTrackInfo::init() {
                 trackColorDialogSetColor(newColor);
                 m_trackRecord.setColor(newColor);
             });
+
+    tabWidget->installEventFilter(this);
+    txtTitle->installEventFilter(this);
+    txtArtist->installEventFilter(this);
+    txtAlbum->installEventFilter(this);
+    txtAlbumArtist->installEventFilter(this);
+    txtComposer->installEventFilter(this);
+    txtGenre->installEventFilter(this);
+    txtGrouping->installEventFilter(this);
+    txtYear->installEventFilter(this);
+    txtKey->installEventFilter(this);
+    txtTrackNumber->installEventFilter(this);
+    txtDuration->installEventFilter(this);
+    txtBpm->installEventFilter(this);
+    txtDateAdded->installEventFilter(this);
+    txtType->installEventFilter(this);
+    txtBpm->installEventFilter(this);
+    txtBitrate->installEventFilter(this);
+    txtSamplerate->installEventFilter(this);
+    txtReplayGain->installEventFilter(this);
+    txtLocation->installEventFilter(this);
+}
+
+bool DlgTrackInfo::eventFilter(QObject* pObj, QEvent* pEvent) {
+    if (pEvent->type() == QEvent::KeyPress) {
+        auto* pKeyEvent = static_cast<QKeyEvent*>(pEvent);
+
+        const bool noModifiersPressed = !(pKeyEvent->modifiers() &
+                (Qt::ControlModifier | Qt::AltModifier |
+                        Qt::ShiftModifier | Qt::MetaModifier));
+
+        if (!noModifiersPressed) {
+            return false;
+        }
+
+        if (pObj == this || qobject_cast<QLabel*>(pObj) ||
+                qobject_cast<QLineEdit*>(pObj) ||
+                qobject_cast<QTabWidget*>(pObj))
+
+            if (pKeyEvent->key() == Qt::Key_Up) {
+                if (focusPreviousChild()) {
+                    pEvent->accept();
+                    return true;
+                }
+            } else if (pKeyEvent->key() == Qt::Key_Down) {
+                if (focusNextChild()) {
+                    pEvent->accept();
+                    return true;
+                }
+            }
+    }
+    if (pEvent->type() == QEvent::FocusIn) {
+        auto* pFocusEvent = static_cast<QFocusEvent*>(pEvent);
+
+        if (pFocusEvent->reason() == Qt::TabFocusReason ||
+                pFocusEvent->reason() == Qt::BacktabFocusReason ||
+                pFocusEvent->reason() == Qt::ShortcutFocusReason) {
+            auto* pLabel = qobject_cast<QLabel*>(pObj);
+            if (pLabel && !pLabel->hasSelectedText()) {
+                pLabel->setSelection(0, pLabel->text().size());
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 void DlgTrackInfo::slotApply() {
@@ -614,7 +679,7 @@ void DlgTrackInfo::focusField(const QString& property) {
             // If we shall focus the BPM spinbox, switch to BPM tab
             tabWidget->setCurrentIndex(tabWidget->indexOf(tabBPM));
         }
-        it.value()->setFocus();
+        it.value()->setFocus(Qt::ShortcutFocusReason);
     }
 }
 
