@@ -138,6 +138,12 @@ QVariant AutoDJFeature::title() {
     return tr("Auto DJ");
 }
 
+void AutoDJFeature::slotTrackSelected(TrackId trackId) {
+    bool shouldRootBeBold = trackId.isValid() && m_playlistDao.isTrackInPlaylist(trackId, m_iAutoDJPlaylistId);
+    m_pSidebarModel->getRootItem()->setBold(shouldRootBeBold);
+    m_pSidebarModel->triggerRepaint();
+}
+
 void AutoDJFeature::bindLibraryWidget(
         WLibrary* libraryWidget,
         KeyboardEventFilter* keyboard) {

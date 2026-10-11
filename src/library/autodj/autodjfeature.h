@@ -107,4 +107,8 @@ class AutoDJFeature : public LibraryFeature {
     // Adds a random track from the queue upon hitting minimum number
     // of tracks in the playlist
     void slotRandomQueue(int numTracksToAdd);
+
+    // Show the title of the "Auto DJ" node in bold when the
+    // currently selected track is already in the Auto DJ queue.
+    void slotTrackSelected(TrackId trackId);
 };
