@@ -720,6 +720,11 @@ void BasePlaylistFeature::slotAddToAutoDJTop() {
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::TOP);
 }
 
+void BasePlaylistFeature::slotAddToAutoDJNext() {
+    //qDebug() << "slotAddToAutoDJTop() row:" << m_lastRightClickedIndex.data();
+    addToAutoDJ(PlaylistDAO::AutoDJSendLoc::NEXT);
+}
+
 void BasePlaylistFeature::slotAddToAutoDJReplace() {
     //qDebug() << "slotAddToAutoDJReplace() row:" << m_lastRightClickedIndex.data();
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::REPLACE);
