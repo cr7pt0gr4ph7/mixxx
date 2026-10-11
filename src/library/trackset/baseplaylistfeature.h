@@ -70,6 +70,7 @@ class BasePlaylistFeature : public BaseTrackSetFeature {
     void slotDuplicatePlaylist();
     void slotAddToAutoDJ();
     void slotAddToAutoDJTop();
+    void slotAddToAutoDJNext();
     void slotAddToAutoDJReplace();
     void slotRenamePlaylist();
     void slotTogglePlaylistLock();

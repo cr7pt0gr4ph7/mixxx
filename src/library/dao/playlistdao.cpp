@@ -1510,10 +1510,11 @@ void PlaylistDAO::addTracksToAutoDJQueue(const QList<TrackId>& trackIds, AutoDJS
     // If the first track is already loaded to the player,
     // alter the playlist only below the first track
     int position =
-            (m_pAutoDJProcessor && m_pAutoDJProcessor->nextTrackLoaded()) ? 2 : 1;
+            (m_pAutoDJProcessor && m_pAutoDJProcessor->nextTrackLoaded() && loc != AutoDJSendLoc::NEXT) ? 2 : 1;
 
     switch (loc) {
     case AutoDJSendLoc::TOP:
+    case AutoDJSendLoc::NEXT:
         insertTracksIntoPlaylist(trackIds, iAutoDJPlaylistId, position);
         break;
     case AutoDJSendLoc::BOTTOM:

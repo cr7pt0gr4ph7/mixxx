@@ -318,6 +318,9 @@ void WTrackMenu::createActions() {
         m_pAutoDJTopAct = make_parented<QAction>(tr("Add to Auto DJ Queue (top)"), this);
         connect(m_pAutoDJTopAct, &QAction::triggered, this, &WTrackMenu::slotAddToAutoDJTop);
 
+        m_pAutoDJNextAct = make_parented<QAction>(tr("Add to Auto DJ Queue (top)"), this);
+        connect(m_pAutoDJNextAct, &QAction::triggered, this, &WTrackMenu::slotAddToAutoDJNext);
+
         m_pAutoDJReplaceAct = make_parented<QAction>(tr("Add to Auto DJ Queue (replace)"), this);
         connect(m_pAutoDJReplaceAct, &QAction::triggered, this, &WTrackMenu::slotAddToAutoDJReplace);
     }
@@ -635,6 +638,7 @@ void WTrackMenu::setupActions() {
     }
 
     if (featureIsEnabled(Feature::AutoDJ)) {
+        addAction(m_pAutoDJNextAct);
         addAction(m_pAutoDJTopAct);
         addAction(m_pAutoDJBottomAct);
         addAction(m_pAutoDJReplaceAct);
@@ -2838,6 +2842,10 @@ void WTrackMenu::slotAddToAutoDJBottom() {
 
 void WTrackMenu::slotAddToAutoDJTop() {
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::TOP);
+}
+
+void WTrackMenu::slotAddToAutoDJNext() {
+    addToAutoDJ(PlaylistDAO::AutoDJSendLoc::NEXT);
 }
 
 void WTrackMenu::slotAddToAutoDJReplace() {

@@ -26,6 +26,7 @@ class PlaylistDAO : public QObject, public virtual DAO {
     enum class AutoDJSendLoc {
         TOP,
         BOTTOM,
+        NEXT,
         REPLACE,
     };
 
