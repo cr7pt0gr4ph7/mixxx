@@ -15,7 +15,9 @@
 #include "library/playlisttablemodel.h"
 #include "preferences/usersettings.h"
 #include "track/track_decl.h"
+#include "track/trackid.h"
 #include "util/class.h"
+#include "util/duration.h"
 #include "util/parented_ptr.h"
 
 class TrackCollectionManager;
@@ -125,6 +127,8 @@ class AutoDJProcessor : public QObject {
     void playlistFirstTrackChanged();
 
     void playlistTracksChanged();
+    void tracksChanged(const QSet<TrackId>& tracks);
+    void multipleTracksChanged();
 
     void controlEnableChangeRequest(double value);
     void controlFadeNow(double value);
@@ -156,14 +160,14 @@ class AutoDJProcessor : public QObject {
 
     // Following functions return seconds computed from samples or -1 if
     // track in deck has invalid sample rate (<= 0)
-    double getIntroStartSecond(DeckAttributes* pDeck);
-    double getIntroEndSecond(DeckAttributes* pDeck);
-    double getOutroStartSecond(DeckAttributes* pDeck);
-    double getOutroEndSecond(DeckAttributes* pDeck);
-    double getFirstSoundSecond(DeckAttributes* pDeck);
-    double getLastSoundSecond(DeckAttributes* pDeck);
-    double getEndSecond(DeckAttributes* pDeck);
-    double framePositionToSeconds(mixxx::audio::FramePos position, DeckAttributes* pDeck);
+    double getIntroStartSecond(TrackOrDeckAttributes* pDeck);
+    double getIntroEndSecond(TrackOrDeckAttributes* pDeck);
+    double getOutroStartSecond(TrackOrDeckAttributes* pDeck);
+    double getOutroEndSecond(TrackOrDeckAttributes* pDeck);
+    double getFirstSoundSecond(TrackOrDeckAttributes* pDeck);
+    double getLastSoundSecond(TrackOrDeckAttributes* pDeck);
+    double getEndSecond(TrackOrDeckAttributes* pDeck);
+    double framePositionToSeconds(mixxx::audio::FramePos position, TrackOrDeckAttributes* pDeck);
 
     TrackPointer getNextTrackFromQueue();
     bool loadNextTrackFromQueue(const DeckAttributes& pDeck, bool play = false);
@@ -171,12 +175,12 @@ class AutoDJProcessor : public QObject {
             DeckAttributes* pToDeck,
             bool seekToStartPoint);
     void calculateTransitionImpl(
-            DeckAttributes* pFromDeck,
-            DeckAttributes* pToDeck,
+            TrackOrDeckAttributes* pFromDeck,
+            TrackOrDeckAttributes* pToDeck,
             bool seekToStartPoint);
     void useFixedFadeTime(
-            DeckAttributes* pFromDeck,
-            DeckAttributes* pToDeck,
+            TrackOrDeckAttributes* pFromDeck,
+            TrackOrDeckAttributes* pToDeck,
             double fromDeckSecond,
             double fadeEndSecond,
             double toDeckStartSecond);
@@ -184,6 +188,13 @@ class AutoDJProcessor : public QObject {
     DeckAttributes* getRightDeck();
     DeckAttributes* getOtherDeck(const DeckAttributes* pThisDeck);
     DeckAttributes* getFromDeck();
+
+    /// Calculates the total remaining duration of tracks in the AutoDJ playlist,
+    /// excluding the track that is currently playing already.
+    mixxx::Duration calculateQueueDuration();
+
+    /// Update the queue duration by running calculateQueueDuration.
+    void updateQueueDuration();
 
     // Removes the track loaded to the player group from the top of the AutoDJ
     // queue if it is present.
