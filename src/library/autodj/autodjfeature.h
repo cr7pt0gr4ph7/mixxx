@@ -119,4 +119,8 @@ class AutoDJFeature : public LibraryFeature {
     // and remaining duration when tracks are added to or removed from
     // the Auto DJ queue.
     void slotRemainingQueueDurationChanged(int numTracks, mixxx::Duration duration);
+
+    // Show the title of the "Auto DJ" node in bold when the
+    // currently selected track is already in the Auto DJ queue.
+    void slotTrackSelected(TrackId trackId);
 };
