@@ -35,6 +35,7 @@ class WBeatSpinBox : public QDoubleSpinBox, public WBaseWidget {
     bool event(QEvent* pEvent) override;
     void keyPressEvent(QKeyEvent* pEvent) override;
     double m_scaleFactor;
+    bool m_useFineSteps;
 };
 
 // This is an inherited class that supports font scaling
