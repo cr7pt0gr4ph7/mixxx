@@ -1760,6 +1760,7 @@ add_library(
   src/widget/wbattery.cpp
   src/widget/wbeatspinbox.cpp
   src/widget/wbpmeditor.cpp
+  src/widget/wcheckableaction.cpp
   src/widget/wcollapsiblegroupbox.cpp
   src/widget/wcolorpicker.cpp
   src/widget/wcolorpickeraction.cpp
@@ -1795,6 +1796,7 @@ add_library(
   src/widget/wlibrarytableview.cpp
   src/widget/wlibrarytextbrowser.cpp
   src/widget/wmainmenubar.cpp
+  src/widget/wmenu.cpp
   src/widget/wmenucheckbox.cpp
   src/widget/wmultilinetextedit.cpp
   src/widget/wnotificationscontainer.cpp

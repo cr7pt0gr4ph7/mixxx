@@ -10,7 +10,7 @@
 
 WFindOnWebMenu::WFindOnWebMenu(
         const QPointer<QMenu>& pParent, QPointer<FindOnWebLast> pFindOnWebLast)
-        : QMenu(pParent),
+        : WMenu(pParent),
           m_pFindOnWebLast(std::move(pFindOnWebLast)) {
 }
 

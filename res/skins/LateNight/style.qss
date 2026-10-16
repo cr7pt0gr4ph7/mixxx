@@ -173,6 +173,7 @@ WSearchLineEdit::item:selected,
 }
 
   WLibrarySidebar QMenu::indicator,
+  WTrackMenu QMenu::indicator,
   WTrackMenu QMenu QCheckBox::indicator,
   WEffectChainPresetButton QMenu QCheckBox::indicator {
     /* Note that the border is added to the base size of 0.7em x 0.7em
@@ -190,6 +191,11 @@ WSearchLineEdit::item:selected,
     height: 13px;
   }
   /* disabled menu item and checkbox */
+  WTrackMenu QMenu::indicator:disabled:unchecked,
+  WTrackMenu QMenu::indicator:disabled:checked,
+  WTrackMenu QMenu::indicator:indeterminate,
+  WTrackMenu QMenu::indicator:indeterminate:checked,
+  WTrackMenu QMenu::indicator:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:checked,
   WTrackMenu QMenu QCheckBox::indicator:indeterminate {

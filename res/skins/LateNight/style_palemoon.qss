@@ -3586,6 +3586,7 @@ QPlainTextEdit QMenu::item:disabled {
   WLibrarySidebar QMenu::indicator:checked,
   WTrackTableViewHeader QMenu QCheckBox::indicator:checked,
   #LibraryPlayedCheckbox::indicator:checked,
+  WTrackMenu QMenu::indicator:checked,
   WTrackMenu QMenu QCheckBox::indicator:checked,
   WEffectChainPresetButton QMenu QCheckBox::indicator:checked {
     image: url(skins:LateNight/palemoon/buttons/btn__lib_checkmark_blue.svg);
@@ -3596,17 +3597,28 @@ QPlainTextEdit QMenu::item:disabled {
     image: url(skins:LateNight/palemoon/buttons/btn__effect_selected.svg);
     margin-left: 6px;
   }
+  WTrackMenu QMenu::indicator:disabled:checked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:checked {
     image: url(skins:LateNight/palemoon/buttons/btn__lib_checkmark_grey.svg);
   }
+  WTrackMenu QMenu::indicator:indeterminate,
+  WTrackMenu QMenu::indicator:indeterminate:checked,
+  WTrackMenu QMenu::indicator:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:indeterminate {
     image: url(skins:LateNight/palemoon/buttons/btn__lib_checkmark_indeterminate_blue.svg);
   }
+  WTrackMenu QMenu::indicator:disabled:indeterminate,
+  WTrackMenu QMenu::indicator:disabled:indeterminate:checked,
+  WTrackMenu QMenu::indicator:disabled:indeterminate:unchecked,
   WTrackMenu QMenu QCheckBox::indicator:disabled:indeterminate {
     image: url(skins:LateNight/palemoon/buttons/btn__lib_checkmark_indeterminate_grey.svg);
   }
+  WTrackMenu QMenu::indicator:disabled:checked,
+  WTrackMenu QMenu::indicator:disabled:unchecked,
+  WTrackMenu QMenu::indicator:disabled:indeterminate,
   WTrackMenu QMenu QCheckBox::indicator:disabled:checked,
-  WTrackMenu QMenu QCheckBox::indicator:disabled:unchecked {
+  WTrackMenu QMenu QCheckBox::indicator:disabled:unchecked,
+  WTrackMenu QMenu QCheckBox::indicator:disabled:indeterminate {
     border: 1px solid #222;
   }
 
@@ -3616,6 +3628,8 @@ WLibrarySidebar QMenu::indicator:unchecked,
 WLibrarySidebar QMenu::indicator:unchecked:selected,
 WTrackTableViewHeader QMenu QCheckBox::indicator:unchecked,
 WTrackTableViewHeader QMenu QCheckBox::indicator:unchecked:selected,
+WTrackMenu QMenu::indicator:unchecked,
+WTrackMenu QMenu::indicator:unchecked:selected,
 WEffectSelector::indicator:unchecked,
 WEffectSelector::indicator:unchecked:selected,
 WEffectChainPresetSelector::indicator:unchecked,

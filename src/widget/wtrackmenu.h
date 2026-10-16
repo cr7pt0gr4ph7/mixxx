@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QMenu>
 #include <QModelIndex>
 #include <QPointer>
 #include <memory>
@@ -16,6 +15,7 @@
 #include "track/trackref.h"
 #include "util/color/rgbcolor.h"
 #include "util/parented_ptr.h"
+#include "widget/wmenu.h"
 
 class DlgTagFetcher;
 class DlgTrackInfo;
@@ -25,6 +25,7 @@ class ExternalTrackCollection;
 class FindOnWebLast;
 class Library;
 class TrackModel;
+class WCheckableAction;
 class WColorPickerAction;
 class WCoverArtMenu;
 class WFindOnWebMenu;
@@ -36,7 +37,7 @@ class WStarRatingAction;
 /// or list/table type track widgets based on QModelIndexList and TrackModel.
 /// Desired menu features can be selected by passing Feature enum flags
 /// in constructor.
-class WTrackMenu : public QMenu {
+class WTrackMenu : public WMenu {
     Q_OBJECT
   public:
     enum Feature {
@@ -243,7 +244,7 @@ class WTrackMenu : public QMenu {
     bool featureIsEnabled(Feature flag) const;
 
     void addSelectionToPlaylist(int iPlaylistId);
-    void updateSelectionCrates(QWidget* pWidget);
+    void updateSelectionCrates(WCheckableAction* pAction);
 
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
     void addToAnalysis(AnalyzerTrack::Options options = AnalyzerTrack::Options());
@@ -288,7 +289,7 @@ class WTrackMenu : public QMenu {
     parented_ptr<QMenu> m_pDeckMenu;
     parented_ptr<QMenu> m_pSamplerMenu;
     parented_ptr<QMenu> m_pPlaylistMenu;
-    parented_ptr<QMenu> m_pCrateMenu;
+    parented_ptr<WMenu> m_pCrateMenu;
     parented_ptr<QMenu> m_pMetadataMenu;
     parented_ptr<QMenu> m_pMetadataUpdateExternalCollectionsMenu;
     parented_ptr<QMenu> m_pHotcueMenu;
