@@ -155,6 +155,9 @@ merge_branch wip_toast-notifications
 merge_branch rtm_style-active-search-control
 merge_branch rtm_autodj_search
 
+# Highlight the Auto DJ node if the queue contains the currently selected track
+merge_branch rtm_autodj_selectedtrack
+
 # Subcrates & necessary foundational improvements to drag & drop
 merge_branch rtm_sidebar_dragdrop
 merge_branch rtm_sidebar_autocollapse
