@@ -24,6 +24,7 @@
 #include "util/defs.h"
 #include "util/dnd.h"
 #include "util/file.h"
+#include "util/filename.h"
 #include "widget/wlibrary.h"
 #include "widget/wlibrarysidebar.h"
 #include "widget/wlibrarytextbrowser.h"
@@ -826,7 +827,7 @@ void CrateFeature::slotExportAllCratesToPlaylist() {
         QString fileLocation(baseFileLocation);
         fileLocation.replace(
                 QStringLiteral("[Crate]"),
-                crate.getName(),
+                mixxx::filename::sanitize(crate.getName()),
                 Qt::CaseInsensitive);
 
         if (fileLocation.endsWith(".csv", Qt::CaseInsensitive)) {
