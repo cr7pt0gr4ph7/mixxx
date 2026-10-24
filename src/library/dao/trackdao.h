@@ -50,6 +50,9 @@ class TrackDAO : public QObject, public virtual DAO, public virtual GlobalTrackC
 
     void finish();
 
+    // Reset the played flags of all tracks.
+    void resetPlayedTracks();
+
     QList<TrackId> resolveTrackIds(
             const QList<QUrl>& urls,
             ResolveTrackIdFlags flags = ResolveTrackIdFlag::ResolveOnly);
