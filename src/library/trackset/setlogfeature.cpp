@@ -105,6 +105,12 @@ SetlogFeature::SetlogFeature(
             this,
             &SetlogFeature::slotDeleteAllUnlockedChildPlaylists);
 
+    m_pResetPlayedAction = new QAction(tr("Reset played tracks"), this);
+    connect(m_pResetPlayedAction,
+            &QAction::triggered,
+            this,
+            &SetlogFeature::slotResetPlayed);
+
     // initialized in a new generic slot(get new history playlist purpose)
     slotGetNewPlaylist();
 }
@@ -165,10 +171,10 @@ void SetlogFeature::onRightClick(const QPoint& globalPos) {
     m_lastRightClickedIndex = QModelIndex();
 
     // Create the right-click menu
-    // QMenu menu(NULL);
-    // menu.addAction(m_pCreatePlaylistAction);
+    QMenu menu(m_pSidebarWidget);
+    menu.addAction(m_pResetPlayedAction);
     // TODO(DASCHUER) add something like disable logging
-    // menu.exec(globalPos);
+    menu.exec(globalPos);
 }
 
 void SetlogFeature::onRightClickChild(const QPoint& globalPos, const QModelIndex& index) {
@@ -585,6 +591,18 @@ void SetlogFeature::slotDeleteAllUnlockedChildPlaylists() {
     }
     qDebug() << "History: deleting all unlocked playlists of" << year;
     m_playlistDao.deleteUnlockedPlaylists(std::move(ids));
+}
+
+void SetlogFeature::slotResetPlayed() {
+    qInfo() << "Clearing track played flags for this session due to user request";
+    QSqlDatabase database =
+            m_pLibrary->trackCollectionManager()->internalCollection()->database();
+    QSqlQuery query(database);
+    if (!query.exec("UPDATE library SET played=0 where played>0")) {
+        // Note: without where, this call updates every row which takes long
+        LOG_FAILED_QUERY(query)
+                << "Error clearing played value";
+    }
 }
 
 void SetlogFeature::slotPlayingTrackChanged(TrackPointer currentPlayingTrack) {

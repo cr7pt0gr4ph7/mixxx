@@ -44,6 +44,7 @@ class SetlogFeature : public BasePlaylistFeature {
     void slotPlaylistContentOrLockChanged(const QSet<int>& playlistIds) override;
     void slotPlaylistTableRenamed(int playlistId, const QString& newName) override;
     void slotDeleteAllUnlockedChildPlaylists();
+    void slotResetPlayed();
 
   private:
     void deleteAllUnlockedPlaylistsWithFewerTracks();
@@ -57,6 +58,7 @@ class SetlogFeature : public BasePlaylistFeature {
     QAction* m_pLockAllChildPlaylists;
     QAction* m_pUnlockAllChildPlaylists;
     QAction* m_pDeleteAllChildPlaylists;
+    QAction* m_pResetPlayedAction;
 
     int m_currentPlaylistId;
     int m_yearNodeId;
