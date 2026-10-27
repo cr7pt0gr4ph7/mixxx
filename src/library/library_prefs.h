@@ -64,6 +64,8 @@ extern const ConfigKey kDateLocaleConfigKey;
 
 extern const ConfigKey kDateFormatConfigKey;
 
+extern const ConfigKey kTimeFormatConfigKey;
+
 const int kSidebarHoverExpandDelayDefault = 500; // ms
 
 extern const ConfigKey kSidebarHoverExpandDelayConfigKey;

@@ -133,6 +133,33 @@ DlgPrefLibrary::DlgPrefLibrary(
             this,
             &DlgPrefLibrary::slotDateFormatChanged);
 
+    comboBox_timeFormat->addItem(tr("Native (System Default)"),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("ISO 8601"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::ISO8601));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("Regional Short"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalShort));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("Regional Long"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalLong));
+    comboBox_timeFormat->addItem(tr("Custom"),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::Custom));
+
+    connect(comboBox_timeFormat,
+            &QComboBox::currentIndexChanged,
+            this,
+            &DlgPrefLibrary::slotTimeFormatIndexChanged);
+
+    connect(comboBox_timeFormat,
+            &QComboBox::editTextChanged,
+            this,
+            &DlgPrefLibrary::slotTimeFormatChanged);
+
     connect(btn_library_font, &QAbstractButton::clicked, this, &DlgPrefLibrary::slotSelectFont);
 
     // TODO(XXX) this string should be extracted from the soundsources
@@ -388,6 +415,40 @@ void DlgPrefLibrary::slotUpdate() {
     // Ensure the format is applied to the library view on startup/load
     BaseTrackTableModel::setDateFormat(m_dateFormat);
     updateDateFormatPreview();
+
+    m_timeFormat = m_pConfig->getValue(
+            kTimeFormatConfigKey,
+            BaseTrackTableModel::kTimeFormatDefault);
+
+    // Determine the matching preset or custom
+    BaseTrackTableModel::DateFormat timePreset = BaseTrackTableModel::DateFormat::Custom;
+    if (m_timeFormat.isEmpty()) {
+        timePreset = BaseTrackTableModel::DateFormat::Native;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)) {
+        timePreset = BaseTrackTableModel::DateFormat::ISO8601;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)) {
+        timePreset = BaseTrackTableModel::DateFormat::RegionalShort;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)) {
+        timePreset = BaseTrackTableModel::DateFormat::RegionalLong;
+    }
+
+    int timeIndex = comboBox_timeFormat->findData(QVariant::fromValue(timePreset));
+    if (timeIndex != -1) {
+        comboBox_timeFormat->setCurrentIndex(timeIndex);
+    }
+
+    if (timePreset == BaseTrackTableModel::DateFormat::Custom) {
+        comboBox_timeFormat->setEditable(true);
+        comboBox_timeFormat->setEditText(m_timeFormat);
+        m_lastCustomTimeFormat = m_timeFormat;
+    } else {
+        comboBox_timeFormat->setEditable(false);
+    }
+
+    updateTimeFormatPreview(m_timeFormat);
+
+    // Ensure the static member is updated on startup/load
+    BaseTrackTableModel::setTimeFormat(m_timeFormat);
 
     switch (m_pConfig->getValue<int>(
             kTrackDoubleClickActionConfigKey,
@@ -692,6 +753,9 @@ void DlgPrefLibrary::slotApply() {
     m_pConfig->setValue(kDateFormatConfigKey, m_dateFormat);
     BaseTrackTableModel::setDateFormat(m_dateFormat);
 
+    m_pConfig->setValue(kTimeFormatConfigKey, m_timeFormat);
+    BaseTrackTableModel::setTimeFormat(m_timeFormat);
+
     BaseTrackTableModel::setApplyPlayedTrackColor(
             checkbox_played_track_color->isChecked());
     m_pConfig->set(
@@ -855,6 +919,24 @@ QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) cons
     return QString();
 }
 
+QString DlgPrefLibrary::getTimeFormat(BaseTrackTableModel::DateFormat type) const {
+    switch (type) {
+    case BaseTrackTableModel::DateFormat::Native:
+        return QString();
+    case BaseTrackTableModel::DateFormat::ISO8601:
+        return QStringLiteral("hh:mm");
+    case BaseTrackTableModel::DateFormat::RegionalShort:
+        return m_dateLocale.timeFormat(QLocale::ShortFormat);
+    case BaseTrackTableModel::DateFormat::RegionalLong:
+        return m_dateLocale.timeFormat(QLocale::LongFormat);
+    case BaseTrackTableModel::DateFormat::Custom:
+        return m_lastCustomTimeFormat;
+    }
+
+    DEBUG_ASSERT(false);
+    return QString();
+}
+
 void DlgPrefLibrary::slotDateFormatIndexChanged(int index) {
     auto type = comboBox_dateFormat->itemData(index)
                         .value<BaseTrackTableModel::DateFormat>();
@@ -896,6 +978,7 @@ void DlgPrefLibrary::slotDateFormatChanged(const QString& text) {
 void DlgPrefLibrary::updateDateFormatPreview() {
     const QString previewStr = mixxx::formatDate(QDate::currentDate(), m_dateFormat);
     label_dateFormatPreview->setText(previewStr);
+    BaseTrackTableModel::setDateFormat(format);
 }
 
 void DlgPrefLibrary::updateDateFormats() {
@@ -926,4 +1009,48 @@ void DlgPrefLibrary::updateDateFormats() {
     if (newIndex != -1) {
         comboBox_dateFormat->setCurrentIndex(newIndex);
     }
+}
+
+void DlgPrefLibrary::slotTimeFormatIndexChanged(int index) {
+    auto type = comboBox_timeFormat->itemData(index)
+                        .value<BaseTrackTableModel::DateFormat>();
+
+    if (type == BaseTrackTableModel::DateFormat::Custom) {
+        // Enable editing for Custom
+        if (!comboBox_timeFormat->isEditable()) {
+            comboBox_timeFormat->setEditable(true);
+            comboBox_timeFormat->setEditText(m_lastCustomTimeFormat);
+        }
+    } else {
+        // Disable editing for Presets
+        comboBox_timeFormat->setEditable(false);
+        slotTimeFormatChanged(getTimeFormat(type));
+    }
+}
+
+void DlgPrefLibrary::slotTimeFormatChanged(const QString& text) {
+    m_timeFormat = text;
+    // If not editable, we are in a Preset mode, but 'text' might be the Item
+    // Label (e.g. "Native ...") depending on how this was called. However, our
+    // slotTimeFormatIndexChanged calls this explicitly with the correct format
+    // string. The editTextChanged signal only fires when editable. So 'text'
+    // should be the correct format string in all valid cases.
+
+    if (comboBox_timeFormat->isEditable()) {
+        int index = comboBox_timeFormat->currentIndex();
+        if (index >= 0) {
+            auto type = comboBox_timeFormat->itemData(index)
+                                .value<BaseTrackTableModel::DateFormat>();
+            if (type == BaseTrackTableModel::DateFormat::Custom) {
+                m_lastCustomTimeFormat = m_timeFormat;
+            }
+        }
+    }
+    updateTimeFormatPreview();
+}
+
+void DlgPrefLibrary::updateTimeFormatPreview() {
+    const QString previewStr = mixxx::formatTime(QTime::currentTime(), m_timeFormat);
+    label_timeFormatPreview->setText(previewStr);
+    BaseTrackTableModel::setTimeFormat(m_timeFormat);
 }
