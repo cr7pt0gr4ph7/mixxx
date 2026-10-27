@@ -178,8 +178,9 @@ merge_branch rtm_playlists_moremenu
 merge_branch rtm_crates_enginedj
 merge_branch rtm_crates_exportall
 
-# --repair-database CLI option
+# --repair-database and --migrate-database CLI options
 merge_branch rtm_cli_repairdatabase
+merge_branch rtm_cli_migratedatabase
 
 # Currently not used
 # merge_branch wip_misc_stuff
