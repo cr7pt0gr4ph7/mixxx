@@ -299,6 +299,27 @@
       </item>
 
       <item row="11" column="0">
+       <widget class="QLabel" name="label_dateLocale">
+        <property name="text">
+         <string>Date Locale:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1" colspan="3">
+       <widget class="QComboBox" name="comboBox_dateLocale">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+
+      <item row="12" column="0">
        <widget class="QLabel" name="label_dateFormat">
         <property name="text">
          <string>Date Format:</string>
@@ -308,7 +329,7 @@
         </property>
        </widget>
       </item>
-      <item row="11" column="1" colspan="3">
+      <item row="12" column="1" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_dateFormat">
         <property name="leftMargin">
          <number>0</number>

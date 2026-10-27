@@ -111,6 +111,16 @@ DlgPrefLibrary::DlgPrefLibrary(
 
     updateSearchLineEditHistoryOptions();
 
+    comboBox_dateLocale->addItem(tr("Native (System Default)"),
+            QVariant::fromValue(BaseTrackTableModel::DateLocale::System));
+    comboBox_dateLocale->addItem(tr("Native (Application Default)"),
+            QVariant::fromValue(BaseTrackTableModel::DateLocale::Application));
+
+    connect(comboBox_dateLocale,
+            &QComboBox::currentIndexChanged,
+            this,
+            &DlgPrefLibrary::slotDateLocaleIndexChanged);
+
     comboBox_dateFormat->addItem(tr("Native (System Default)"),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
     comboBox_dateFormat->addItem(
@@ -348,6 +358,22 @@ void DlgPrefLibrary::slotUpdate() {
             ConfigKey("[Library]", "ShowRekordboxLibrary"), true));
     checkBox_show_serato->setChecked(m_pConfig->getValue(
             ConfigKey("[Library]", "ShowSeratoLibrary"), true));
+
+    QString dateLocale = m_pConfig->getValue(
+            kDateLocaleConfigKey,
+            QString());
+
+    BaseTrackTableModel::DateLocale localePreset = BaseTrackTableModel::DateLocale::System;
+    if (dateLocale == QStringLiteral("System")) {
+        localePreset = BaseTrackTableModel::DateLocale::System;
+    } else if (dateLocale == QStringLiteral("Application")) {
+        localePreset = BaseTrackTableModel::DateLocale::Application;
+    }
+
+    int localeIndex = comboBox_dateLocale->findData(QVariant::fromValue(localePreset));
+    if (localeIndex != -1) {
+        comboBox_dateLocale->setCurrentIndex(localeIndex);
+    }
 
     QString dateFormat = m_pConfig->getValue(
             kDateFormatConfigKey,
@@ -804,6 +830,27 @@ void DlgPrefLibrary::setSeratoMetadataEnabled(bool shouldSyncTrackMetadata) {
     }
 }
 
+void DlgPrefLibrary::slotDateLocaleIndexChanged(int index) {
+    auto type = comboBox_dateLocale->itemData(index)
+                        .value<BaseTrackTableModel::DateLocale>();
+
+    QString localePreset = QStringLiteral("System");
+    switch (type) {
+    case BaseTrackTableModel::DateLocale::System:
+        localePreset = QStringLiteral("System");
+        m_dateLocale = QLocale::system();
+        break;
+    case BaseTrackTableModel::DateLocale::Application:
+        localePreset = QStringLiteral("Application");
+        m_dateLocale = QLocale();
+        break;
+    }
+
+    // Set the global date time formatting locale
+    mixxx::setDateTimeLocale(m_dateLocale);
+    m_pConfig->setValue(kDateLocaleConfigKey, localePreset);
+}
+
 QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) const {
     switch (type) {
     case BaseTrackTableModel::DateFormat::Native:
@@ -811,9 +858,9 @@ QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) cons
     case BaseTrackTableModel::DateFormat::ISO8601:
         return QStringLiteral("yyyy-MM-dd");
     case BaseTrackTableModel::DateFormat::RegionalShort:
-        return QStringLiteral("d/M/yy");
+        return m_dateLocale.dateFormat(QLocale::ShortFormat);
     case BaseTrackTableModel::DateFormat::RegionalLong:
-        return QStringLiteral("dd.MM.yyyy");
+        return m_dateLocale.dateFormat(QLocale::LongFormat);
     case BaseTrackTableModel::DateFormat::Custom:
         return m_lastCustomDateFormat;
     }

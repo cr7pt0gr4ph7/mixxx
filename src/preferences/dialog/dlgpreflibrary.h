@@ -67,6 +67,7 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void slotBpmRangeSelected(int index);
     void slotBpmColumnPrecisionChanged(int bpmPrecision);
     void slotSeratoMetadataExportClicked(bool);
+    void slotDateLocaleIndexChanged(int index);
     void slotDateFormatIndexChanged(int index);
     void slotDateFormatChanged(const QString& text);
 
@@ -88,5 +89,6 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     // Listen to rate range changes in order to update the fuzzy BPM range
     parented_ptr<ControlProxy> m_pRateRangeDeck1;
 
+    QLocale m_dateLocale;
     QString m_lastCustomDateFormat;
 };
