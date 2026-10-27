@@ -133,22 +133,7 @@ DlgPrefLibrary::DlgPrefLibrary(
             this,
             &DlgPrefLibrary::slotDateFormatChanged);
 
-    comboBox_timeFormat->addItem(tr("Native (System Default)"),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
-    comboBox_timeFormat->addItem(
-            QStringLiteral("%1 (%2)")::arg(tr("ISO 8601"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::ISO8601));
-    comboBox_timeFormat->addItem(
-            QStringLiteral("%1 (%2)")::arg(tr("Regional Short"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalShort));
-    comboBox_timeFormat->addItem(
-            QStringLiteral("%1 (%2)")::arg(tr("Regional Long"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalLong));
-    comboBox_timeFormat->addItem(tr("Custom"),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::Custom));
+    updateTimeFormats();
 
     connect(comboBox_timeFormat,
             &QComboBox::currentIndexChanged,
@@ -898,6 +883,7 @@ void DlgPrefLibrary::slotDateLocaleIndexChanged(int index) {
 
     // Update the displayed presets to match the selected locale
     updateDateFormats();
+    updateTimeFormats();
 }
 
 QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) const {
@@ -1054,4 +1040,33 @@ void DlgPrefLibrary::updateTimeFormatPreview(const QString& format) {
 
     m_pConfig->setValue(kTimeFormatConfigKey, format);
     BaseTrackTableModel::setTimeFormat(format);
+}
+
+void DlgPrefLibrary::updateTimeFormats() {
+    // Update the available time formats
+    const int index = comboBox_timeFormat->currentIndex();
+    const auto type = comboBox_timeFormat->itemData(index)
+                              .value<BaseTrackTableModel::DateFormat>();
+
+    comboBox_timeFormat->addItem(tr("Native (System Default)"),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)").arg(tr("ISO 8601"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::ISO8601));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)").arg(tr("Regional Short"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalShort));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)").arg(tr("Regional Long"),
+                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalLong));
+    comboBox_timeFormat->addItem(tr("Custom"),
+            QVariant::fromValue(BaseTrackTableModel::DateFormat::Custom));
+
+    int newIndex = comboBox_dateLocale->findData(QVariant::fromValue(type));
+    if (newIndex != -1) {
+        comboBox_timeFormat->setCurrentIndex(newIndex);
+    }
 }
