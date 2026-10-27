@@ -8,6 +8,9 @@
 
 namespace mixxx {
 
+extern bool s_dateTimeLocaleInitialized;
+extern QLocale s_dateTimeLocale;
+
 /// Common utility functions for safely converting and consistently
 /// displaying date time values.
 
@@ -28,6 +31,15 @@ inline QDateTime convertVariantToDateTime(
     return data.toDateTime();
 }
 
+inline void setDateTimeLocale(const QLocale& locale) {
+    s_dateTimeLocaleInitialized = true;
+    s_dateTimeLocale = locale;
+}
+
+inline QLocale dateTimeLocale() {
+    return s_dateTimeLocaleInitialized ? s_dateTimeLocale : QLocale::system();
+}
+
 /// Helper to format a QDate according to a format string.
 /// If format is empty, uses the system's default locale short format.
 inline QString formatDate(
@@ -37,9 +49,9 @@ inline QString formatDate(
         return QString();
     }
     if (format.isEmpty()) {
-        return QLocale().toString(date, QLocale::ShortFormat);
+        return dateTimeLocale().toString(date, QLocale::ShortFormat);
     }
-    return date.toString(format);
+    return dateTimeLocale().toString(date, format);
 }
 
 /// Helper to format a QDateTime according to a format string.
@@ -51,9 +63,9 @@ inline QString formatDateTime(
         return QString();
     }
     if (format.isEmpty()) {
-        return QLocale().toString(dt, QLocale::ShortFormat);
+        return dateTimeLocale().toString(dt, QLocale::ShortFormat);
     }
-    return dt.toString(format);
+    return dateTimeLocale().toString(dt, format);
 }
 
 /// Format a QDateTime for display to the user using the
@@ -72,9 +84,9 @@ inline QString formatTime(
         return QString();
     }
     if (format.isEmpty()) {
-        return QLocale().toString(time, QLocale::ShortFormat);
+        return dateTimeLocale().toString(time, QLocale::ShortFormat);
     }
-    return time.toString(format);
+    return dateTimeLocale().toString(time, format);
 }
 
 } // namespace mixxx
