@@ -120,6 +120,34 @@ QString BaseTrackTableModel::s_dateFormat = BaseTrackTableModel::kDateFormatDefa
 
 void BaseTrackTableModel::setDateFormat(const QString& format) {
     s_dateFormat = format;
+    updateDateTimeFormat();
+}
+
+const QString BaseTrackTableModel::kTimeFormatDefault = QString();
+QString BaseTrackTableModel::s_timeFormat = BaseTrackTableModel::kTimeFormatDefault;
+
+void BaseTrackTableModel::setTimeFormat(const QString& format) {
+    s_dateFormat = format;
+    updateDateTimeFormat();
+}
+
+const QString BaseTrackTableModel::kDateTimeFormatDefault = QString();
+QString BaseTrackTableModel::s_dateTimeFormat = BaseTrackTableModel::kTimeFormatDefault;
+
+void BaseTrackTableModel::updateDateTimeFormat() {
+    if (s_dateFormat.isEmpty() && s_timeFormat.isEmpty()) {
+        s_dateTimeFormat = QString();
+    } else {
+        QString dateFormat = s_dateFormat;
+        if (dateFormat.isEmpty()) {
+            dateFormat = mixxx::dateTimeLocale().dateFormat(QLocale::ShortFormat);
+        }
+        QString timeFormat = s_timeFormat;
+        if (timeFormat.isEmpty()) {
+            timeFormat = mixxx::dateTimeLocale().timeFormat(QLocale::ShortFormat);
+        }
+        s_dateTimeFormat = dateFormat + QStringLiteral(" ") + timeFormat;
+    }
 }
 
 BaseTrackTableModel::BaseTrackTableModel(
@@ -696,7 +724,7 @@ QVariant BaseTrackTableModel::roleValue(
             if (field == ColumnCache::COLUMN_PLAYLISTTRACKSTABLE_DATETIMEADDED) {
                 // Timestamp column in history feature:
                 // Use localized date/time format without text: "5/20/98 03:40 AM"
-                return mixxx::displayLocalDateTime(dt, s_dateFormat);
+                return mixxx::displayLocalDateTime(dt, s_dateTimeFormat);
             }
             // For Date Added, use just the date: "5/20/98"
             return mixxx::formatDate(dt.date(), s_dateFormat);
