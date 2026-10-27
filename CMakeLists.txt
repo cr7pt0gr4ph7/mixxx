@@ -1659,6 +1659,7 @@ add_library(
   src/util/color/colorpalette.cpp
   src/util/color/predefinedcolorpalettes.cpp
   src/util/console.cpp
+  src/util/datetime.cpp
   src/util/db/dbconnection.cpp
   src/util/db/dbconnectionpool.cpp
   src/util/db/dbconnectionpooled.cpp
