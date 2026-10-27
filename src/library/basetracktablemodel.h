@@ -133,6 +133,12 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
     static constexpr bool kApplyPlayedTrackColorDefault = true;
     static void setApplyPlayedTrackColor(bool apply);
 
+    enum class DateLocale {
+        System = 0,      // System Default
+        Application = 1, // Application Default
+    };
+    Q_ENUM(DateLocale)
+
     enum class DateFormat {
         Native = 0,        // System Default
         ISO8601 = 1,       // yyyy-MM-dd
