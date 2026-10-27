@@ -63,4 +63,18 @@ inline QString displayLocalDateTime(
     return formatDateTime(dt, format);
 }
 
+/// Helper to format a QTime according to a format string.
+/// If format is empty, uses the system's default locale short format.
+inline QString formatTime(
+        const QTime& time,
+        const QString& format = QString()) {
+    if (!time.isValid()) {
+        return QString();
+    }
+    if (format.isEmpty()) {
+        return QLocale().toString(time, QLocale::ShortFormat);
+    }
+    return time.toString(format);
+}
+
 } // namespace mixxx
