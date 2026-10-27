@@ -77,6 +77,7 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void updateSearchLineEditHistoryOptions();
     void setSeratoMetadataEnabled(bool shouldSyncTrackMetadata);
     void updateDateFormatPreview(const QString& format);
+    QString getDateFormat(BaseTrackTableModel::DateFormat type) const;
 
     QStandardItemModel m_dirListModel;
     UserSettingsPointer m_pConfig;
