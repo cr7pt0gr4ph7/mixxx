@@ -113,11 +113,17 @@ DlgPrefLibrary::DlgPrefLibrary(
 
     comboBox_dateFormat->addItem(tr("Native (System Default)"),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
-    comboBox_dateFormat->addItem(tr("ISO 8601 (yyyy-MM-dd)"),
+    comboBox_dateFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("ISO 8601"),
+                    getDateFormat(BaseTrackTableModel::DateFormat::ISO8601)),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::ISO8601));
-    comboBox_dateFormat->addItem(tr("Regional Short (d/M/yy)"),
+    comboBox_dateFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("Regional Short"),
+                    getDateFormat(BaseTrackTableModel::DateFormat::RegionalShort)),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalShort));
-    comboBox_dateFormat->addItem(tr("Regional Long (dd.MM.yyyy)"),
+    comboBox_dateFormat->addItem(
+            QStringLiteral("%1 (%2)")::arg(tr("Regional Long"),
+                    getDateFormat(BaseTrackTableModel::DateFormat::RegionalLong)),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalLong));
     comboBox_dateFormat->addItem(tr("Custom"),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::Custom));
