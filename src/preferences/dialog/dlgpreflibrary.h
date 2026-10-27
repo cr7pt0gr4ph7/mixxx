@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "library/library_decl.h"
+#include "library/basetracktablemodel.h"
 #include "preferences/dialog/dlgpreferencepage.h"
 #include "preferences/dialog/ui_dlgpreflibrarydlg.h"
 #include "preferences/usersettings.h"
@@ -77,6 +78,7 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void updateSearchLineEditHistoryOptions();
     void setSeratoMetadataEnabled(bool shouldSyncTrackMetadata);
     void updateDateFormatPreview(const QString& format);
+    QString getDateFormat(BaseTrackTableModel::DateFormat type) const;
 
     QStandardItemModel m_dirListModel;
     UserSettingsPointer m_pConfig;

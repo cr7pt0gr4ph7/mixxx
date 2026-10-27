@@ -798,6 +798,24 @@ void DlgPrefLibrary::setSeratoMetadataEnabled(bool shouldSyncTrackMetadata) {
     }
 }
 
+QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) const {
+    switch (type) {
+    case BaseTrackTableModel::DateFormat::Native:
+        return QString();
+    case BaseTrackTableModel::DateFormat::ISO8601:
+        return QStringLiteral("yyyy-MM-dd");
+    case BaseTrackTableModel::DateFormat::RegionalShort:
+        return QStringLiteral("d/M/yy");
+    case BaseTrackTableModel::DateFormat::RegionalLong:
+        return QStringLiteral("dd.MM.yyyy");
+    case BaseTrackTableModel::DateFormat::Custom:
+        return m_lastCustomDateFormat;
+    }
+
+    DEBUG_ASSERT(false);
+    return QString();
+}
+
 void DlgPrefLibrary::slotDateFormatIndexChanged(int index) {
     auto type = comboBox_dateFormat->itemData(index)
                         .value<BaseTrackTableModel::DateFormat>();
@@ -811,26 +829,7 @@ void DlgPrefLibrary::slotDateFormatIndexChanged(int index) {
     } else {
         // Disable editing for Presets
         comboBox_dateFormat->setEditable(false);
-
-        QString format;
-        switch (type) {
-        case BaseTrackTableModel::DateFormat::Native:
-            format = QString();
-            break;
-        case BaseTrackTableModel::DateFormat::ISO8601:
-            format = QStringLiteral("yyyy-MM-dd");
-            break;
-        case BaseTrackTableModel::DateFormat::RegionalShort:
-            format = QStringLiteral("d/M/yy");
-            break;
-        case BaseTrackTableModel::DateFormat::RegionalLong:
-            format = QStringLiteral("dd.MM.yyyy");
-            break;
-        case BaseTrackTableModel::DateFormat::Custom:
-            // Should not happen here given the if/else above
-            break;
-        }
-        slotDateFormatChanged(format);
+        slotDateFormatChanged(getDateFormat(type));
     }
 }
 
