@@ -70,6 +70,8 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void slotDateLocaleIndexChanged(int index);
     void slotDateFormatIndexChanged(int index);
     void slotDateFormatChanged(const QString& text);
+    void slotTimeFormatIndexChanged(int index);
+    void slotTimeFormatChanged(const QString& text);
 
   private:
     void populateDirList();
@@ -79,7 +81,9 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void setSeratoMetadataEnabled(bool shouldSyncTrackMetadata);
     void updateDateFormats();
     void updateDateFormatPreview(const QString& format);
+    void updateTimeFormatPreview(const QString& format);
     QString getDateFormat(BaseTrackTableModel::DateFormat type) const;
+    QString getTimeFormat(BaseTrackTableModel::DateFormat type) const;
 
     QStandardItemModel m_dirListModel;
     UserSettingsPointer m_pConfig;
@@ -92,4 +96,5 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
 
     QLocale m_dateLocale;
     QString m_lastCustomDateFormat;
+    QString m_lastCustomTimeFormat;
 };

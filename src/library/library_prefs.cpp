@@ -130,6 +130,12 @@ const ConfigKey mixxx::library::prefs::kDateFormatConfigKey =
                 mixxx::library::prefs::kConfigGroup,
                 QStringLiteral("DateFormat")};
 
+const ConfigKey mixxx::library::prefs::kTimeFormatConfigKey =
+        ConfigKey{
+                mixxx::library::prefs::kConfigGroup,
+                QStringLiteral("TimeFormat")};
+
+
 const ConfigKey mixxx::library::prefs::kSidebarHoverExpandDelayConfigKey =
         ConfigKey{
                 mixxx::library::prefs::kConfigGroup,
