@@ -182,8 +182,10 @@ merge_branch rtm_crates_exportall
 merge_branch rtm_cli_repairdatabase
 merge_branch rtm_cli_migratedatabase
 
-# "Reset Played State" menu item
+# "Reset Played State" menu item, and accurate
+# "played_at" tracking for set logs
 merge_branch rtm_setlog_resetplayed
+merge_branch rtm_setlog_storeplayedat
 
 # Currently not used
 # merge_branch wip_misc_stuff
