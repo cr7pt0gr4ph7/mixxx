@@ -359,9 +359,9 @@ void DlgPrefLibrary::slotUpdate() {
         preset = BaseTrackTableModel::DateFormat::Native;
     } else if (dateFormat == QStringLiteral("yyyy-MM-dd")) {
         preset = BaseTrackTableModel::DateFormat::ISO8601;
-    } else if (dateFormat == QStringLiteral("d/M/yy")) {
+    } else if (dateFormat == getDateFormat(BaseTrackTableModel::DateFormat::RegionalShort)) {
         preset = BaseTrackTableModel::DateFormat::RegionalShort;
-    } else if (dateFormat == QStringLiteral("dd.MM.yyyy")) {
+    } else if (dateFormat == getDateFormat(BaseTrackTableModel::DateFormat::RegionalLong)) {
         preset = BaseTrackTableModel::DateFormat::RegionalLong;
     }
 
