@@ -375,6 +375,11 @@ CoreServices::CoreServices(const CmdlineArgs& args, QApplication* pApp)
     }
     mixxx::Translations::initializeTranslations(
             m_pSettingsManager->settings(), pApp, m_cmdlineArgs.getLocale());
+
+    // Temporarily use the default locale for formatting until we have
+    // processed the user preferences in DlgPrefLibrary::slotUpdate
+    mixxx::setDateTimeLocale(QLocale());
+
     initializeKeyboard();
 }
 
