@@ -149,7 +149,13 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
     Q_ENUM(DateFormat)
 
     static const QString kDateFormatDefault;
+    static const QString kDateTimeFormatDefault;
+    static const QString kTimeFormatDefault;
     static void setDateFormat(const QString& format);
+    static void setTimeFormat(const QString& format);
+
+  private:
+    static void updateDateTimeFormat();
 
   protected:
     // Build a map from the column names to their indices
@@ -329,4 +335,6 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
 
     static bool s_bApplyPlayedTrackColor;
     static QString s_dateFormat;
+    static QString s_dateTimeFormat;
+    static QString s_timeFormat;
 };
