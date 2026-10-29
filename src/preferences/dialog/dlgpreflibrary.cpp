@@ -841,6 +841,7 @@ void DlgPrefLibrary::slotDateFormatChanged(const QString& text) {
     // slotDateFormatIndexChanged calls this explicitly with the correct format
     // string. The editTextChanged signal only fires when editable. So 'text'
     // should be the correct format string in all valid cases.
+    updateDateFormatPreview(text);
 
     if (comboBox_dateFormat->isEditable()) {
         int index = comboBox_dateFormat->currentIndex();
