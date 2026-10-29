@@ -980,7 +980,7 @@ void DlgPrefLibrary::updateDateFormats() {
                               .value<BaseTrackTableModel::DateFormat>();
 
     comboBox_dateFormat->clear();
-    comboBox_dateFormat->addItem(tr("Native (System Default)"),
+    comboBox_dateFormat->addItem(tr("Native (Locale Default)"),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
     comboBox_dateFormat->addItem(
             QStringLiteral("%1 (%2)").arg(tr("ISO 8601"),
@@ -1054,7 +1054,7 @@ void DlgPrefLibrary::updateTimeFormats() {
                               .value<BaseTrackTableModel::DateFormat>();
 
     comboBox_timeFormat->clear();
-    comboBox_timeFormat->addItem(tr("Native (System Default)"),
+    comboBox_timeFormat->addItem(tr("Native (Locale Default)"),
             QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
     comboBox_timeFormat->addItem(
             QStringLiteral("%1 (%2)").arg(tr("ISO 8601"),
