@@ -406,15 +406,17 @@ void DlgPrefLibrary::slotUpdate() {
             BaseTrackTableModel::kTimeFormatDefault);
 
     // Determine the matching preset or custom
-    BaseTrackTableModel::DateFormat timePreset = BaseTrackTableModel::DateFormat::Custom;
+    BaseTrackTableModel::TimeFormat timePreset = BaseTrackTableModel::TimeFormat::Custom;
     if (m_timeFormat.isEmpty()) {
-        timePreset = BaseTrackTableModel::DateFormat::Native;
-    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)) {
-        timePreset = BaseTrackTableModel::DateFormat::ISO8601;
-    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)) {
-        timePreset = BaseTrackTableModel::DateFormat::RegionalShort;
-    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)) {
-        timePreset = BaseTrackTableModel::DateFormat::RegionalLong;
+        timePreset = BaseTrackTableModel::TimeFormat::Native;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::TimeFormat::ISO8601Short)) {
+        timePreset = BaseTrackTableModel::TimeFormat::ISO8601Short;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::TimeFormat::ISO8601Long)) {
+        timePreset = BaseTrackTableModel::TimeFormat::ISO8601Long;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::TimeFormat::RegionalShort)) {
+        timePreset = BaseTrackTableModel::TimeFormat::RegionalShort;
+    } else if (m_timeFormat == getTimeFormat(BaseTrackTableModel::TimeFormat::RegionalLong)) {
+        timePreset = BaseTrackTableModel::TimeFormat::RegionalLong;
     }
 
     int timeIndex = comboBox_timeFormat->findData(QVariant::fromValue(timePreset));
@@ -422,7 +424,7 @@ void DlgPrefLibrary::slotUpdate() {
         comboBox_timeFormat->setCurrentIndex(timeIndex);
     }
 
-    if (timePreset == BaseTrackTableModel::DateFormat::Custom) {
+    if (timePreset == BaseTrackTableModel::TimeFormat::Custom) {
         comboBox_timeFormat->setEditable(true);
         comboBox_timeFormat->setEditText(m_timeFormat);
         m_lastCustomTimeFormat = m_timeFormat;
@@ -905,17 +907,19 @@ QString DlgPrefLibrary::getDateFormat(BaseTrackTableModel::DateFormat type) cons
     return QString();
 }
 
-QString DlgPrefLibrary::getTimeFormat(BaseTrackTableModel::DateFormat type) const {
+QString DlgPrefLibrary::getTimeFormat(BaseTrackTableModel::TimeFormat type) const {
     switch (type) {
-    case BaseTrackTableModel::DateFormat::Native:
+    case BaseTrackTableModel::TimeFormat::Native:
         return QString();
-    case BaseTrackTableModel::DateFormat::ISO8601:
+    case BaseTrackTableModel::TimeFormat::ISO8601Short:
         return QStringLiteral("hh:mm");
-    case BaseTrackTableModel::DateFormat::RegionalShort:
+    case BaseTrackTableModel::TimeFormat::ISO8601Long:
+        return QStringLiteral("hh:mm:ss");
+    case BaseTrackTableModel::TimeFormat::RegionalShort:
         return m_dateLocale.timeFormat(QLocale::ShortFormat);
-    case BaseTrackTableModel::DateFormat::RegionalLong:
+    case BaseTrackTableModel::TimeFormat::RegionalLong:
         return m_dateLocale.timeFormat(QLocale::LongFormat);
-    case BaseTrackTableModel::DateFormat::Custom:
+    case BaseTrackTableModel::TimeFormat::Custom:
         return m_lastCustomTimeFormat;
     }
 
@@ -999,9 +1003,9 @@ void DlgPrefLibrary::updateDateFormats() {
 
 void DlgPrefLibrary::slotTimeFormatIndexChanged(int index) {
     auto type = comboBox_timeFormat->itemData(index)
-                        .value<BaseTrackTableModel::DateFormat>();
+                        .value<BaseTrackTableModel::TimeFormat>();
 
-    if (type == BaseTrackTableModel::DateFormat::Custom) {
+    if (type == BaseTrackTableModel::TimeFormat::Custom) {
         // Enable editing for Custom
         if (!comboBox_timeFormat->isEditable()) {
             comboBox_timeFormat->setEditable(true);
@@ -1049,21 +1053,25 @@ void DlgPrefLibrary::updateTimeFormats() {
 
     comboBox_timeFormat->clear();
     comboBox_timeFormat->addItem(tr("Native (Locale Default)"),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::Native));
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::Native));
     comboBox_timeFormat->addItem(
-            QStringLiteral("%1 (%2)").arg(tr("ISO 8601"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::ISO8601)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::ISO8601));
+            QStringLiteral("%1 (%2)").arg(tr("ISO 8601 Short"),
+                    getTimeFormat(BaseTrackTableModel::TimeFormat::ISO8601Short)),
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::ISO8601Short));
+    comboBox_timeFormat->addItem(
+            QStringLiteral("%1 (%2)").arg(tr("ISO 8601 Long"),
+                    getTimeFormat(BaseTrackTableModel::TimeFormat::ISO8601Long)),
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::ISO8601Long));
     comboBox_timeFormat->addItem(
             QStringLiteral("%1 (%2)").arg(tr("Regional Short"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalShort)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalShort));
+                    getTimeFormat(BaseTrackTableModel::TimeFormat::RegionalShort)),
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::RegionalShort));
     comboBox_timeFormat->addItem(
             QStringLiteral("%1 (%2)").arg(tr("Regional Long"),
-                    getTimeFormat(BaseTrackTableModel::DateFormat::RegionalLong)),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::RegionalLong));
+                    getTimeFormat(BaseTrackTableModel::TimeFormat::RegionalLong)),
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::RegionalLong));
     comboBox_timeFormat->addItem(tr("Custom"),
-            QVariant::fromValue(BaseTrackTableModel::DateFormat::Custom));
+            QVariant::fromValue(BaseTrackTableModel::TimeFormat::Custom));
 
     int newIndex = comboBox_dateLocale->findData(QVariant::fromValue(type));
     if (newIndex != -1) {

@@ -148,6 +148,16 @@ class BaseTrackTableModel : public QAbstractTableModel, public TrackModel {
     };
     Q_ENUM(DateFormat)
 
+    enum class TimeFormat {
+        Native = 0,        // System Default
+        ISO8601Short = 1,  // hh:mm
+        ISO8601Long = 2,   // hh:mm:ss
+        RegionalShort = 3, // h:mm Ap
+        RegionalLong = 4,  // h:mm:ss Ap tttt
+        Custom = 5,
+    };
+    Q_ENUM(TimeFormat)
+
     static const QString kDateFormatDefault;
     static const QString kDateTimeFormatDefault;
     static const QString kTimeFormatDefault;

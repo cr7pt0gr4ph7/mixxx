@@ -85,7 +85,7 @@ class DlgPrefLibrary : public DlgPreferencePage, public Ui::DlgPrefLibraryDlg {
     void updateDateFormatPreview();
     void updateTimeFormatPreview();
     QString getDateFormat(BaseTrackTableModel::DateFormat type) const;
-    QString getTimeFormat(BaseTrackTableModel::DateFormat type) const;
+    QString getTimeFormat(BaseTrackTableModel::TimeFormat type) const;
 
     QStandardItemModel m_dirListModel;
     UserSettingsPointer m_pConfig;
