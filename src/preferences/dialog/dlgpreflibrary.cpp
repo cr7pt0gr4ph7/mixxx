@@ -765,6 +765,13 @@ void DlgPrefLibrary::slotApply() {
     m_pConfig->setValue(kSidebarHoverExpandDelayConfigKey, sidebarHoverExpandDelay);
     emit m_pLibrary->setSidebarHoverExpandDelay(sidebarHoverExpandDelay);
 
+    auto dateType = comboBox_dateFormat->currentData()
+                        .value<BaseTrackTableModel::DateFormat>();
+    auto timeType = comboBox_timeFormat->currentData()
+                        .value<BaseTrackTableModel::DateFormat>();
+    m_pConfig->setValue(kDateFormatConfigKey, getDateFormat(dateType));
+    m_pConfig->setValue(kTimeFormatConfigKey, getTimeFormat(timeType));
+
     // TODO(rryan): Don't save here.
     m_pConfig->save();
 }
@@ -977,8 +984,6 @@ void DlgPrefLibrary::slotDateFormatChanged(const QString& text) {
 void DlgPrefLibrary::updateDateFormatPreview(const QString& format) {
     const QString previewStr = mixxx::formatDate(QDate::currentDate(), format);
     label_dateFormatPreview->setText(previewStr);
-
-    m_pConfig->setValue(kDateFormatConfigKey, format);
     BaseTrackTableModel::setDateFormat(format);
 }
 
@@ -1053,7 +1058,5 @@ void DlgPrefLibrary::slotTimeFormatChanged(const QString& text) {
 void DlgPrefLibrary::updateTimeFormatPreview(const QString& format) {
     const QString previewStr = mixxx::formatTime(QTime::currentTime(), format);
     label_timeFormatPreview->setText(previewStr);
-
-    m_pConfig->setValue(kTimeFormatConfigKey, format);
     BaseTrackTableModel::setTimeFormat(format);
 }
