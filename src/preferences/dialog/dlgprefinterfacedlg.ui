@@ -115,7 +115,7 @@
    <item>
     <widget class="QGroupBox" name="groupBoxLocalizationOptions">
      <property name="title">
-      <string>Localization</string>
+      <string>Language</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_Misc">
 
