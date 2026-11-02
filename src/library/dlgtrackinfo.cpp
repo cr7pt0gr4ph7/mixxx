@@ -10,6 +10,7 @@
 #include "library/coverartutils.h"
 #include "library/dlgtagfetcher.h"
 #include "library/library_prefs.h"
+#include "library/trackcuemodel.h"
 #include "library/trackmodel.h"
 #include "moc_dlgtrackinfo.cpp"
 #include "preferences/colorpalettesettings.h"
@@ -58,6 +59,7 @@ DlgTrackInfo::DlgTrackInfo(
                           WColorPicker::Option::NoExtStyleSheet,
                   ColorPaletteSettings(m_pUserSettings).getTrackColorPalette(),
                   this)),
+          m_pCueModel(make_parented<TrackCueModel>(this)),
           m_widgetSizesFixed(false) {
     init();
 }
@@ -321,6 +323,9 @@ void DlgTrackInfo::init() {
                 trackColorDialogSetColor(newColor);
                 m_trackRecord.setColor(newColor);
             });
+
+    // Cue table
+    tblCues->setModel(m_pCueModel.get());
 }
 
 void DlgTrackInfo::slotApply() {
@@ -388,6 +393,7 @@ void DlgTrackInfo::updateFromTrack(const Track& track) {
     txtLocation->setText(QDir::toNativeSeparators(track.getLocation()));
 
     reloadTrackBeats(track);
+    reloadTrackCues(track);
 
     m_pWStarRating->slotSetRating(m_pLoadedTrack->getRating());
 }
@@ -463,6 +469,25 @@ void DlgTrackInfo::updateTrackMetadataFields() {
     } else {
         txtSamplerate->clear();
     }
+}
+
+void DlgTrackInfo::reloadTrackCues(const Track& track) {
+    mixxx::TrackRecord::SourceSyncStatus trackSyncStatus;
+    mixxx::TrackMetadata trackMetadata = track.getMetadata(&trackSyncStatus);
+
+    // The sample rate can only be trusted after the audio stream has been opened.
+    // Editing the cue points of a track with an inaccurate sample rate will
+    // cause the cue points to have wrong locations once loaded with the correct sample rate.
+    const auto sampleRate = trackMetadata.getStreamInfo().getSignalInfo().getSampleRate();
+    const bool sampleRateIsAccurate = trackSyncStatus == mixxx::TrackRecord::SourceSyncStatus::Synchronized;
+
+    VERIFY_OR_DEBUG_ASSERT(sampleRateIsAccurate) {
+        qWarning() << "Loading cue points for track" << track.getURL()
+                   << "based on an unverified sample rate, which may cause them to be misaligned.";
+    }
+
+    m_pCueModel->setSampleRate(sampleRate, sampleRateIsAccurate);
+    m_pCueModel->loadCuePoints(track.getCuePoints(), sampleRate);
 }
 
 void DlgTrackInfo::updateSpinBpmFromBeats() {
@@ -670,6 +695,20 @@ void DlgTrackInfo::saveTrack() {
     slotTuningValueChanged(spinTuning->value());
     m_trackRecord.setBpmLocked(m_bpmLocked);
 
+    // Save the updated cue point
+    mixxx::TrackRecord::SourceSyncStatus trackSyncStatus;
+    mixxx::TrackMetadata trackMetadata = m_pLoadedTrack->getMetadata(&trackSyncStatus);
+
+    // The sample rate can only be trusted after the audio stream has been opened.
+    // Editing the cue points of a track with an inaccurate sample rate will
+    // cause the cue points to have completely wrong locations.
+    VERIFY_OR_DEBUG_ASSERT(trackSyncStatus == mixxx::TrackRecord::SourceSyncStatus::Synchronized) {
+        qWarning() << "Storing cue points for track" << m_trackRecord.getUrl()
+                   << "based on an unverified sample rate, which may cause them to be misaligned.";
+    }
+    const auto sampleRate = trackMetadata.getStreamInfo().getSignalInfo().getSampleRate();
+    const auto cuePoints = m_pCueModel->saveCuePoints(sampleRate);
+
     // Update the cached track
     //
     // If replaceRecord() returns true then both m_trackRecord and m_pBeatsClone
@@ -677,7 +716,7 @@ void DlgTrackInfo::saveTrack() {
     // synchronized with the track. Otherwise the track has not been modified and
     // both members must remain valid. Do not use std::move() for passing arguments!
     // Else triggering apply twice in quick succession might clear the metadata.
-    m_pLoadedTrack->replaceRecord(m_trackRecord, m_pBeatsClone);
+    m_pLoadedTrack->replaceRecord(m_trackRecord, m_pBeatsClone, cuePoints);
 }
 
 void DlgTrackInfo::clear() {

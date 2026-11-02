@@ -5,6 +5,7 @@
 #include <QStack>
 #include <QUrl>
 #include <memory>
+#include <optional>
 
 #include "audio/streaminfo.h"
 #include "sources/metadatasource.h"
@@ -430,7 +431,8 @@ class Track : public QObject {
             bool* pDirty = nullptr) const;
     bool replaceRecord(
             mixxx::TrackRecord newRecord,
-            mixxx::BeatsPointer pOptionalBeats = nullptr);
+            mixxx::BeatsPointer pOptionalBeats = nullptr,
+            std::optional<QList<CuePointer>> optionalCues = {});
 
     // Mark the track dirty if it isn't already.
     void markDirty();

@@ -14,6 +14,7 @@
 #include "util/tapfilter.h"
 #include "widget/wcolorpickeraction.h"
 
+class TrackCueModel;
 class TrackModel;
 class WColorPickerAction;
 class WStarRating;
@@ -93,6 +94,7 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
     void loadPrevTrack();
     void loadTrackInternal(const TrackPointer& pTrack);
     void reloadTrackBeats(const Track& track);
+    void reloadTrackCues(const Track& track);
     void trackColorDialogSetColor(const mixxx::RgbColor::optional_t& color);
     void saveTrack();
     void clear();
@@ -140,6 +142,8 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
     parented_ptr<WColorPickerAction> m_pColorPicker;
 
     std::unique_ptr<DlgTagFetcher> m_pDlgTagFetcher;
+
+    parented_ptr<TrackCueModel> m_pCueModel;
 
     bool m_widgetSizesFixed;
 };

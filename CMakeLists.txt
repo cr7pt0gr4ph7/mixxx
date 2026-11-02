@@ -1486,6 +1486,7 @@ add_library(
   src/library/trackcollection.cpp
   src/library/trackcollectioniterator.cpp
   src/library/trackcollectionmanager.cpp
+  src/library/trackcuemodel.cpp
   src/library/trackloader.cpp
   src/library/trackmodeliterator.cpp
   src/library/trackprocessing.cpp
