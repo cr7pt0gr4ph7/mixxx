@@ -540,6 +540,54 @@ TEST(BeatsTest, ConstTempoFindPrevNextBeatWhenNotOnBeat) {
     EXPECT_NEAR(nextBeat.value(), foundNextBeat.value(), kMaxBeatError);
 }
 
+TEST(BeatsTest, ConstTempoFindDistanceInBeatsWhenOnBeat) {
+    const auto it = kConstTempoBeats.cfirstmarker() + 10;
+    const audio::FrameDiff_t beatLengthFrames = 60.0 * kSampleRate.value() / kBpm.value();
+    const audio::FramePos position = *it;
+
+    EXPECT_EQ(0.0, kConstTempoBeats.findDistanceInBeats(position, position));
+
+    for (int i = 1; i < 20; ++i) {
+        constexpr double divider = 4.0;
+        const double beats = static_cast<double>(i) / divider;
+        const audio::FramePos forward = position + beatLengthFrames * beats;
+        const audio::FramePos backward = position - beatLengthFrames * beats;
+        EXPECT_NEAR(
+                beats,
+                kConstTempoBeats.findDistanceInBeats(position, forward),
+                kMaxBeatError);
+        EXPECT_NEAR(
+                -beats,
+                kConstTempoBeats.findDistanceInBeats(position, backward),
+                kMaxBeatError);
+    }
+}
+
+TEST(BeatsTest, ConstTempoFindDistanceInBeatsWhenNotOnBeat) {
+    auto it = kConstTempoBeats.cfirstmarker() + 10;
+    const mixxx::audio::FramePos previousBeat = *it;
+    it++;
+    const mixxx::audio::FramePos nextBeat = *it;
+    const audio::FramePos position = previousBeat + ((nextBeat - previousBeat) / 2.0 * 3.0);
+
+    const audio::FrameDiff_t beatLengthFrames = 60.0 * kSampleRate.value() / kBpm.value();
+
+    for (int i = 1; i < 20; ++i) {
+        constexpr double divider = 4.0;
+        const double beats = static_cast<double>(i) / divider;
+        const audio::FramePos forward = position + beatLengthFrames * beats;
+        const audio::FramePos backward = position - beatLengthFrames * beats;
+        EXPECT_NEAR(
+                beats,
+                kConstTempoBeats.findDistanceInBeats(position, forward),
+                kMaxBeatError);
+        EXPECT_NEAR(
+                -beats,
+                kConstTempoBeats.findDistanceInBeats(position, backward),
+                kMaxBeatError);
+    }
+}
+
 TEST(BeatsTest, roundBpm) {
     // Integer Bpm
     mixxx::Bpm roundBpm = BeatUtils::roundBpmWithinRange(

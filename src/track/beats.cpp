@@ -497,6 +497,136 @@ audio::FramePos Beats::findNthBeat(audio::FramePos position, int n) const {
     return *it;
 }
 
+double Beats::findDistanceInBeats(audio::FramePos startPosition, audio::FramePos endPosition) const {
+    if (startPosition == endPosition) {
+        // startPosition and endPosition are the same,
+        // so there is no distance between them.
+        return 0;
+    }
+    const bool isBackward = endPosition < startPosition;
+    if (isBackward) {
+        std::swap(startPosition, endPosition);
+    }
+
+    auto it = iteratorFrom(startPosition);
+
+    const auto prevBeatStart = (*it == startPosition) ? it : std::prev(it);
+    const auto nextBeatStart = (*it == startPosition) ? std::next(it) : it;
+
+    if (*nextBeatStart >= endPosition) {
+        // startPosition and endPosition lie within the same beat.
+        // This covers the following three cases:
+        //
+        // CASE 1: startPosition on a beat, endPosition between beats
+        //
+        //      prevBeatStart           nextBeatStart
+        //      |                       |
+        //      [------beatLength-------]
+        //      |              |
+        //      [---distance---]
+        //      |              |
+        //      startPosition  |
+        //                     endPosition
+        //
+        // CASE 2: startPosition between beats, endPosition on a beat
+        //
+        //      prevBeatStart           nextBeatStart
+        //      |                       |
+        //      [------beatLength-------]
+        //               |              |
+        //               [---distance---]
+        //               |              |
+        //               startPosition  |
+        //                              endPosition
+        //
+        // CASE 3: startPosition and endPosition between beats
+        //
+        //      prevBeatStart           nextBeatStart
+        //      |                       |
+        //      [------beatLength-------]
+        //           |              |
+        //           [---distance---]
+        //           |              |
+        //           startPosition  |
+        //                          endPosition
+        DEBUG_ASSERT(*prevBeatStart <= startPosition);
+        DEBUG_ASSERT(*nextBeatStart >= startPosition);
+        DEBUG_ASSERT(*prevBeatStart <= endPosition);
+        DEBUG_ASSERT(*nextBeatStart >= endPosition);
+
+        // Directly calculate their relative distance based on the current beat's length.
+        const auto currentBeat = (*it == startPosition) ? it : prevBeatStart;
+        const double absoluteBeats = (endPosition - startPosition) / currentBeat.beatLengthFrames();
+        const double signedBeats = isBackward ? -absoluteBeats : absoluteBeats;
+
+        return signedBeats;
+    } else {
+        // CASE 4:startPosition and endPosition lie in different beat segments
+
+        // :: startFractionBeats ::
+        // Distance as a fraction of the current beat
+        // from startPosition to the next beat, i.e.:
+        //
+        // beatLengthStart    = distance(prevBeatStart, nextBeatStart)
+        // remainingStart     = distance(startPosition, nextBeatStart)
+        // startFractionBeats = remaining / beatLength
+        //
+        //      prevBeatStart               nextBeatStart           prevBeatEnd               nextBeatEnd
+        //      |                           |                       |                         |
+        //      [------beatLengthStart------]<---...fullBeats...--->[------beatLengthEnd------]
+        //               |                  |                       |                |
+        //               [--remainingStart--]                       [--remainingEnd--]
+        //               |                                                           |
+        //               startPosition                                               endPosition
+        //
+        double startFractionBeats;
+        if (*it == startPosition) {
+            startFractionBeats = 0;
+        } else {
+            startFractionBeats = (*nextBeatStart - startPosition) / prevBeatStart.beatLengthFrames();
+        }
+
+        int fullBeats = 0;
+        while (*it < endPosition) {
+            it++;
+            fullBeats++;
+        }
+
+        DEBUG_ASSERT(fullBeats > 0);
+
+        // :: endFractionBeats ::
+        // Distance as a fraction of the current beat
+        // from the previous beat to endPosition, i.e.:
+        //
+        // beatLengthEnd      = distance(prevBeatEnd, nextBeatEnd)
+        // remainingEnd       = distance(prevBeatEnd, endPosition)
+        // startFractionBeats = remaining / beatLength
+        //
+        //      prevBeatStart               nextBeatStart           prevBeatEnd               nextBeatEnd
+        //      |                           |                       |                         |
+        //      [------beatLengthStart------]<---...fullBeats...--->[------beatLengthEnd------]
+        //               |                  |                       |                |
+        //               [--remainingStart--]                       [--remainingEnd--]
+        //               |                                                           |
+        //               startPosition                                               endPosition
+        //
+        double endFractionBeats;
+        if (*it == endPosition) {
+            endFractionBeats = 0;
+        } else {
+            fullBeats--;
+            const auto prevBeatEnd = std::prev(it);
+            endFractionBeats = (endPosition - *prevBeatEnd) / prevBeatEnd.beatLengthFrames();
+        }
+
+        const double fractionBeats = startFractionBeats + endFractionBeats;
+        const double absoluteBeats = static_cast<double>(fullBeats) + fractionBeats;
+        const double signedBeats = isBackward ? -absoluteBeats : absoluteBeats;
+
+        return signedBeats;
+    }
+}
+
 audio::FramePos Beats::findNBeatsFromPosition(audio::FramePos position, double beats) const {
     if (beats == 0) {
         return position;

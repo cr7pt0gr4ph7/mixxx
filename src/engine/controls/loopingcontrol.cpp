@@ -1406,15 +1406,7 @@ double LoopingControl::findBeatloopSizeForLoop(
         return -1;
     }
 
-    for (unsigned int i = 0; i < (sizeof(s_dBeatSizes) / sizeof(s_dBeatSizes[0])); ++i) {
-        const auto loopEndPosition = pBeats->findNBeatsFromPosition(startPosition, s_dBeatSizes[i]);
-        if (loopEndPosition.isValid()) {
-            if (endPosition > (loopEndPosition - 1) && endPosition < (loopEndPosition + 1)) {
-                return s_dBeatSizes[i];
-            }
-        }
-    }
-    return -1;
+    return pBeats->findDistanceInBeats(startPosition, endPosition);
 }
 
 void LoopingControl::updateBeatLoopingControls() {

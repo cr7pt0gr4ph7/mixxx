@@ -352,6 +352,11 @@ class Beats : private std::enable_shared_from_this<Beats> {
 
     int numBeatsInRange(audio::FramePos startPosition, audio::FramePos endPosition) const;
 
+    // Finds the size of the beat jump starting at `startPosition` that would
+    // arrive exactly at `endPosition` (+/- 1 frame tolerance). This is the
+    // effectively the inverse of findNBeatsFromPosition().
+    double findDistanceInBeats(audio::FramePos startPosition, audio::FramePos endPosition) const;
+
     /// Find the frame position N beats away from `position`. The number of beats may be
     /// negative and does not need to be an integer. In this case the returned position will
     /// be between two beats as well at the same fraction.
