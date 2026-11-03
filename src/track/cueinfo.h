@@ -19,6 +19,10 @@ enum class CueType {
     Outro = 7,
     N60dBSound = 8, // range that covers beginning and end of audible
                     // sound; not shown to user
+    Section = 9,
+    SectionIntro = 10,
+    SectionOutro = 11,
+    Marker = 12,
 };
 
 enum class CueFlag {

@@ -148,6 +148,18 @@ QDebug operator<<(QDebug debug, const CueType& cueType) {
     case CueType::N60dBSound:
         debug << "CueType::N60dBSound";
         break;
+    case CueType::Section:
+        debug << "CueType::Section";
+        break;
+    case CueType::SectionIntro:
+        debug << "CueType::SectionIntro";
+        break;
+    case CueType::SectionOutro:
+        debug << "CueType::SectionOutro";
+        break;
+    case CueType::Marker:
+        debug << "CueType::Marker";
+        break;
     }
     return debug;
 }
