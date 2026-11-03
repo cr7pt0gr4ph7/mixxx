@@ -32,6 +32,7 @@ class TrackCueModel : public QAbstractTableModel {
     QList<mixxx::CueInfo> getCues() const;
     void setCues(const QList<mixxx::CueInfo>& cues);
     void setSampleRate(mixxx::audio::SampleRate sampleRate, bool isAccurate);
+    void setShowHiddenCueTypes(bool showHiddenCueTypes);
 
     void loadCuePoints(const QList<CuePointer>& cuePoints, mixxx::audio::SampleRate sampleRate);
     QList<CuePointer> saveCuePoints(mixxx::audio::SampleRate sampleRate);
@@ -53,8 +54,11 @@ class TrackCueModel : public QAbstractTableModel {
 
   private:
     QVector<QHash<int, QVariant>> m_headerInfo;
+
     QList<mixxx::CueInfo> m_cues;
     QList<mixxx::CueInfo> m_hiddenCues;
+    bool m_showHiddenCueTypes;
+
     mixxx::audio::SampleRate m_sampleRate;
     bool m_sampleRateIsAccurate;
 };

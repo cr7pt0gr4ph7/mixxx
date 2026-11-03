@@ -8,10 +8,8 @@
 
 TrackCueModel::TrackCueModel(QObject* pParent)
         : QAbstractTableModel(pParent),
+          m_showHiddenCueTypes(false),
           m_sampleRateIsAccurate(false) {
-    const QString kStartIconPath =
-        QStringLiteral(":/images/preferences/ic_preferences_warning.svg");
-
     setHeaderData(CUE_COLUMN_TYPE, Qt::Horizontal, tr("Type"));
     setHeaderData(CUE_COLUMN_NUMBER, Qt::Horizontal, tr("Cue #"));
     setHeaderData(CUE_COLUMN_NUMBER, Qt::Horizontal, tr("Cue Number"), Qt::ToolTipRole);
@@ -39,6 +37,10 @@ void TrackCueModel::setCues(const QList<mixxx::CueInfo>& cues) {
     endResetModel();
 }
 
+void TrackCueModel::setShowHiddenCueTypes(bool showHiddenCueTypes) {
+    m_showHiddenCueTypes = showHiddenCueTypes;
+}
+
 void TrackCueModel::setSampleRate(mixxx::audio::SampleRate sampleRate, bool isAccurate) {
     m_sampleRate = sampleRate;
     m_sampleRateIsAccurate = isAccurate;
@@ -58,7 +60,7 @@ void TrackCueModel::loadCuePoints(const QList<CuePointer>& cuePoints, mixxx::aud
     // Hide non-hotcue cue points
     for (const auto& pCue : std::as_const(cuePoints)) {
         auto type = pCue->getType();
-        if (type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump) {
+        if (m_showHiddenCueTypes || type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump) {
             m_cues.append(pCue->getCueInfo(sampleRate));
         } else {
             m_hiddenCues.append(pCue->getCueInfo(sampleRate));
