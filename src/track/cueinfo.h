@@ -20,6 +20,8 @@ enum class CueType {
     N60dBSound = 8, // range that covers beginning and end of audible
                     // sound; not shown to user
 };
+Q_DECLARE_TYPEINFO(CueType, Q_MOVABLE_TYPE);
+Q_DECLARE_METATYPE(CueType);
 
 enum class CueFlag {
     None = 0,
