@@ -253,9 +253,22 @@ Qt::ItemFlags TrackCueModel::flags(const QModelIndex& index) const {
         return Qt::ItemIsEnabled;
     }
 
+    int row = index.row();
+    int column = index.column();
+
+    if (row < 0 || row >= m_cues.size()) {
+        return Qt::ItemIsEnabled;
+    }
+
+    const CuePointInfo& cue = m_cues.at(row);
+    const mixxx::CueType type = cue.type;
+    const bool isUserDefined = type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump;
+
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
     if (index.column() == CUE_COLUMN_LABEL) {
-        defaultFlags |= Qt::ItemIsEditable;
+        if (isUserDefined) {
+            defaultFlags |= Qt::ItemIsEditable;
+        }
     }
     return defaultFlags;
 }
