@@ -80,6 +80,7 @@ TrackCueModel::CuePointInfo::CuePointInfo(const mixxx::CueInfo& cueInfo, const m
     type = cueInfo.getType();
     const auto index = cueInfo.getHotCueIndex();
     number = index ? std::make_optional(*index + 1) : std::nullopt;
+    numberValid = std::nullopt;
     start = CueTimeInfo::fromMilliseconds(cueInfo.getStartPositionMillis(), sampleRate);
     end = CueTimeInfo::fromMilliseconds(cueInfo.getEndPositionMillis(), sampleRate);
     length = CueLengthInfo::fromStartEnd(start, end, pBeats);
@@ -93,6 +94,7 @@ TrackCueModel::CuePointInfo::CuePointInfo(const Cue& cue, const mixxx::BeatsPoin
     type = cue.getType();
     const int index = cue.getHotCue();
     number = index == Cue::kNoHotCue ? std::nullopt : std::make_optional(index + 1);
+    numberValid = std::nullopt;
     start = CueTimeInfo::fromFramePos(cue.getPosition(), sampleRate);
     end = CueTimeInfo::fromFramePos(cue.getEndPosition(), sampleRate);
     length = CueLengthInfo::fromStartEnd(start, end, pBeats);
@@ -173,6 +175,8 @@ void TrackCueModel::loadCuePoints(const QList<CuePointer>& cuePoints, const mixx
         }
     }
 
+    checkValidity(false);
+
     endResetModel();
 }
 
@@ -191,6 +195,44 @@ QList<CuePointer> TrackCueModel::saveCuePoints(mixxx::audio::SampleRate sampleRa
         newCues.append(cuePointInfo.toCuePointer());
     }
     return newCues;
+}
+
+void TrackCueModel::checkValidity(bool sendChangeEvents) {
+    QSet<int> allNumbers;
+    QSet<int> duplicateNumbers;
+
+    // Find duplicate numbers
+    for (auto& cue : m_cues) {
+        if (cue.number) {
+            const auto number = *cue.number;
+            if (number < 1) {
+                // Will be marked as invalid later
+            } else if (allNumbers.contains(number)) {
+                duplicateNumbers.insert(number);
+            } else {
+                allNumbers.insert(number);
+            }
+        }
+    }
+
+    // Find cue points with duplicated numbers
+    int row = 0;
+    for (auto& cue : m_cues) {
+        const auto oldValid = cue.numberValid;
+        if (cue.number) {
+            const auto number = *cue.number;
+            cue.numberValid = (number >= 1) && !duplicateNumbers.contains(number);
+        } else {
+            cue.numberValid = std::nullopt;
+        }
+
+        // Send change events if necessary
+        if (sendChangeEvents && cue.numberValid != oldValid) {
+            QModelIndex modelIndex(index(row, CUE_COLUMN_NUMBER));
+            emit dataChanged(modelIndex, modelIndex);
+        }
+        row++;
+    }
 }
 
 int TrackCueModel::rowCount(const QModelIndex& parent) const {
@@ -284,6 +326,12 @@ QVariant TrackCueModel::data(const QModelIndex& index,
         }
     } else if (role == Qt::BackgroundRole) {
         switch (column) {
+        case CUE_COLUMN_NUMBER: {
+            if (!cue.numberValid.value_or(true)) {
+                return QColorConstants::Red;
+            }
+            return QVariant();
+        }
         case CUE_COLUMN_COLOR: {
             return mixxx::RgbColor::toQVariantColor(cue.color);
         }
@@ -292,6 +340,15 @@ QVariant TrackCueModel::data(const QModelIndex& index,
         switch (column) {
         case CUE_COLUMN_COLOR: {
             return mixxx::RgbColor::toQVariantString(cue.color);
+        }
+        }
+    } else if (role == Qt::ToolTipRole) {
+        switch (column) {
+        case CUE_COLUMN_NUMBER: {
+            if (!cue.numberValid.value_or(true)) {
+                return tr("Invalid or duplicated hotcue number");
+            }
+            return QVariant();
         }
         }
     }
@@ -362,6 +419,7 @@ bool TrackCueModel::setData(const QModelIndex& modelIndex,
             return false;
         }
         cue.number = newNumber;
+        checkValidity(true);
         break;
     }
     case CUE_COLUMN_LABEL: {

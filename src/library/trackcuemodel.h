@@ -49,6 +49,9 @@ class TrackCueModel : public QAbstractTableModel {
     bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
   private:
+    void checkValidity(bool sendChangeEvents);
+
+  private:
     class CueTimeInfo {
       public:
         double milliseconds;
@@ -85,6 +88,7 @@ class TrackCueModel : public QAbstractTableModel {
         CueTimeInfo end;
         CueLengthInfo length;
         std::optional<int> number;
+        std::optional<bool> numberValid;
         QString label;
         mixxx::RgbColor::optional_t color;
         mixxx::CueFlags flags;
