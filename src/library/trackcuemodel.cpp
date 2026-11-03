@@ -392,7 +392,8 @@ Qt::ItemFlags TrackCueModel::flags(const QModelIndex& index) const {
 
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
     if (index.column() == CUE_COLUMN_NUMBER ||
-            index.column() == CUE_COLUMN_LABEL) {
+            index.column() == CUE_COLUMN_LABEL ||
+            index.column() == CUE_COLUMN_COLOR) {
         if (isUserDefined) {
             defaultFlags |= Qt::ItemIsEditable;
         }
