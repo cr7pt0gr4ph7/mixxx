@@ -487,7 +487,7 @@ void DlgTrackInfo::reloadTrackCues(const Track& track) {
     }
 
     m_pCueModel->setSampleRate(sampleRate, sampleRateIsAccurate);
-    m_pCueModel->loadCuePoints(track.getCuePoints(), sampleRate);
+    m_pCueModel->loadCuePoints(track.getCuePoints(), m_pBeatsClone, sampleRate);
 }
 
 void DlgTrackInfo::updateSpinBpmFromBeats() {

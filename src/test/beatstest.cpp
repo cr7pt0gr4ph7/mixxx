@@ -588,6 +588,12 @@ TEST(BeatsTest, ConstTempoFindDistanceInBeatsWhenNotOnBeat) {
     }
 }
 
+TEST(BeatsTest, NonConstTempoFindDistanceInBeatsWhenOnBeat) {
+}
+
+TEST(BeatsTest, NonConstTempoFindDistanceInBeatsWhenNotOnBeat) {
+}
+
 TEST(BeatsTest, roundBpm) {
     // Integer Bpm
     mixxx::Bpm roundBpm = BeatUtils::roundBpmWithinRange(
