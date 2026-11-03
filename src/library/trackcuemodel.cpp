@@ -355,6 +355,15 @@ bool TrackCueModel::setData(const QModelIndex& modelIndex,
     CuePointInfo& cue = m_cues[row];
 
     switch (column) {
+    case CUE_COLUMN_NUMBER: {
+        bool ok;
+        const double newNumber = value.toInt(&ok);
+        if (!ok) {
+            return false;
+        }
+        cue.number = newNumber;
+        break;
+    }
     case CUE_COLUMN_LABEL: {
         cue.label = value.toString();
         // emit dataChanged(modelIndex, index(modelIndex.row(), CUE_COLUMN_LABEL));
@@ -382,7 +391,8 @@ Qt::ItemFlags TrackCueModel::flags(const QModelIndex& index) const {
     const bool isUserDefined = type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump;
 
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
-    if (index.column() == CUE_COLUMN_LABEL) {
+    if (index.column() == CUE_COLUMN_NUMBER ||
+            index.column() == CUE_COLUMN_LABEL) {
         if (isUserDefined) {
             defaultFlags |= Qt::ItemIsEditable;
         }
