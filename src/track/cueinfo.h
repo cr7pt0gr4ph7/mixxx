@@ -44,9 +44,13 @@ enum class CueKindFlag {
     Intro = 1 << static_cast<int>(CueType::Intro),
     Outro = 1 << static_cast<int>(CueType::Outro),
     N60dBSound = 1 << static_cast<int>(CueType::N60dBSound),
+    Section = 1 << static_cast<int>(CueType::Section),
+    SectionIntro = 1 << static_cast<int>(CueType::SectionIntro),
+    SectionOutro = 1 << static_cast<int>(CueType::SectionOutro),
+    Marker = 1 << static_cast<int>(CueType::Marker),
 
     /// Matches all valid hotcue types (i.e. everything except Invalid).
-    Any = HotCue | MainCue | Beat | Loop | Jump | Intro | Outro | N60dBSound,
+    Any = HotCue | MainCue | Beat | Loop | Jump | Intro | Outro | N60dBSound | Section | Marker,
 
     /// Matches ALL hotue types including Invalid.
     AnyIncludingInvalid = Invalid | Any,
@@ -54,18 +58,23 @@ enum class CueKindFlag {
     // Categories
     HotCues = HotCue | Loop | Jump,     /// Matches all of the hotcue types (i.e. HotCue, Loop and Jump).
     MainCues = MainCue | Intro | Outro, /// Matches all single-instance main cue types (i.e. MainCue, Intro, Outro).
+    UserCues =                          /// Matches all of the generic cue types (i.e. Section, SectionIntro, SectionOutro and Marker).
+            Section |
+            SectionIntro |
+            SectionOutro |
+            Marker,
 
     // Visible vs. Hidden
-    Visible = HotCues | MainCues,         /// Matches all user-visible cue types (i.e. everything except those matching Hidden).
-    Hidden = Invalid | Beat | N60dBSound, /// Matches all non-user-visible cue types (i.e. Invalid, Beat and N60dBSound).
+    Visible = HotCues | MainCues | UserCues, /// Matches all user-visible cue types (i.e. everything except those matching Hidden).
+    Hidden = Invalid | Beat | N60dBSound,    /// Matches all non-user-visible cue types (i.e. Invalid, Beat and N60dBSound).
 
     // Labeled vs. Unlabeled
-    Labeled = HotCues,
-    Unlabeled = MainCues | Beat | N60dBSound,
+    Labeled = HotCues | Section | Marker,
+    Unlabeled = MainCues | SectionIntro | SectionOutro | Beat | N60dBSound,
 
     // Singletons vs. Multi-instance
-    SingleInstance = MainCues | N60dBSound, /// Matches all cue types that should have at most a single instance.
-    MultiInstance = HotCues | Beat,         /// Matches all cue types that can have more than once instance.
+    SingleInstance = MainCues | N60dBSound,    /// Matches all cue types that should have at most a single instance.
+    MultiInstance = HotCues | UserCues | Beat, /// Matches all cue types that can have more than once instance.
 };
 Q_DECLARE_FLAGS(CueKind, CueKindFlag);
 Q_DECLARE_OPERATORS_FOR_FLAGS(CueKind);
