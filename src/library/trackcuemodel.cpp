@@ -224,6 +224,26 @@ QVariant TrackCueModel::data(const QModelIndex& index,
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         switch (column) {
         case CUE_COLUMN_TYPE: {
+            switch (cue.type) {
+            case mixxx::CueType::Invalid:
+                return tr("Invalid");
+            case mixxx::CueType::HotCue:
+                return tr("Hotcue");
+            case mixxx::CueType::MainCue:
+                return tr("Main Cue");
+            case mixxx::CueType::Beat:
+                return tr("Beat");
+            case mixxx::CueType::Loop:
+                return tr("Loop");
+            case mixxx::CueType::Jump:
+                return tr("Jump");
+            case mixxx::CueType::Intro:
+                return tr("Intro");
+            case mixxx::CueType::Outro:
+                return tr("Outro");
+            case mixxx::CueType::N60dBSound:
+                return tr(">-60dB");
+            }
             return QVariant::fromValue(cue.type);
         }
         case CUE_COLUMN_NUMBER: {
