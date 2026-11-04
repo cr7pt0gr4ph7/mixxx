@@ -505,10 +505,11 @@ void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
                 pMark->setBaseColor(newColor, m_dimBrightThreshold);
             }
 
+            const mixxx::CueType hotcueType = currentCue->getType();
             const int hotcueNumber = hotcueIndex + 1;
-            if ((currentCue->getType() == mixxx::CueType::HotCue ||
-                        currentCue->getType() == mixxx::CueType::Loop ||
-                        currentCue->getType() == mixxx::CueType::Jump) &&
+            if ((hotcueType == mixxx::CueType::HotCue ||
+                        hotcueType == mixxx::CueType::Loop ||
+                        hotcueType == mixxx::CueType::Jump) &&
                     hotcueIndex != Cue::kNoHotCue) {
                 // Prepend the hotcue number to hotcues' labels
                 QString newLabel = currentCue->getLabel();
