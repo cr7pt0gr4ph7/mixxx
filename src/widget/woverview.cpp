@@ -15,6 +15,7 @@
 #include "mixer/playermanager.h"
 #include "moc_woverview.cpp"
 #include "preferences/colorpalettesettings.h"
+#include "track/cueutils.h"
 #include "track/track.h"
 #include "util/colorcomponents.h"
 #include "util/dnd.h"
@@ -507,10 +508,7 @@ void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
 
             const mixxx::CueType hotcueType = currentCue->getType();
             const int hotcueNumber = hotcueIndex + 1;
-            if ((hotcueType == mixxx::CueType::HotCue ||
-                        hotcueType == mixxx::CueType::Loop ||
-                        hotcueType == mixxx::CueType::Jump) &&
-                    hotcueIndex != Cue::kNoHotCue) {
+            if (CueUtils::isHotCueType(hotcueType) && hotcueNumber != Cue::kNoHotCue) {
                 // Prepend the hotcue number to hotcues' labels
                 QString newLabel = currentCue->getLabel();
                 if (newLabel.isEmpty()) {
