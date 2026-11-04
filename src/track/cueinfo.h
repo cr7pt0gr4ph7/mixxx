@@ -31,6 +31,21 @@ enum class CueType {
     Marker = 12,
 };
 
+enum class CueKindFlag {
+    None = 0,
+    Invalid = 1 << static_cast<int>(CueType::Invalid),
+    HotCue = 1 << static_cast<int>(CueType::HotCue),
+    MainCue = 1 << static_cast<int>(CueType::MainCue),
+    Beat = 1 << static_cast<int>(CueType::Beat),
+    Loop = 1 << static_cast<int>(CueType::Loop),
+    Jump = 1 << static_cast<int>(CueType::Jump),
+    Intro = 1 << static_cast<int>(CueType::Intro),
+    Outro = 1 << static_cast<int>(CueType::Outro),
+    N60dBSound = 1 << static_cast<int>(CueType::N60dBSound),
+};
+Q_DECLARE_FLAGS(CueKind, CueKindFlag);
+Q_DECLARE_OPERATORS_FOR_FLAGS(CueKind);
+
 enum class CueFlag {
     None = 0,
     /// Currently only used when importing locked loops from Serato Metadata.
