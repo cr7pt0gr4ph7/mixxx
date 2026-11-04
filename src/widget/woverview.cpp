@@ -495,7 +495,8 @@ void WOverview::slotScalingChanged() {
 
 void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
     for (const CuePointer& currentCue : loadedCues) {
-        const WaveformMarkPointer pMark = m_marks.getHotCueMark(currentCue->getHotCue());
+        const int hotcueIndex = currentCue->getHotCue();
+        const WaveformMarkPointer pMark = m_marks.getHotCueMark(hotcueIndex);
 
         if (pMark != nullptr && pMark->isValid() && pMark->isVisible()
             && pMark->getSamplePosition() != Cue::kNoPosition) {
@@ -504,17 +505,17 @@ void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
                 pMark->setBaseColor(newColor, m_dimBrightThreshold);
             }
 
-            int hotcueNumber = currentCue->getHotCue();
+            const int hotcueNumber = hotcueIndex + 1;
             if ((currentCue->getType() == mixxx::CueType::HotCue ||
                         currentCue->getType() == mixxx::CueType::Loop ||
                         currentCue->getType() == mixxx::CueType::Jump) &&
-                    hotcueNumber != Cue::kNoHotCue) {
+                    hotcueIndex != Cue::kNoHotCue) {
                 // Prepend the hotcue number to hotcues' labels
                 QString newLabel = currentCue->getLabel();
                 if (newLabel.isEmpty()) {
-                    newLabel = QString::number(hotcueNumber + 1);
+                    newLabel = QString::number(hotcueNumber);
                 } else {
-                    newLabel = QString("%1: %2").arg(hotcueNumber + 1).arg(newLabel);
+                    newLabel = QString("%1: %2").arg(hotcueNumber).arg(newLabel);
                 }
 
                 if (pMark->m_text != newLabel) {
