@@ -81,40 +81,23 @@ void BaseExternalLibraryFeature::onRightClickChild(
 }
 
 void BaseExternalLibraryFeature::slotAddToAutoDJ() {
-    //qDebug() << "slotAddToAutoDJ() row:" << m_lastRightClickedIndex.data();
+    // qDebug() << "slotAddToAutoDJ() row:" << m_lastRightClickedIndex.data();
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::BOTTOM);
 }
 
 void BaseExternalLibraryFeature::slotAddToAutoDJTop() {
-    //qDebug() << "slotAddToAutoDJTop() row:" << m_lastRightClickedIndex.data();
+    // qDebug() << "slotAddToAutoDJTop() row:" << m_lastRightClickedIndex.data();
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::TOP);
 }
 
 void BaseExternalLibraryFeature::slotAddToAutoDJReplace() {
-    //qDebug() << "slotAddToAutoDJReplace() row:" << m_lastRightClickedIndex.data();
+    // qDebug() << "slotAddToAutoDJReplace() row:" << m_lastRightClickedIndex.data();
     addToAutoDJ(PlaylistDAO::AutoDJSendLoc::REPLACE);
 }
 
 void BaseExternalLibraryFeature::addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc) {
-    //qDebug() << "slotAddToAutoDJ() row:" << m_lastRightClickedIndex.data();
+    // qDebug() << "slotAddToAutoDJ() row:" << m_lastRightClickedIndex.data();
 
-    QList<TrackId> trackIds;
-    QString playlist;
-    appendTrackIdsFromRightClickIndex(&trackIds, &playlist);
-    if (trackIds.isEmpty()) {
-        return;
-    }
-
-    PlaylistDAO &playlistDao = m_pTrackCollection->getPlaylistDAO();
-    playlistDao.addTracksToAutoDJQueue(trackIds, loc);
-}
-
-void BaseExternalLibraryFeature::slotImportAsMixxxPlaylist() {
-    // qDebug() << "slotImportAsMixxxPlaylist() row:" << m_lastRightClickedIndex.data();
-    importAsMixxxPlaylist(m_lastRightClickedIndex);
-}
-
-void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index) {
     QList<TrackId> trackIds;
     QString playlist;
     appendTrackIdsFromRightClickIndex(&trackIds, &playlist);
@@ -123,17 +106,56 @@ void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index)
     }
 
     PlaylistDAO& playlistDao = m_pTrackCollection->getPlaylistDAO();
+    playlistDao.addTracksToAutoDJQueue(trackIds, loc);
+}
 
-    int playlistId = playlistDao.createUniquePlaylist(&playlist);
+void BaseExternalLibraryFeature::slotImportAsMixxxPlaylist() {
+    // qDebug() << "slotImportAsMixxxPlaylist() row:" << m_lastRightClickedIndex.data();
+    importAsMixxxPlaylist(m_lastRightClickedIndex);
+}
+
+bool BaseExternalLibraryFeature::importAsMixxxPlaylist(
+        const QModelIndex& index, int parentId, bool recursive) {
+    QList<TrackId> trackIds;
+    QString playlist;
+    appendTrackIdsFromRightClickIndex(&trackIds, &playlist);
+    if (trackIds.isEmpty()) {
+        return;
+    }
+
+    QList<QModelIndex> children;
+    appendChildIndicesFromModelIndex(index, &children);
+    const bool isFolder = !children.isEmpty();
+
+    PlaylistDAO& playlistDao = m_pTrackCollection->getPlaylistDAO();
+
+    int playlistId = playlistDao.createUniquePlaylist(&playlist, PLHT_NOT_HIDDEN, parentId, isFolder);
 
     if (playlistId != kInvalidPlaylistId) {
         playlistDao.appendTracksToPlaylist(trackIds, playlistId);
+
+        if (recursive) {
+            for (const auto& childIndex : std::as_const(children)) {
+                if (!importAsMixxxCrate(crateId, recursive)) {
+                    // Abort if an error occurs during the creation of a child playlists.
+                    // This prevents the warning message box from being shown
+                    // potentially tenths or hundreths of times.
+                    return false;
+                }
+            }
+        }
+
+        // Signal success
+        return true;
     } else {
         // Do not change strings here without also changing strings in
         // src/library/trackset/baseplaylistfeature.cpp
         QMessageBox::warning(nullptr,
                 tr("Playlist Creation Failed"),
                 tr("An unknown error occurred while creating playlist: ") + playlist);
+
+        // Signal failure
+        return false;
     }
 }
 
@@ -142,7 +164,8 @@ void BaseExternalLibraryFeature::slotImportAsMixxxCrate() {
     importAsMixxxCrate(m_lastRightClickedIndex);
 }
 
-void BaseExternalLibraryFeature::importAsMixxxCrate(const QModelIndex& index) {
+void BaseExternalLibraryFeature::importAsMixxxCrate(
+        const QModelIndex& index, const CrateId& parentId, bool recursive) {
     QList<TrackId> trackIds;
     QString playlist;
     appendTrackIdsFromModelIndex(index, &trackIds, &playlist);
@@ -150,17 +173,38 @@ void BaseExternalLibraryFeature::importAsMixxxCrate(const QModelIndex& index) {
         return;
     }
 
+    QList<QModelIndex> children;
+    appendChildIndicesFromModelIndex(index, &children);
+    const bool isFolder = !children.isEmpty();
+
     Crate crate;
     crate.setName(playlist);
+    crate.setParentId(parentId);
 
     CrateId crateId;
 
     if (m_pTrackCollection->insertCrate(crate, &crateId)) {
         m_pTrackCollection->addCrateTracks(crateId, trackIds);
+        if (recursive) {
+            for (const auto& childIndex : std::as_const(children)) {
+                if (!importAsMixxxCrate(crateId, recursive)) {
+                    // Abort if an error occurs during the creation of a child crate.
+                    // This prevents the warning message box from being shown
+                    // potentially tenths or hundreths of times.
+                    return false;
+                }
+            }
+        }
+
+        // Signal success
+        return true;
     } else {
         QMessageBox::warning(nullptr,
                 tr("Crate Creation Failed"),
                 tr("Could not create crate, it most likely already exists: ") + playlist);
+
+        // Signal failure
+        return false;
     }
 }
 
