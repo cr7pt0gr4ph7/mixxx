@@ -161,12 +161,18 @@ void BaseExternalLibraryFeature::slotImportAsMixxxCrate() {
 // This is a common function for all external libraries copied to Mixxx DB
 void BaseExternalLibraryFeature::appendTrackIdsFromRightClickIndex(
         QList<TrackId>* trackIds, QString* pPlaylist) {
-    if (!m_lastRightClickedIndex.isValid()) {
+    appendTrackIdsFromModelIndex(m_lastRightClickedIndex);
+}
+
+// This is a common function for all external libraries copied to Mixxx DB
+void BaseExternalLibraryFeature::appendTrackIdsFromModelIndex(
+        const QModelIndex& index, QList<TrackId>* trackIds, QString* pPlaylist) {
+    if (!index.isValid()) {
         return;
     }
 
     const auto* pTreeItem = static_cast<TreeItem*>(
-            m_lastRightClickedIndex.internalPointer());
+            index.internalPointer());
     VERIFY_OR_DEBUG_ASSERT(pTreeItem) {
         return;
     }
