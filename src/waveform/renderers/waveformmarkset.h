@@ -104,6 +104,10 @@ class WaveformMarkSet {
     QList<WaveformMarkPointer> m_marksToRender;
 
     QMap<int, WaveformMarkPointer> m_hotCueMarks;
+    QMap<int, WaveformMarkPointer> m_sectionMarks;
+    QMap<int, WaveformMarkPointer> m_sectionIntroMarks;
+    QMap<int, WaveformMarkPointer> m_sectionOutroMarks;
+    QMap<int, WaveformMarkPointer> m_markerMarks;
 
     DISALLOW_COPY_AND_ASSIGN(WaveformMarkSet);
 };

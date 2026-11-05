@@ -64,6 +64,42 @@ void WaveformMarkSet::setup(const QString& group, const QDomNode& node,
                 m_hotCueMarks.insert(pMark->getHotCue(), pMark);
             }
         }
+        --priority;
+        for (int i = 0; i < kMaxNumberOfMarkers; ++i) {
+            if (m_markerMarks.value(i).isNull()) {
+                auto pMark = WaveformMarkPointer::create(
+                        group, defaultChild, context, priority, signalColors, Cue::kNoHotCue);
+                m_marks.push_front(pMark);
+                m_markerMarks.insert(i, pMark);
+            }
+        }
+        --priority;
+        for (int i = 0; i < kMaxNumberOfSections; ++i) {
+            if (m_sectionMarks.value(i).isNull()) {
+                auto pMark = WaveformMarkPointer::create(
+                        group, defaultChild, context, priority, signalColors, Cue::kNoHotCue);
+                m_marks.push_front(pMark);
+                m_sectionMarks.insert(i, pMark);
+            }
+        }
+        --priority;
+        for (int i = 0; i < kMaxNumberOfSectionIntros; ++i) {
+            if (m_sectionIntroMarks.value(i).isNull()) {
+                auto pMark = WaveformMarkPointer::create(
+                        group, defaultChild, context, priority, signalColors, Cue::kNoHotCue);
+                m_marks.push_front(pMark);
+                m_sectionIntroMarks.insert(i, pMark);
+            }
+        }
+        --priority;
+        for (int i = 0; i < kMaxNumberOfSectionOutros; ++i) {
+            if (m_sectionOutroMarks.value(i).isNull()) {
+                auto pMark = WaveformMarkPointer::create(
+                        group, defaultChild, context, priority, signalColors, Cue::kNoHotCue);
+                m_marks.push_front(pMark);
+                m_sectionOutroMarks.insert(i, pMark);
+            }
+        }
     }
 }
 

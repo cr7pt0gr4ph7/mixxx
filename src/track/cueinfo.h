@@ -6,6 +6,12 @@
 #include "util/color/rgbcolor.h"
 #include "util/optional.h"
 
+constexpr int kMaxNumberOfUserCues = 64;
+constexpr int kMaxNumberOfSections = kMaxNumberOfUserCues;
+constexpr int kMaxNumberOfSectionIntros = kMaxNumberOfUserCues;
+constexpr int kMaxNumberOfSectionOutros = kMaxNumberOfUserCues;
+constexpr int kMaxNumberOfMarkers = kMaxNumberOfUserCues;
+
 namespace mixxx {
 
 enum class CueType {
