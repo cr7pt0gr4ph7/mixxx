@@ -495,6 +495,7 @@ void WOverview::slotScalingChanged() {
 }
 
 void WOverview::updateCues(const QList<CuePointer> &loadedCues) {
+    // Update hotcue labels and colors
     for (const CuePointer& currentCue : loadedCues) {
         const int hotcueIndex = currentCue->getHotCue();
         const WaveformMarkPointer pMark = m_marks.getHotCueMark(hotcueIndex);
