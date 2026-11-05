@@ -1124,6 +1124,17 @@ CuePointer Track::findCueByType(mixxx::CueType type) const {
     return CuePointer();
 }
 
+QList<CuePointer> Track::findCuesByType(mixxx::CueType type) const {
+    QList<CuePointer> result;
+    auto locked = lockMutex(&m_qMutex);
+    for (const CuePointer& pCue : m_cuePoints) {
+        if (pCue->getType() == type) {
+            result.append(pCue);
+        }
+    }
+    return result;
+}
+
 CuePointer Track::findCueById(DbId id) const {
     auto locked = lockMutex(&m_qMutex);
     for (const CuePointer& pCue : m_cuePoints) {
