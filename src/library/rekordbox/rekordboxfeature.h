@@ -80,8 +80,6 @@ class RekordboxFeature : public BaseExternalLibraryFeature {
     QString formatRootViewHtml() const;
     std::unique_ptr<BaseSqlTableModel> createPlaylistModelForPlaylist(
             const QVariant& data) override;
-    void appendChildIndicesFromModelIndex(
-            const QModelIndex& index, QList<QModelIndex>* children) override;
 
     parented_ptr<TreeItemModel> m_pSidebarModel;
     parented_ptr<RekordboxPlaylistModel> m_pRekordboxPlaylistModel;

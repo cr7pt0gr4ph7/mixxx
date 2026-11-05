@@ -1425,11 +1425,6 @@ RekordboxFeature::createPlaylistModelForPlaylist(const QVariant& data) {
     return pModel;
 }
 
-void RekordboxFeature::appendChildIndicesFromModelIndex(
-        const QModelIndex& index, QList<QModelIndex>* children) {
-    // TODO Implement this
-}
-
 QVariant RekordboxFeature::title() {
     return m_title;
 }
