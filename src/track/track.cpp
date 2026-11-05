@@ -73,10 +73,10 @@ constexpr int kQuickBeatChangeDeltaMillis = 800;
 // Otherwise 3rd party software that picks up the currently
 // playing track from the main window and relies on this
 // formatting would stop working.
-//static
+// static
 const QString Track::kArtistTitleSeparator = QStringLiteral(" - ");
 
-//static
+// static
 SyncTrackMetadataParams SyncTrackMetadataParams::readFromUserSettings(
         const UserSettings& userSettings) {
     return SyncTrackMetadataParams{
@@ -131,14 +131,14 @@ Track::~Track() {
     }
 }
 
-//static
+// static
 TrackPointer Track::newTemporary(
         mixxx::FileAccess fileAccess) {
     return std::make_shared<Track>(
             std::move(fileAccess));
 }
 
-//static
+// static
 TrackPointer Track::newDummy(
         const QString& filePath,
         TrackId trackId) {
@@ -199,7 +199,7 @@ void Track::replaceMetadataFromSource(
         if (importedBpm.isValid() &&
                 (!m_pBeats ||
                         !getBeatsPointerBpm(m_pBeats, getDuration())
-                                 .isValid())) {
+                                .isValid())) {
             // Only use the imported BPM if the current beat grid is either
             // missing or not valid! The BPM value in the metadata might be
             // imprecise (normalized or rounded), e.g. ID3v2 only supports
