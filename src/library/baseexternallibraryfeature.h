@@ -53,6 +53,7 @@ class BaseExternalLibraryFeature : public LibraryFeature {
 
   private:
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
+    void importAsMixxxPlaylist(const QModelIndex& index);
 
     // Caution: Make sure this is reset whenever the library tree is updated,
     // so that the internalPointer() does not become dangling

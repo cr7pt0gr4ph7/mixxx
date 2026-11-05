@@ -111,13 +111,19 @@ void BaseExternalLibraryFeature::addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc) {
 
 void BaseExternalLibraryFeature::slotImportAsMixxxPlaylist() {
     // qDebug() << "slotImportAsMixxxPlaylist() row:" << m_lastRightClickedIndex.data();
+    importAsMixxxPlaylist(m_lastRightClickedIndex);
+}
 
+void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index) {
     QList<TrackId> trackIds;
     QString playlist;
-    appendTrackIdsFromRightClickIndex(&trackIds, &playlist);
-    if (trackIds.isEmpty()) {
-        return;
-    }
+    appendTrackIdsFromModelIndex(index, &trackIds, &playlist);
+
+    // Do not skip import of empty playlists, as they might have children
+    // if (trackIds.isEmpty()) {
+    //     // No tracks had to be imported
+    //     return true;
+    // }
 
     PlaylistDAO& playlistDao = m_pTrackCollection->getPlaylistDAO();
 
