@@ -7,6 +7,7 @@
 #include "library/library_prefs.h"
 #include "moc_track.cpp"
 #include "sources/metadatasource.h"
+#include "track/cueutils.h"
 #include "track/keyfactory.h"
 #include "util/assert.h"
 #include "util/logger.h"
@@ -1135,12 +1136,35 @@ QList<CuePointer> Track::findCuesByType(mixxx::CueType type) const {
     return result;
 }
 
+QList<CuePointer> Track::findCuesByType(mixxx::CueKind kind) const {
+    QList<CuePointer> result;
+    auto locked = lockMutex(&m_qMutex);
+    for (const CuePointer& pCue : m_cuePoints) {
+        if (CueUtils::matchesKind(pCue->getType(), kind)) {
+            result.append(pCue);
+        }
+    }
+    return result;
+}
+
 QList<CuePointer> Track::findCuesByTypeInRange(mixxx::CueType type, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const {
     QList<CuePointer> result;
     auto locked = lockMutex(&m_qMutex);
     for (const CuePointer& pCue : m_cuePoints) {
         const auto pos = pCue->getPosition();
         if (pCue->getType() == type && pos >= startPosition && pos <= endPosition) {
+            result.append(pCue);
+        }
+    }
+    return result;
+}
+
+QList<CuePointer> Track::findCuesByTypeInRange(mixxx::CueKind kind, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const {
+    QList<CuePointer> result;
+    auto locked = lockMutex(&m_qMutex);
+    for (const CuePointer& pCue : m_cuePoints) {
+        const auto pos = pCue->getPosition();
+        if (CueUtils::matchesKind(pCue->getType(), kind) && pos >= startPosition && pos <= endPosition) {
             result.append(pCue);
         }
     }

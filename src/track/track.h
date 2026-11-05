@@ -341,7 +341,9 @@ class Track : public QObject {
     void removeCue(const CuePointer& pCue);
     void removeCuesOfType(mixxx::CueType);
     QList<CuePointer> findCuesByType(mixxx::CueType type) const;
+    QList<CuePointer> findCuesByType(mixxx::CueKind kind) const;
     QList<CuePointer> findCuesByTypeInRange(mixxx::CueType type, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const;
+    QList<CuePointer> findCuesByTypeInRange(mixxx::CueKind kind, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const;
     CuePointer findClosestCueByType(
             mixxx::CueType type,
             mixxx::audio::FramePos position,
