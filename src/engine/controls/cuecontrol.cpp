@@ -2556,6 +2556,38 @@ mixxx::audio::FramePos CueControl::getQuantizedCurrentPosition() {
     return info.currentPosition;
 }
 
+Cue::StartAndEndPositions CueControl::getQuantizedEditRange(int tolerance) {
+    FrameInfo info = frameInfo();
+
+    // Note: currentPos can be past the end of the track, in the padded
+    // silence of the last buffer. This position might be not reachable in
+    // a future runs, depending on the buffering.
+    mixxx::audio::FramePos currentPos = info.currentPosition;
+
+    // Don't quantize if quantization is disabled.
+    if (!m_pQuantizeEnabled->toBool()) {
+        return {currentPos - tolerance, currentPos + tolerance};
+    }
+
+    const auto closestBeat =
+            mixxx::audio::FramePos::fromEngineSamplePosMaybeInvalid(
+                    m_pClosestBeat->get());
+    // Note: closestBeat can be an interpolated beat past the end of the track,
+    // which cannot be reached.
+    if (closestBeat.isValid() && info.trackEndPosition.isValid() &&
+            closestBeat <= info.trackEndPosition) {
+        if (closestBeat < currentPos) {
+            // The closest beat is behind us
+            return {closestBeat - tolerance, currentPos + tolerance};
+        } else {
+            // The closest beat is in front of us
+            return {currentPos - tolerance, closestBeat + tolerance};
+        }
+    }
+
+    return {currentPos - tolerance, currentPos + tolerance};
+}
+
 mixxx::audio::FramePos CueControl::quantizeCuePoint(mixxx::audio::FramePos position) {
     // Don't quantize unset cues.
     if (!position.isValid()) {
