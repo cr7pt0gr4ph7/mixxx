@@ -327,7 +327,9 @@ void DlgTrackInfo::init() {
             });
 
     // Cue table
+    m_pCueModel->setShowHiddenCueTypes(true);
     tblCues->setModel(m_pCueModel.get());
+    // m_cueProxyModel.sort(0, Qt::AscendingOrder);
 }
 
 void DlgTrackInfo::slotApply() {
