@@ -28,11 +28,11 @@ class BaseExternalLibraryFeature : public LibraryFeature {
 
   protected:
     // Must be re-implemented by external Libraries copied to Mixxx DB
-    virtual std::unique_ptr<BaseSqlTableModel> createPlaylistModelForPlaylist(
-            const QVariant& data);
+    virtual std::unique_ptr<BaseSqlTableModel> createPlaylistModelForPlaylist(const QVariant& data);
+
     // Must be implemented by external Libraries not copied to Mixxx DB
-    virtual void appendTrackIdsFromRightClickIndex(QList<TrackId>* trackIds,
-            QString* pPlaylist);
+    virtual void appendTrackIdsFromModelIndex(const QModelIndex& index, QList<TrackId>* trackIds, QString* pPlaylist);
+    void appendTrackIdsFromRightClickIndex(QList<TrackId>* trackIds, QString* pPlaylist);
 
   private slots:
     void slotAddToAutoDJ();

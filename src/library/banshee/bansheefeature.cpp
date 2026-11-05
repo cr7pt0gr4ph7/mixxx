@@ -128,12 +128,12 @@ TreeItemModel* BansheeFeature::sidebarModel() const {
     return m_pSidebarModel;
 }
 
-void BansheeFeature::appendTrackIdsFromRightClickIndex(QList<TrackId>* trackIds, QString* pPlaylist) {
-    if (lastRightClickedIndex().isValid()) {
-        TreeItem *item = static_cast<TreeItem*>(lastRightClickedIndex().internalPointer());
-        *pPlaylist = item->getLabel();
-        int playlistID = item->getData().toInt();
-        qDebug() << "BansheeFeature::appendTrackIdsFromRightClickIndex " << *pPlaylist << " " << playlistID;
+void BansheeFeature::appendTrackIdsFromModelIndex(const QModelIndex& index, QList<TrackId>* trackIds, QString* pPlaylist) {
+    if (index.isValid()) {
+        TreeItem* pItem = static_cast<TreeItem*>(index.internalPointer());
+        *pPlaylist = pItem->getLabel();
+        int playlistID = pItem->getData().toInt();
+        qDebug() << "BansheeFeature::appendTrackIdsFromModelIndex " << index << *pPlaylist << " " << playlistID;
         if (playlistID > 0) {
             BansheePlaylistModel* pPlaylistModelToAdd =
                     new BansheePlaylistModel(this,

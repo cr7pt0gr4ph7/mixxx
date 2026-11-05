@@ -25,7 +25,7 @@ class BansheeFeature : public BaseExternalLibraryFeature {
     void activateChild(const QModelIndex& index) override;
 
   private:
-    void appendTrackIdsFromRightClickIndex(QList<TrackId>* trackIds, QString* pPlaylist) override;
+    void appendTrackIdsFromModelIndex(const QModelIndex& index, QList<TrackId>* trackIds, QString* pPlaylist) override;
 
     BansheePlaylistModel* m_pBansheePlaylistModel;
     parented_ptr<TreeItemModel> m_pSidebarModel;
