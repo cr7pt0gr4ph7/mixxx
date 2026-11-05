@@ -1135,6 +1135,18 @@ QList<CuePointer> Track::findCuesByType(mixxx::CueType type) const {
     return result;
 }
 
+QList<CuePointer> Track::findCuesByTypeInRange(mixxx::CueType type, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const {
+    QList<CuePointer> result;
+    auto locked = lockMutex(&m_qMutex);
+    for (const CuePointer& pCue : m_cuePoints) {
+        const auto pos = pCue->getPosition();
+        if (pCue->getType() == type && pos >= startPosition && pos <= endPosition) {
+            result.append(pCue);
+        }
+    }
+    return result;
+}
+
 CuePointer Track::findCueById(DbId id) const {
     auto locked = lockMutex(&m_qMutex);
     for (const CuePointer& pCue : m_cuePoints) {
