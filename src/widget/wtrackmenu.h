@@ -112,6 +112,7 @@ class WTrackMenu : public QMenu {
     // This has been done on purpose to ensure menu doesn't popup without loaded track(s).
     void popup(const QPoint& pos, QAction* at = nullptr);
     void slotShowDlgTrackInfo();
+    void slotShowDlgTrackInfoForProperty(QString trackProperty);
     // Library management
     void slotRemoveFromDisk();
     const QString getDeckGroup() const;
@@ -172,6 +173,7 @@ class WTrackMenu : public QMenu {
 
     // Hotcues
     void slotSortHotcuesByPosition(HotcueSortMode sortMode);
+    void slotEditHotcues();
 
     // Info and metadata
     void slotUpdateReplayGainFromPregain();
@@ -378,6 +380,7 @@ class WTrackMenu : public QMenu {
     parented_ptr<QAction> m_pClearAllMetadataAction;
     parented_ptr<QAction> m_pSortHotcuesByPositionAction{};
     parented_ptr<QAction> m_pSortHotcuesByPositionCompressAction{};
+    parented_ptr<QAction> m_pEditHotcuesAction{};
 
     const UserSettingsPointer m_pConfig;
     Library* const m_pLibrary;

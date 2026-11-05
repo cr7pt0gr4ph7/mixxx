@@ -35,6 +35,7 @@ constexpr int kMinBpm = 30;
 const mixxx::Duration kMaxInterval = mixxx::Duration::fromMillis(
         static_cast<qint64>(1000.0 * (60.0 / kMinBpm)));
 const QString kBpmPropertyName = QStringLiteral("bpm");
+const QString kHotcuesPropertyName = QStringLiteral("hotcues");
 
 constexpr double kStandardTuningHz = 440.0;
 constexpr double kCentsPerOctave = 1200.0;
@@ -80,6 +81,7 @@ void DlgTrackInfo::init() {
     m_propertyWidgets.insert("genre", txtGenre);
     m_propertyWidgets.insert("year", txtYear);
     m_propertyWidgets.insert(kBpmPropertyName, spinBpm);
+    m_propertyWidgets.insert(kHotcuesPropertyName, tblCues);
     m_propertyWidgets.insert("tracknumber", txtTrackNumber);
     m_propertyWidgets.insert("key", txtKey);
     m_propertyWidgets.insert("grouping", txtGrouping);
@@ -589,6 +591,9 @@ void DlgTrackInfo::focusField(const QString& property) {
         if (property == kBpmPropertyName) {
             // If we shall focus the BPM spinbox, switch to BPM tab
             tabWidget->setCurrentIndex(tabWidget->indexOf(tabBPM));
+        } else if (property == kHotcuesPropertyName) {
+            // If we shall focus the Cue Points table, switch to Cue Points tab
+            tabWidget->setCurrentIndex(tabWidget->indexOf(tabCues));
         }
         it.value()->setFocus();
     }

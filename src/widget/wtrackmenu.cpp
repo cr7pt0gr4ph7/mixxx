@@ -503,6 +503,15 @@ void WTrackMenu::createActions() {
                 });
     }
 
+    if (featureIsEnabled(Feature::Properties)) {
+        m_pEditHotcuesAction = make_parented<QAction>(
+                tr("Edit hotcues"), m_pHotcueMenu);
+        connect(m_pEditHotcuesAction,
+                &QAction::triggered,
+                this,
+                &WTrackMenu::slotEditHotcues);
+    }
+
     if (featureIsEnabled(Feature::BPM)) {
         m_pBpmLockAction = make_parented<QAction>(tr("Lock BPM"), m_pBPMMenu);
         m_pBpmUnlockAction = make_parented<QAction>(tr("Unlock BPM"), m_pBPMMenu);
@@ -740,6 +749,12 @@ void WTrackMenu::setupActions() {
 
         m_pHotcueMenu->addAction(m_pSortHotcuesByPositionCompressAction);
         m_pHotcueMenu->addAction(m_pSortHotcuesByPositionAction);
+
+        if (featureIsEnabled(Feature::Properties)) {
+            m_pHotcueMenu->addSeparator();
+            m_pHotcueMenu->addAction(m_pEditHotcuesAction);
+        }
+
         addMenu(m_pHotcueMenu);
     }
 
@@ -1252,6 +1267,7 @@ void WTrackMenu::updateMenus() {
     }
 
     if (featureIsEnabled(Feature::Properties)) {
+        m_pEditHotcuesAction->setEnabled(singleTrackSelected);
         m_pPropertiesAct->setEnabled(true);
     }
 
@@ -2307,6 +2323,10 @@ void WTrackMenu::slotSortHotcuesByPosition(HotcueSortMode sortMode) {
             &trackOperator);
 }
 
+void WTrackMenu::slotEditHotcues() {
+    slotShowDlgTrackInfoForProperty(QStringLiteral("hotcues"));
+}
+
 namespace {
 
 class ResetKeysTrackPointerOperation : public mixxx::TrackPointerOperation {
@@ -2745,6 +2765,10 @@ void WTrackMenu::slotRemoveFromDisk() {
 }
 
 void WTrackMenu::slotShowDlgTrackInfo() {
+    slotShowDlgTrackInfoForProperty(m_trackProperty);
+}
+
+void WTrackMenu::slotShowDlgTrackInfoForProperty(QString trackProperty) {
     if (isEmpty()) {
         return;
     }
@@ -2775,7 +2799,7 @@ void WTrackMenu::slotShowDlgTrackInfo() {
         }
         m_pDlgTrackInfoMulti->loadTracks(tracks);
         m_pDlgTrackInfoMulti->show();
-        m_pDlgTrackInfoMulti->focusField(m_trackProperty);
+        m_pDlgTrackInfoMulti->focusField(trackProperty);
     } else {
         // Use the single-track editor with Next/Prev buttons and DlgTagFetcher.
         // Create a fresh dialog on invocation.
@@ -2803,7 +2827,7 @@ void WTrackMenu::slotShowDlgTrackInfo() {
             m_pDlgTrackInfo->loadTrack(m_pTrack);
         }
         m_pDlgTrackInfo->show();
-        m_pDlgTrackInfo->focusField(m_trackProperty);
+        m_pDlgTrackInfo->focusField(trackProperty);
     }
 }
 
