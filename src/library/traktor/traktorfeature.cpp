@@ -148,6 +148,11 @@ TraktorFeature::createPlaylistModelForPlaylist(const QVariant& data) {
     return pModel;
 }
 
+void TraktorFeature::appendChildIndicesFromModelIndex(
+        const QModelIndex& index, QList<QModelIndex>* children) {
+    // TODO Implement this
+}
+
 QVariant TraktorFeature::title() {
     return m_title;
 }
