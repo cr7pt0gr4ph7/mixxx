@@ -12,4 +12,8 @@ class CueUtils {
                 type == mixxx::CueType::Loop ||
                 type == mixxx::CueType::Jump);
     }
+
+    static inline bool matchesKind(mixxx::CueType type, mixxx::CueKind kind) {
+        return kind.testFlag(static_cast<mixxx::CueKindFlag>(1 << static_cast<int>(type)));
+    }
 };
