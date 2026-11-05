@@ -297,6 +297,15 @@ void CueControl::createControls() {
         HotcueControl* pControl = new HotcueControl(m_group, i);
         m_hotcueControls.append(pControl);
     }
+
+    m_pSectionCueSet = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_cue_set"));
+    m_pSectionCueClear = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_cue_clear"));
+    m_pSectionIntroCueSet = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_intro_cue_set"));
+    m_pSectionIntroCueClear = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_intro_cue_clear"));
+    m_pSectionOutroCueSet = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_outro_cue_set"));
+    m_pSectionOutroCueClear = std::make_unique<ControlPushButton>(ConfigKey(m_group, "section_outro_cue_clear"));
+    m_pMarkerCueSet = std::make_unique<ControlPushButton>(ConfigKey(m_group, "marker_cue_set"));
+    m_pMarkerCueClear = std::make_unique<ControlPushButton>(ConfigKey(m_group, "marker_cue_clear"));
 }
 
 void CueControl::connectControls() {
@@ -486,6 +495,54 @@ void CueControl::connectControls() {
                 &CueControl::hotcueSwap,
                 Qt::DirectConnection);
     }
+
+    connect(m_pSectionCueSet.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionCueSet,
+            Qt::DirectConnection);
+
+    connect(m_pSectionCueClear.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionCueClear,
+            Qt::DirectConnection);
+
+    connect(m_pSectionIntroCueSet.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionIntroCueSet,
+            Qt::DirectConnection);
+
+    connect(m_pSectionIntroCueClear.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionIntroCueClear,
+            Qt::DirectConnection);
+
+    connect(m_pSectionOutroCueSet.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionOutroCueSet,
+            Qt::DirectConnection);
+
+    connect(m_pSectionOutroCueClear.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::sectionOutroCueClear,
+            Qt::DirectConnection);
+
+    connect(m_pMarkerCueSet.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::markerCueSet,
+            Qt::DirectConnection);
+
+    connect(m_pMarkerCueClear.get(),
+            &ControlObject::valueChanged,
+            this,
+            &CueControl::markerCueClear,
+            Qt::DirectConnection);
 }
 
 void CueControl::disconnectControls() {
@@ -520,6 +577,15 @@ void CueControl::disconnectControls() {
     for (const auto& pControl : std::as_const(m_hotcueControls)) {
         disconnect(pControl, nullptr, this, nullptr);
     }
+
+    disconnect(m_pSectionCueSet.get(), nullptr, this, nullptr);
+    disconnect(m_pSectionCueClear.get(), nullptr, this, nullptr);
+    disconnect(m_pSectionIntroCueSet.get(), nullptr, this, nullptr);
+    disconnect(m_pSectionIntroCueClear.get(), nullptr, this, nullptr);
+    disconnect(m_pSectionOutroCueSet.get(), nullptr, this, nullptr);
+    disconnect(m_pSectionOutroCueClear.get(), nullptr, this, nullptr);
+    disconnect(m_pMarkerCueSet.get(), nullptr, this, nullptr);
+    disconnect(m_pMarkerCueClear.get(), nullptr, this, nullptr);
 }
 
 void CueControl::passthroughChanged(double enabled) {
@@ -774,6 +840,12 @@ void CueControl::loadCuesFromTrack() {
         case mixxx::CueType::N60dBSound: {
             Cue::StartAndEndPositions pos = pCue->getStartAndEndPosition();
             m_n60dBSoundStartPosition.setValue(pos.startPosition.toEngineSamplePos());
+            break;
+        }
+        case mixxx::CueType::Section:
+        case mixxx::CueType::SectionIntro:
+        case mixxx::CueType::SectionOutro:
+        case mixxx::CueType::Marker: {
             break;
         }
         case mixxx::CueType::Beat:
@@ -1437,6 +1509,92 @@ void CueControl::hintReader(gsl::not_null<HintVector*> pHintList) {
     appendCueHint(pHintList, m_pIntroStartPosition->get(), Hint::Type::IntroStart);
     appendCueHint(pHintList, m_pIntroEndPosition->get(), Hint::Type::IntroEnd);
     appendCueHint(pHintList, m_pOutroStartPosition->get(), Hint::Type::OutroStart);
+}
+
+/// Add a new section/section-intro/section-outro/marker cue at the
+/// current position, or at the closest beat in case quantize is enabled.
+void CueControl::customCueSet(double value, mixxx::CueType type) {
+    if (value <= 0) {
+        return;
+    }
+
+    auto lock = lockMutex(&m_trackMutex);
+    const mixxx::audio::FramePos position = getQuantizedCurrentPosition();
+    TrackPointer pLoadedTrack = m_pLoadedTrack;
+    lock.unlock();
+
+    // Store new cue point in loaded track
+    if (pLoadedTrack) {
+        QList<CuePointer> cues = pLoadedTrack->findCuesByTypeInRange(type, position, position);
+        DEBUG_ASSERT(cues.size() <= 1);
+        CuePointer pCue = cues.value(0);
+        if (!pCue) {
+            pCue = pLoadedTrack->createAndAddCue(
+                    type,
+                    Cue::kNoHotCue,
+                    position,
+                    mixxx::audio::kInvalidFramePos);
+        } else {
+            DEBUG_ASSERT(pCue->getType() == type);
+            pCue->setStartAndEndPosition(position, mixxx::audio::kInvalidFramePos);
+        }
+    }
+}
+
+void CueControl::sectionCueSet(double value) {
+    customCueSet(value, mixxx::CueType::Section);
+}
+
+void CueControl::sectionIntroCueSet(double value) {
+    customCueSet(value, mixxx::CueType::SectionIntro);
+}
+
+void CueControl::sectionOutroCueSet(double value) {
+    customCueSet(value, mixxx::CueType::SectionOutro);
+}
+
+void CueControl::markerCueSet(double value) {
+    customCueSet(value, mixxx::CueType::Marker);
+}
+
+/// Remove the section/section-intro/section-outro/marker cue at the
+/// current position, or at the closest beat in case quantize is enabled.
+void CueControl::customCueClear(double value, mixxx::CueType type) {
+    if (value <= 0) {
+        return;
+    }
+
+    auto lock = lockMutex(&m_trackMutex);
+    const mixxx::audio::FramePos position = getQuantizedCurrentPosition();
+    TrackPointer pLoadedTrack = m_pLoadedTrack;
+    lock.unlock();
+
+    // Remove cue point in loaded track
+    if (pLoadedTrack) {
+        QList<CuePointer> cues = pLoadedTrack->findCuesByTypeInRange(type, position, position);
+        DEBUG_ASSERT(cues.size() <= 1);
+        CuePointer pCue = cues.value(0);
+        if (pCue) {
+            DEBUG_ASSERT(pCue->getType() == type);
+            m_pLoadedTrack->removeCue(pCue);
+        }
+    }
+}
+
+void CueControl::sectionCueClear(double value) {
+    customCueClear(value, mixxx::CueType::Section);
+}
+
+void CueControl::sectionIntroCueClear(double value) {
+    customCueClear(value, mixxx::CueType::SectionIntro);
+}
+
+void CueControl::sectionOutroCueClear(double value) {
+    customCueClear(value, mixxx::CueType::SectionOutro);
+}
+
+void CueControl::markerCueClear(double value) {
+    customCueClear(value, mixxx::CueType::Marker);
 }
 
 // Moves the cue point to current position or to closest beat in case

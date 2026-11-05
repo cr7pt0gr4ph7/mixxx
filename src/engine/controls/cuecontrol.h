@@ -280,6 +280,18 @@ class CueControl : public EngineControl {
     void outroEndClear(double v);
     void outroEndActivate(double v);
 
+    void customCueSet(double v, mixxx::CueType type);
+    void sectionCueSet(double v);
+    void sectionIntroCueSet(double v);
+    void sectionOutroCueSet(double v);
+    void markerCueSet(double v);
+
+    void customCueClear(double v, mixxx::CueType type);
+    void sectionCueClear(double v);
+    void sectionIntroCueClear(double v);
+    void sectionOutroCueClear(double v);
+    void markerCueClear(double v);
+
   private:
     enum class TrackAt {
         Cue,
@@ -324,6 +336,15 @@ class CueControl : public EngineControl {
     ControlValueAtomic<mixxx::audio::FramePos> m_usedSeekOnLoadPosition;
 
     QList<HotcueControl*> m_hotcueControls;
+
+    std::unique_ptr<ControlPushButton> m_pSectionCueSet;
+    std::unique_ptr<ControlPushButton> m_pSectionCueClear;
+    std::unique_ptr<ControlPushButton> m_pSectionIntroCueSet;
+    std::unique_ptr<ControlPushButton> m_pSectionIntroCueClear;
+    std::unique_ptr<ControlPushButton> m_pSectionOutroCueSet;
+    std::unique_ptr<ControlPushButton> m_pSectionOutroCueClear;
+    std::unique_ptr<ControlPushButton> m_pMarkerCueSet;
+    std::unique_ptr<ControlPushButton> m_pMarkerCueClear;
 
     ControlObject* m_pTrackSamples;
     std::unique_ptr<ControlObject> m_pCuePoint;
