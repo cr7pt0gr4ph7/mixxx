@@ -35,6 +35,9 @@ class BaseExternalLibraryFeature : public LibraryFeature {
     virtual void appendTrackIdsFromModelIndex(const QModelIndex& index, QList<TrackId>* trackIds, QString* pPlaylist);
     void appendTrackIdsFromRightClickIndex(QList<TrackId>* trackIds, QString* pPlaylist);
 
+    // Must be implemented by external Libraries that have nested folder structures
+    virtual void appendChildIndicesFromModelIndex(const QModelIndex& index, QList<QModelIndex>* children);
+
   private slots:
     void slotAddToAutoDJ();
     void slotAddToAutoDJTop();

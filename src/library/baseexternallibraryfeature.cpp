@@ -285,3 +285,28 @@ BaseExternalLibraryFeature::createPlaylistModelForPlaylist(
         const QVariant&) {
     return {};
 }
+
+void BaseExternalLibraryFeature::appendChildIndicesFromModelIndex(
+        const QModelIndex& index, QList<QModelIndex>* children) {
+    const auto* pSidebarModel = sidebarModel();
+    VERIFY_OR_DEBUG_ASSERT(pSidebarModel) {
+        return;
+    }
+
+    const auto* pTreeItem = pSidebarModel->getItem(index);
+    VERIFY_OR_DEBUG_ASSERT(pTreeItem) {
+        return;
+    }
+
+    const auto& children = pTreeItem->children();
+    for (auto* pChild : children) {
+        VERIFY_OR_DEBUG_ASSERT(pChild) {
+            continue;
+        }
+        const QModelIndex childIndex = pSidebarModel->index(pChild);
+        if (!childIndex.isValid()) {
+            continue;
+        }
+        children->append(childIndex);
+    }
+}
