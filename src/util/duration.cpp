@@ -9,14 +9,6 @@
 
 namespace mixxx {
 
-namespace {
-
-static constexpr qint64 kSecondsPerMinute = 60;
-static constexpr qint64 kSecondsPerHour = 60 * kSecondsPerMinute;
-static constexpr qint64 kSecondsPerDay = 24 * kSecondsPerHour;
-
-} // namespace
-
 // static
 const QString DurationBase::kInvalidDurationString = "?";
 // Unicode for thin space

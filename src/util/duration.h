@@ -85,11 +85,14 @@ class DurationBase {
             double dSeconds,
             Precision precision = Precision::SECONDS);
 
-    static constexpr qint64 kMillisPerSecond = 1000;
-    static constexpr qint64 kMicrosPerSecond = kMillisPerSecond * 1000;
-    static constexpr qint64 kNanosPerSecond  = kMicrosPerSecond * 1000;
-    static constexpr qint64 kNanosPerMilli   = kNanosPerSecond / 1000;
-    static constexpr qint64 kNanosPerMicro   = kNanosPerMilli / 1000;
+    static constexpr qint64 kMillisPerSecond  = 1000;
+    static constexpr qint64 kMicrosPerSecond  = kMillisPerSecond * 1000;
+    static constexpr qint64 kNanosPerSecond   = kMicrosPerSecond * 1000;
+    static constexpr qint64 kNanosPerMilli    = kNanosPerSecond / 1000;
+    static constexpr qint64 kNanosPerMicro    = kNanosPerMilli / 1000;
+    static constexpr qint64 kSecondsPerMinute = 60;
+    static constexpr qint64 kSecondsPerHour   = 60 * kSecondsPerMinute;
+    static constexpr qint64 kSecondsPerDay    = 24 * kSecondsPerHour;
     static const QString kInvalidDurationString;
     static QChar kKiloGroupSeparator;
     static QChar kHectoGroupSeparator;
