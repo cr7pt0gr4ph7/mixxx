@@ -21,6 +21,7 @@
 #include "util/compatibility/qmutex.h"
 #include "util/fileaccess.h"
 #include "util/performancetimer.h"
+#include "util/searchdirection.h"
 #include "waveform/waveform.h"
 
 class Track : public QObject {
@@ -341,6 +342,10 @@ class Track : public QObject {
     void removeCuesOfType(mixxx::CueType);
     QList<CuePointer> findCuesByType(mixxx::CueType type) const;
     QList<CuePointer> findCuesByTypeInRange(mixxx::CueType type, mixxx::audio::FramePos startPosition, mixxx::audio::FramePos endPosition) const;
+    CuePointer findClosestCueByType(
+            mixxx::CueType type,
+            mixxx::audio::FramePos position,
+            mixxx::SearchDirection direction) const;
     QList<CuePointer> getCuePoints() const {
         const QMutexLocker lock(&m_qMutex);
         // lock thread-unsafe copy constructors of QList

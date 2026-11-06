@@ -1147,6 +1147,29 @@ QList<CuePointer> Track::findCuesByTypeInRange(mixxx::CueType type, mixxx::audio
     return result;
 }
 
+CuePointer Track::findClosestCueByType(
+        mixxx::CueType type,
+        mixxx::audio::FramePos position,
+        mixxx::SearchDirection direction) const {
+    mixxx::audio::FrameDiff_t minDistance = -1;
+    CuePointer pCue;
+    auto locked = lockMutex(&m_qMutex);
+    for (const CuePointer& pCandidate : m_cuePoints) {
+        const auto cuePos = pCandidate->getPosition();
+        if (pCandidate->getType() != type ||
+                (direction == mixxx::SearchDirection::Forward && cuePos < position) ||
+                (direction == mixxx::SearchDirection::Backward && cuePos > position)) {
+            continue;
+        }
+        const mixxx::audio::FrameDiff_t distance = std::abs(position - cuePos);
+        if (!pCue || distance < minDistance) {
+            pCue = pCandidate;
+            minDistance = distance;
+        }
+    }
+    return pCue;
+}
+
 CuePointer Track::findCueById(DbId id) const {
     auto locked = lockMutex(&m_qMutex);
     for (const CuePointer& pCue : m_cuePoints) {
