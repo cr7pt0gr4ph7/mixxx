@@ -1,12 +1,16 @@
 #pragma once
 
+#include <optional>
+
 #include "track/cuefileexporter.h"
 
 namespace mixxx {
 
 class SrtCueFileExporter : public CueFileExporter {
   public:
-    SrtCueFileExporter(CueType type, QString lineEnding = QStringLiteral("\n"));
+    SrtCueFileExporter(
+            std::optional<CueType> type = std::nullopt,
+            QString lineEnding = QStringLiteral("\n"));
     ~SrtCueFileExporter() override = default;
 
     void exportCueInfos(
@@ -20,7 +24,7 @@ class SrtCueFileExporter : public CueFileExporter {
             const QList<CueInfo>& cueInfos,
             QTextStream& out) const;
 
-    CueType m_type;
+    std::optional<CueType> m_type;
     QString m_lineEnding;
 };
 

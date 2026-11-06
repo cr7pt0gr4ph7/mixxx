@@ -34,7 +34,9 @@ QString formatTimeCode(double dMilliseconds) {
 
 } // namespace
 
-mixxx::SrtCueFileExporter::SrtCueFileExporter(mixxx::CueType type, QString lineEnding)
+mixxx::SrtCueFileExporter::SrtCueFileExporter(
+        std::optional<mixxx::CueType> type,
+        QString lineEnding)
         : m_type(type),
           m_lineEnding(lineEnding) {
     DEBUG_ASSERT(lineEnding == QStringLiteral("\n") ||
@@ -58,7 +60,8 @@ void mixxx::SrtCueFileExporter::exportCueInfos(
     QList<mixxx::CueInfo> sortedCueInfos;
     sortedCueInfos.reserve(cueInfos.size());
     for (const mixxx::CueInfo& cueInfo : std::as_const(cueInfos)) {
-        if (cueInfo.getType() == m_type && cueInfo.getStartPositionMillis()) {
+        if ((m_type ? cueInfo.getType() == m_type : cueInfo.getType() != mixxx::CueType::Invalid) &&
+                cueInfo.getStartPositionMillis()) {
             sortedCueInfos.append(cueInfo);
         }
     }
@@ -89,6 +92,52 @@ void mixxx::SrtCueFileExporter::exportCueInfos(
             << kTimeRangeSeparator
             << formatTimeCode(cueInfo.getEndPositionMillis().value_or(*cueInfo.getStartPositionMillis()))
             << m_lineEnding;
+
+        QString label = cueInfo.getLabel();
+        if (!m_type) {
+            QString typeText;
+            switch (cueInfo.getType()) {
+            case mixxx::CueType::Invalid:
+                typeText = QStringLiteral("Invalid");
+                break;
+            case mixxx::CueType::HotCue:
+                typeText = QStringLiteral("Hotcue");
+                break;
+            case mixxx::CueType::MainCue:
+                typeText = QStringLiteral("Main");
+                break;
+            case mixxx::CueType::Beat:
+                typeText = QStringLiteral("Beat");
+                break;
+            case mixxx::CueType::Loop:
+                typeText = QStringLiteral("Loop");
+                break;
+            case mixxx::CueType::Jump:
+                typeText = QStringLiteral("Jump");
+                break;
+            case mixxx::CueType::Intro:
+                typeText = QStringLiteral("Intro");
+                break;
+            case mixxx::CueType::Outro:
+                typeText = QStringLiteral("Outro");
+                break;
+            case mixxx::CueType::N60dBSound:
+                typeText = QStringLiteral("N60dBSound");
+                break;
+            default:
+                typeText = QStringLiteral("Invalid");
+                break;
+            }
+
+            QString prefix = QStringLiteral("<");
+            prefix += typeText;
+            if (cueInfo.getHotCueIndex()) {
+                prefix += QStringLiteral(" ");
+                prefix += QString::number(*cueInfo.getHotCueIndex());
+            }
+            prefix += QStringLiteral(">");
+            label = prefix + label;
+        }
 
         const QStringList lines = label.split(kLineBreakRegex);
         for (const QString& line : std::as_const(lines)) {
