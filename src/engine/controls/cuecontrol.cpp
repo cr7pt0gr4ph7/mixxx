@@ -1565,15 +1565,23 @@ void CueControl::customCueClear(double value, mixxx::CueType type) {
     }
 
     auto lock = lockMutex(&m_trackMutex);
-    const mixxx::audio::FramePos position = getQuantizedCurrentPosition();
+    constexpr int kAdditionalToleranceInFrames = 5;
+    const auto range = getQuantizedEditRange(kAdditionalToleranceInFrames);
+    const mixxx::audio::FramePos currentPos = frameInfo().currentPosition;
     TrackPointer pLoadedTrack = m_pLoadedTrack;
     lock.unlock();
 
     // Remove cue point in loaded track
     if (pLoadedTrack) {
-        QList<CuePointer> cues = pLoadedTrack->findCuesByTypeInRange(type, position, position);
-        DEBUG_ASSERT(cues.size() <= 1);
-        CuePointer pCue = cues.value(0);
+        // Find the cue point that is closest to the current position
+        // and within a certain range around the current position.
+        CuePointer pCue = pLoadedTrack->findClosestCueByTypeInRange(
+                type,
+                currentPos,
+                mixxx::SearchDirection::ForwardOrBackward,
+                range.startPosition,
+                range.endPosition);
+
         if (pCue) {
             DEBUG_ASSERT(pCue->getType() == type);
             m_pLoadedTrack->removeCue(pCue);
