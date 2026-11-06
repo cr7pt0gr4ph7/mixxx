@@ -2,10 +2,13 @@
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QInputDialog>
 #include <QList>
 #include <QListWidget>
 #include <QModelIndex>
+#include <QStandardPaths>
 #include <QVBoxLayout>
 
 #include "analyzer/analyzerscheduledtrack.h"
@@ -35,6 +38,7 @@
 #include "preferences/configobject.h"
 #include "preferences/dialog/dlgprefdeck.h"
 #include "sources/soundsourceproxy.h"
+#include "track/srt/cuefileexporter.h"
 #include "track/track.h"
 #include "util/defs.h"
 #include "util/desktophelper.h"
@@ -503,6 +507,15 @@ void WTrackMenu::createActions() {
                 });
     }
 
+    if (featureIsEnabled(Feature::Properties)) {
+        m_pExportHotcuesAction = make_parented<QAction>(
+                tr("Export hotcues to file"), m_pHotcueMenu);
+        connect(m_pExportHotcuesAction,
+                &QAction::triggered,
+                this,
+                &WTrackMenu::slotExportHotcues);
+    }
+
     if (featureIsEnabled(Feature::BPM)) {
         m_pBpmLockAction = make_parented<QAction>(tr("Lock BPM"), m_pBPMMenu);
         m_pBpmUnlockAction = make_parented<QAction>(tr("Unlock BPM"), m_pBPMMenu);
@@ -740,6 +753,12 @@ void WTrackMenu::setupActions() {
 
         m_pHotcueMenu->addAction(m_pSortHotcuesByPositionCompressAction);
         m_pHotcueMenu->addAction(m_pSortHotcuesByPositionAction);
+
+        if (featureIsEnabled(Feature::Properties)) {
+            m_pHotcueMenu->addSeparator();
+            m_pHotcueMenu->addAction(m_pExportHotcuesAction);
+        }
+
         addMenu(m_pHotcueMenu);
     }
 
@@ -2305,6 +2324,61 @@ void WTrackMenu::slotSortHotcuesByPosition(HotcueSortMode sortMode) {
     applyTrackPointerOperation(
             progressLabelText,
             &trackOperator);
+}
+
+void WTrackMenu::slotExportHotcues() {
+    const auto pTrackPointerIter = newTrackPointerIterator();
+    if (!pTrackPointerIter) {
+        // Empty, i.e. nothing to do
+        return;
+    }
+
+    // TODO: We currently only export the first selected track
+    const auto pTrack = pTrackPointerIter->nextItem().value_or(TrackPointer());
+    if (!pTrack) {
+        return;
+    }
+    QString lastExportDirectory = m_pConfig->getValue(
+            ConfigKey("[Library]", "LastTrackCopyDirectory"),
+            QStandardPaths::writableLocation(QStandardPaths::MusicLocation));
+
+    QString defaultFileName = pTrack->getInfo();
+    if (defaultFileName.isEmpty()) {
+        defaultFileName = pTrack->getTitleInfo();
+    }
+    defaultFileName += QStringLiteral(".srt");
+    QString defaultFilePath = lastExportDirectory.isEmpty() ? defaultFileName : QFileInfo(lastExportDirectory, defaultFileName).path();
+
+    QString selectedFilter = QStringLiteral("SubRip Title File (*.srt)");
+    QString destFile = QFileDialog::getSaveFileName(
+            nullptr,
+            tr("Export Cues To File"),
+            defaultFilePath,
+            QStringLiteral("SubRip Title File (*.srt);;All files"),
+            &selectedFilter);
+    if (destFile.isEmpty()) {
+        return;
+    }
+    QString destType = QStringLiteral("srt");
+
+    const mixxx::audio::SignalInfo signalInfo(pTrack->getMetadata().getStreamInfo().getSignalInfo());
+    const auto cuePoints = pTrack->getCuePoints();
+
+    QList<mixxx::CueInfo> cueInfos;
+    cueInfos.reserve(cuePoints.size());
+    for (const auto& pCue : pTrack->getCuePoints()) {
+        // Ignore the main Loop cue (as opposed to Loop hotcues) as
+        // it seems to be updated inconsistently/only when a track is
+        // ejected from the deck.
+        cueInfos.append(pCue->getCueInfo(signalInfo.getSampleRate()));
+    }
+
+    mixxx::SrtCueFileExporter exporter;
+    exporter.exportCueInfos(cueInfos, destFile, destType, signalInfo);
+
+    QString destDir = QFileInfo(destFile).dir().path();
+    m_pConfig->set(ConfigKey("[Library]", "LastTrackCopyDirectory"),
+            ConfigValue(destDir));
 }
 
 namespace {

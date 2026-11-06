@@ -172,6 +172,7 @@ class WTrackMenu : public QMenu {
 
     // Hotcues
     void slotSortHotcuesByPosition(HotcueSortMode sortMode);
+    void slotExportHotcues();
 
     // Info and metadata
     void slotUpdateReplayGainFromPregain();
@@ -378,6 +379,7 @@ class WTrackMenu : public QMenu {
     parented_ptr<QAction> m_pClearAllMetadataAction;
     parented_ptr<QAction> m_pSortHotcuesByPositionAction{};
     parented_ptr<QAction> m_pSortHotcuesByPositionCompressAction{};
+    parented_ptr<QAction> m_pExportHotcuesAction;
 
     const UserSettingsPointer m_pConfig;
     Library* const m_pLibrary;
