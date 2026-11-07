@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QTextStream>
+#include <optional>
 
 #include "track/cuefileimporter.h"
 
@@ -8,7 +9,7 @@ namespace mixxx {
 
 class SrtCueFileImporter : public CueFileImporter {
   public:
-    SrtCueFileImporter(CueType type);
+    SrtCueFileImporter(std::optional<CueType> type = std::nullopt);
     ~SrtCueFileImporter() override = default;
 
     QList<CueInfo> importCueInfos(
@@ -20,7 +21,7 @@ class SrtCueFileImporter : public CueFileImporter {
     QList<CueInfo> importCueInfos(
             QTextStream& stream) const;
 
-    CueType m_type;
+    std::optional<CueType> m_type;
 };
 
 } // namespace mixxx

@@ -24,6 +24,9 @@ const QRegularExpression kTimeRangeRegex(
         kTimeCodePattern +
         QStringLiteral("$"));
 
+const QRegularExpression kTypeRegex(
+        QStringLiteral("^<([A-Za-z](?:[A-Za-z ]*[A-Za-z])?(?: ([0-9]+))?>(.*)$"));
+
 constexpr double kInvalidMilliseconds =
         std::numeric_limits<double>::quiet_NaN();
 
@@ -48,7 +51,7 @@ double parseTimeCodeAsMillis(const QString& daysText, const QString& timeCode, b
 
 } // namespace
 
-mixxx::SrtCueFileImporter::SrtCueFileImporter(mixxx::CueType type)
+mixxx::SrtCueFileImporter::SrtCueFileImporter(std::optional<mixxx::CueType> type)
         : m_type(type) {
 }
 
@@ -144,11 +147,56 @@ QList<mixxx::CueInfo> mixxx::SrtCueFileImporter::importCueInfos(
             line = in.readLine();
         }
 
+        mixxx::CueType type;
+        uint number = sequenceNumber;
+        if (m_type) {
+            type = *m_type;
+        } else {
+            const auto match = kTypeRegex.match(label);
+            if (match.hasMatch()) {
+                QString cueTypeText = match.captured(1);
+                QString cueNumberText = match.captured(2);
+                label = match.captured(3);
+
+                if (cueTypeText == QStringLiteral("Invalid")) {
+                    type = mixxx::CueType::Invalid;
+                } else if (cueTypeText == QStringLiteral("Hotcue")) {
+                    type = mixxx::CueType::HotCue;
+                } else if (cueTypeText == QStringLiteral("Main")) {
+                    type = mixxx::CueType::MainCue;
+                } else if (cueTypeText == QStringLiteral("Beat")) {
+                    type = mixxx::CueType::Beat;
+                } else if (cueTypeText == QStringLiteral("Loop")) {
+                    type = mixxx::CueType::Loop;
+                } else if (cueTypeText == QStringLiteral("Jump")) {
+                    type = mixxx::CueType::Jump;
+                } else if (cueTypeText == QStringLiteral("Intro")) {
+                    type = mixxx::CueType::Intro;
+                } else if (cueTypeText == QStringLiteral("Outro")) {
+                    type = mixxx::CueType::Outro;
+                } else if (cueTypeText == QStringLiteral("N60dBSound")) {
+                    type = mixxx::CueType::N60dBSound;
+                } else {
+                    type = mixxx::CueType::Invalid;
+                }
+
+                if (!cueNumberText.isEmpty()) {
+                    uint cueNumber = QLocale::c().toUInt(cueNumberText, &ok);
+                    if (!ok) {
+                        // Failed to parse cue number
+                        success = false;
+                        break;
+                    }
+                    number = cueNumber;
+                }
+            }
+        }
+
         result.append(mixxx::CueInfo(
-                m_type,
+                type,
                 std::make_optional(startTime),
                 startTime == endTime ? std::nullopt : std::make_optional(endTime),
-                m_type == mixxx::CueType::HotCue ? std::make_optional<int>(sequenceNumber - 1) : std::nullopt,
+                type == mixxx::CueType::HotCue ? std::make_optional<int>(number - 1) : std::nullopt,
                 label,
                 std::nullopt));
     }
