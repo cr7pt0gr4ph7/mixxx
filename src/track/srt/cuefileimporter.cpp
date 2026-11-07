@@ -25,7 +25,7 @@ const QRegularExpression kTimeRangeRegex(
         QStringLiteral("$"));
 
 const QRegularExpression kTypeRegex(
-        QStringLiteral("^<([A-Za-z](?:[A-Za-z ]*[A-Za-z])?(?: ([0-9]+))?>(.*)$"));
+        QStringLiteral("^<([A-Za-z](?:[A-Za-z ]*[A-Za-z])?(?: ([0-9]+))?(?: (#[A-Fa-f0-9]+))?>(.*)$"));
 
 constexpr double kInvalidMilliseconds =
         std::numeric_limits<double>::quiet_NaN();
@@ -149,6 +149,7 @@ QList<mixxx::CueInfo> mixxx::SrtCueFileImporter::importCueInfos(
 
         mixxx::CueType type;
         uint number = sequenceNumber;
+        mixxx::RgbColor::optional_t color;
         if (m_type) {
             type = *m_type;
         } else {
@@ -156,7 +157,8 @@ QList<mixxx::CueInfo> mixxx::SrtCueFileImporter::importCueInfos(
             if (match.hasMatch()) {
                 QString cueTypeText = match.captured(1);
                 QString cueNumberText = match.captured(2);
-                label = match.captured(3);
+                QString cueColorText = match.captured(3);
+                label = match.captured(4);
 
                 if (cueTypeText == QStringLiteral("Invalid")) {
                     type = mixxx::CueType::Invalid;
@@ -189,6 +191,16 @@ QList<mixxx::CueInfo> mixxx::SrtCueFileImporter::importCueInfos(
                     }
                     number = cueNumber;
                 }
+
+                if (!cueColorText.isEmpty()) {
+                    mixxx::RgbColor::optional_t cueColor = mixxx::RgbColor::fromQString(cueColorText);
+                    if (!cueColor) {
+                        // Failed to parse cue color
+                        success = false;
+                        break;
+                    }
+                    color = cueColor;
+                }
             }
         }
 
@@ -198,7 +210,7 @@ QList<mixxx::CueInfo> mixxx::SrtCueFileImporter::importCueInfos(
                 startTime == endTime ? std::nullopt : std::make_optional(endTime),
                 type == mixxx::CueType::HotCue ? std::make_optional<int>(number - 1) : std::nullopt,
                 label,
-                std::nullopt));
+                color));
     }
     return result;
 }
