@@ -1012,7 +1012,7 @@
 
      <widget class="QWidget" name="tabCues">
       <attribute name="title">
-       <string>Cue points</string>
+       <string>Cues</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
