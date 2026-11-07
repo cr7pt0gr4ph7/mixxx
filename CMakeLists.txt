@@ -1627,6 +1627,7 @@ add_library(
   src/track/serato/markers2.cpp
   src/track/serato/tags.cpp
   src/track/srt/cuefileexporter.cpp
+  src/track/srt/cuefileimporter.cpp
   src/track/taglib/trackmetadata_ape.cpp
   src/track/taglib/trackmetadata_common.cpp
   src/track/taglib/trackmetadata_file.cpp

@@ -25,6 +25,7 @@
 #include "library/library.h"
 #include "library/trackcollection.h"
 #include "library/trackcollectionmanager.h"
+#include "library/trackcuemodel.h"
 #include "library/trackmodel.h"
 #include "library/trackmodeliterator.h"
 #include "library/trackprocessing.h"
@@ -39,6 +40,7 @@
 #include "preferences/dialog/dlgprefdeck.h"
 #include "sources/soundsourceproxy.h"
 #include "track/srt/cuefileexporter.h"
+#include "track/srt/cuefileimporter.h"
 #include "track/track.h"
 #include "util/defs.h"
 #include "util/desktophelper.h"
@@ -514,6 +516,13 @@ void WTrackMenu::createActions() {
                 &QAction::triggered,
                 this,
                 &WTrackMenu::slotExportHotcues);
+
+        m_pImportHotcuesAction = make_parented<QAction>(
+                tr("Import hotcues from file"), m_pHotcueMenu);
+        connect(m_pImportHotcuesAction,
+                &QAction::triggered,
+                this,
+                &WTrackMenu::slotImportHotcues);
     }
 
     if (featureIsEnabled(Feature::BPM)) {
@@ -2375,6 +2384,53 @@ void WTrackMenu::slotExportHotcues() {
 
     mixxx::SrtCueFileExporter exporter;
     exporter.exportCueInfos(cueInfos, destFile, destType, signalInfo);
+
+    QString destDir = QFileInfo(destFile).dir().path();
+    m_pConfig->set(ConfigKey("[Library]", "LastTrackCopyDirectory"),
+            ConfigValue(destDir));
+}
+
+void WTrackMenu::slotImportHotcues() {
+    const auto pTrackPointerIter = newTrackPointerIterator();
+    if (!pTrackPointerIter) {
+        // Empty, i.e. nothing to do
+        return;
+    }
+
+    // TODO: We currently only export the first selected track
+    const auto pTrack = pTrackPointerIter->nextItem().value_or(TrackPointer());
+    if (!pTrack) {
+        return;
+    }
+    QString lastExportDirectory = m_pConfig->getValue(
+            ConfigKey("[Library]", "LastTrackCopyDirectory"),
+            QStandardPaths::writableLocation(QStandardPaths::MusicLocation));
+
+    QString selectedFilter = QStringLiteral("SubRip Title File (*.srt)");
+    QString destFile = QFileDialog::getOpenFileName(
+            nullptr,
+            tr("Import Cues From File"),
+            lastExportDirectory,
+            QStringLiteral("SubRip Title File (*.srt);;All files"),
+            &selectedFilter);
+    if (destFile.isEmpty()) {
+        return;
+    }
+    QString destType = QStringLiteral("srt");
+
+    mixxx::TrackRecord::SourceSyncStatus trackSyncStatus;
+    const mixxx::audio::SignalInfo signalInfo(pTrack->getMetadata(&trackSyncStatus).getStreamInfo().getSignalInfo());
+    const mixxx::audio::SampleRate sampleRate = signalInfo.getSampleRate();
+    const bool sampleRateIsAccurate = trackSyncStatus == mixxx::TrackRecord::SourceSyncStatus::Synchronized;
+
+    mixxx::SrtCueFileImporter importer;
+    QList<mixxx::CueInfo> cueInfos = importer.importCueInfos(destFile, destType, signalInfo);
+    TrackCueModel cueModel;
+    cueModel.setSampleRate(sampleRate, sampleRateIsAccurate);
+    cueModel.loadCueInfos(cueInfos, pTrack->getBeats(), sampleRate);
+
+    const auto cuePoints = cueModel.saveCuePoints(sampleRate);
+    pTrack->setCuePoints(cuePoints);
 
     QString destDir = QFileInfo(destFile).dir().path();
     m_pConfig->set(ConfigKey("[Library]", "LastTrackCopyDirectory"),
