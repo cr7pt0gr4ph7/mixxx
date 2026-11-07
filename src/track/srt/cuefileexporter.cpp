@@ -135,6 +135,10 @@ void mixxx::SrtCueFileExporter::exportCueInfos(
                 prefix += QStringLiteral(" ");
                 prefix += QString::number(*cueInfo.getHotCueIndex());
             }
+            if (cueInfo.getColor()) {
+                prefix += QStringLiteral(" ");
+                prefix += mixxx::RgbColor::toQString(*cueInfo.getColor());
+            }
             prefix += QStringLiteral(">");
             label = prefix + label;
         }
