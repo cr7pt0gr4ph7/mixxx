@@ -346,6 +346,12 @@ class Track : public QObject {
             mixxx::CueType type,
             mixxx::audio::FramePos position,
             mixxx::SearchDirection direction) const;
+    CuePointer findClosestCueByTypeInRange(
+            mixxx::CueType type,
+            mixxx::audio::FramePos position,
+            mixxx::SearchDirection direction,
+            mixxx::audio::FramePos startPosition,
+            mixxx::audio::FramePos endPosition) const;
     QList<CuePointer> getCuePoints() const {
         const QMutexLocker lock(&m_qMutex);
         // lock thread-unsafe copy constructors of QList
