@@ -154,6 +154,32 @@ void TrackCueModel::setSampleRate(mixxx::audio::SampleRate sampleRate, bool isAc
     m_sampleRateIsAccurate = isAccurate;
 }
 
+void TrackCueModel::loadCueInfos(const QList<mixxx::CueInfo>& cueInfos, const mixxx::BeatsPointer& pBeats, mixxx::audio::SampleRate sampleRate) {
+    VERIFY_OR_DEBUG_ASSERT(sampleRate == m_sampleRate) {
+        qCritical() << "Loading cue points based on a possibly wrong sample rate"
+                    << "(actual:" << sampleRate << "expected:" << m_sampleRate << ")";
+    }
+
+    beginResetModel();
+    m_cues.clear();
+    m_cues.reserve(cueInfos.size());
+    m_hiddenCues.clear();
+
+    // Hide non-hotcue cue points
+    for (const auto& cueInfo : std::as_const(cueInfos)) {
+        auto type = cueInfo.getType();
+        if (m_showHiddenCueTypes || type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump) {
+            m_cues.append(CuePointInfo(cueInfo, pBeats, sampleRate));
+        } else {
+            m_hiddenCues.append(CuePointInfo(cueInfo, pBeats, sampleRate));
+        }
+    }
+
+    checkValidity(false);
+
+    endResetModel();
+}
+
 void TrackCueModel::loadCuePoints(const QList<CuePointer>& cuePoints, const mixxx::BeatsPointer& pBeats, mixxx::audio::SampleRate sampleRate) {
     VERIFY_OR_DEBUG_ASSERT(sampleRate == m_sampleRate) {
         qCritical() << "Loading cue points based on a possibly wrong sample rate"

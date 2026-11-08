@@ -33,6 +33,7 @@ class TrackCueModel : public QAbstractTableModel {
     void setSampleRate(mixxx::audio::SampleRate sampleRate, bool isAccurate);
     void setShowHiddenCueTypes(bool showHiddenCueTypes);
 
+    void loadCueInfos(const QList<mixxx::CueInfo>& cueInfos, const mixxx::BeatsPointer& pBeats, mixxx::audio::SampleRate sampleRate);
     void loadCuePoints(const QList<CuePointer>& cuePoints, const mixxx::BeatsPointer& pBeats, mixxx::audio::SampleRate sampleRate);
     QList<CuePointer> saveCuePoints(mixxx::audio::SampleRate sampleRate);
 
