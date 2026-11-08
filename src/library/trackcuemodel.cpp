@@ -171,7 +171,7 @@ void TrackCueModel::loadCuePoints(const QList<CuePointer>& cuePoints, const mixx
         if (m_showHiddenCueTypes || type == mixxx::CueType::HotCue || type == mixxx::CueType::Loop || type == mixxx::CueType::Jump) {
             m_cues.append(CuePointInfo(*pCue, pBeats, sampleRate));
         } else {
-            m_cues.append(CuePointInfo(*pCue, pBeats, sampleRate));
+            m_hiddenCues.append(CuePointInfo(*pCue, pBeats, sampleRate));
         }
     }
 
