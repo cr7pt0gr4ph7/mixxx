@@ -55,6 +55,11 @@ class TrackCueModel : public QAbstractTableModel {
   private:
     class CueTimeInfo {
       public:
+        constexpr bool isValid() const {
+            return valid;
+        }
+
+      public:
         double milliseconds;
         mixxx::audio::FramePos frames;
         bool valid;
@@ -65,6 +70,11 @@ class TrackCueModel : public QAbstractTableModel {
     };
 
     class CueLengthInfo {
+      public:
+        constexpr bool isValid() const {
+            return valid;
+        }
+
       public:
         double beats;
         double milliseconds;

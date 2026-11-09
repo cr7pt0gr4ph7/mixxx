@@ -61,7 +61,7 @@ TrackCueModel::CueTimeInfo TrackCueModel::CueTimeInfo::fromMilliseconds(std::opt
 // static
 TrackCueModel::CueLengthInfo TrackCueModel::CueLengthInfo::fromStartEnd(const CueTimeInfo& start, const CueTimeInfo& end, const mixxx::BeatsPointer& pBeats) {
     CueLengthInfo info;
-    if (start.valid && end.valid) {
+    if (start.isValid() && end.isValid()) {
         info.beats = pBeats ? pBeats->findDistanceInBeats(start.frames, end.frames) : kInvalidBeats;
         info.milliseconds = end.milliseconds - start.milliseconds;
         info.frames = end.frames - start.frames;
@@ -106,8 +106,8 @@ TrackCueModel::CuePointInfo::CuePointInfo(const Cue& cue, const mixxx::BeatsPoin
 mixxx::CueInfo TrackCueModel::CuePointInfo::toCueInfo() const {
     return mixxx::CueInfo(
             type,
-            start.valid ? std::make_optional(start.milliseconds) : std::nullopt,
-            end.valid ? std::make_optional(end.milliseconds) : std::nullopt,
+            start.isValid() ? std::make_optional(start.milliseconds) : std::nullopt,
+            end.isValid() ? std::make_optional(end.milliseconds) : std::nullopt,
             number ? std::make_optional(*number - 1) : std::nullopt,
             label,
             color,
@@ -324,21 +324,21 @@ QVariant TrackCueModel::data(const QModelIndex& index,
             return cue.label;
         }
         case CUE_COLUMN_START_POSITION: {
-            return cue.start.valid
+            return cue.start.isValid()
                     ? mixxx::Duration::formatTime(
                               cue.start.milliseconds / mixxx::Duration::kMillisPerSecond,
                               mixxx::Duration::Precision::CENTISECONDS)
                     : QVariant();
         }
         case CUE_COLUMN_END_POSITION: {
-            return cue.end.valid
+            return cue.end.isValid()
                     ? mixxx::Duration::formatTime(
                               cue.end.milliseconds / mixxx::Duration::kMillisPerSecond,
                               mixxx::Duration::Precision::CENTISECONDS)
                     : QVariant();
         }
         case CUE_COLUMN_LENGTH: {
-            if (!cue.start.valid || !cue.end.valid) {
+            if (!cue.start.isValid() || !cue.end.isValid()) {
                 return QVariant();
             }
             double duration = cue.end.milliseconds - cue.start.milliseconds;
@@ -347,7 +347,7 @@ QVariant TrackCueModel::data(const QModelIndex& index,
                     mixxx::Duration::Precision::CENTISECONDS);
         }
         case CUE_COLUMN_LENGTH_BEATS: {
-            return cue.length.valid ? cue.length.beats : QVariant();
+            return cue.length.isValid() ? cue.length.beats : QVariant();
         }
         }
     } else if (role == Qt::BackgroundRole) {
