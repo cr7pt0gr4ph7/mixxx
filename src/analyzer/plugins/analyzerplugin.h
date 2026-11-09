@@ -5,7 +5,6 @@
 #include "audio/frame.h"
 #include "track/bpm.h"
 #include "track/keys.h"
-#include "util/types.h"
 
 namespace mixxx {
 

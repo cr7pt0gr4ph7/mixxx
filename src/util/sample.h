@@ -7,6 +7,7 @@
 #include "audio/types.h"
 #include "util/platform.h"
 #include "util/types.h"
+#include "util/types_impl.h"
 
 // A group of utilities for working with samples.
 class SampleUtil {

@@ -2,6 +2,7 @@
 
 #include "effects/backends/effectmanifest.h"
 #include "engine/effects/engineeffectparameter.h"
+#include "util/types_impl.h"
 
 namespace {
 inline CSAMPLE tanh_approx(CSAMPLE input) {
