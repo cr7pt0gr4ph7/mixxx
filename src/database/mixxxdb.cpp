@@ -1,6 +1,7 @@
 #include "database/mixxxdb.h"
 
 #include <QDir>
+#include <QMessageBox>
 #include <QSqlQuery>
 #include <QVariant>
 

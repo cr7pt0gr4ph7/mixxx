@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QKeyEvent>
+#include <QMessageBox>
 
 #include "controllers/controller.h"
 #include "controllers/controllerinputmappingtablemodel.h"

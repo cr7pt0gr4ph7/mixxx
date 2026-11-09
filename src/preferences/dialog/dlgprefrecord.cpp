@@ -1,6 +1,7 @@
 #include "preferences/dialog/dlgprefrecord.h"
 
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QRadioButton>
 #include <QStandardItemModel>
 #include <QStandardPaths>

@@ -1,5 +1,6 @@
 #include "engine/sidechain/shoutconnection.h"
 
+#include <QMessageBox>
 #include <QTextCodec>
 #include <QUrl>
 

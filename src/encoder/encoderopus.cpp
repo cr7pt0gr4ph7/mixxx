@@ -10,6 +10,7 @@
 #include "encoder/encodercallback.h"
 #include "encoder/encoderopussettings.h"
 #include "engine/sidechain/enginesidechain.h"
+#include "errordialoghandler.h"
 #include "util/logger.h"
 #include "util/samplebuffer.h"
 

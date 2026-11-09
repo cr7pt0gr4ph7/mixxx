@@ -5,7 +5,6 @@
 #include <rekordbox_pdb.h>
 
 #include <QMap>
-#include <QMessageBox>
 #include <QSettings>
 #include <QString>
 #include <QTextCodec>

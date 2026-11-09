@@ -6,6 +6,7 @@
 #include <QEventLoop>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>

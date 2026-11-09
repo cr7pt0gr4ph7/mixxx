@@ -4,6 +4,7 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <djinterop/djinterop.hpp>

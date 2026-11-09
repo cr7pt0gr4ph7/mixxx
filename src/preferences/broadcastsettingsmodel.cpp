@@ -1,5 +1,6 @@
 #include "preferences/broadcastsettingsmodel.h"
 
+#include <QColor>
 #include <preferences/broadcastsettings.h>
 
 #include "moc_broadcastsettingsmodel.cpp"

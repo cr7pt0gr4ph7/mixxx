@@ -3,7 +3,6 @@
 #include <QFileSystemWatcher>
 #include <QJSEngine>
 #include <QJSValue>
-#include <QMessageBox>
 #include <memory>
 #ifdef MIXXX_USE_QML
 #include <QMetaMethod>

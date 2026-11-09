@@ -1,5 +1,6 @@
 #include "broadcast/broadcastmanager.h"
 
+#include <QMessageBox>
 #include <shoutidjc/shout.h>
 
 #include "broadcast/defs_broadcast.h"

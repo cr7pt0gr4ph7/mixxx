@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QList>
 #include <QLocale>
+#include <QMessageBox>
 #include <QScreen>
 #include <QVariant>
 #include <QtGlobal>

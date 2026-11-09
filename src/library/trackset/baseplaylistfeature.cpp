@@ -4,6 +4,7 @@
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QList>
+#include <QMessageBox>
 #include <QSqlTableModel>
 #include <QStandardPaths>
 

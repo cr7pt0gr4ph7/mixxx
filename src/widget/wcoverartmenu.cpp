@@ -2,6 +2,7 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 
 #include "library/coverartutils.h"
 #include "moc_wcoverartmenu.cpp"

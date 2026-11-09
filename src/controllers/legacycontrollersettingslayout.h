@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Qt>
+#include <QWidget>
 #include <memory>
 
 #include "defs_urls.h"

@@ -5,6 +5,7 @@
 #include <QInputDialog>
 #include <QList>
 #include <QListWidget>
+#include <QMessageBox>
 #include <QModelIndex>
 #include <QVBoxLayout>
 

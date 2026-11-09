@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QStandardPaths>

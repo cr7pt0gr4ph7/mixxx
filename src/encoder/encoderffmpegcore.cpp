@@ -6,7 +6,6 @@
 #include <QtDebug>
 
 #include "encoder/encodercallback.h"
-#include "errordialoghandler.h"
 
 
 //
@@ -254,7 +253,7 @@ int EncoderFfmpegCore::initEncoder(
     int ret = openAudio(m_pEncoderAudioCodec, m_pEncoderAudioStream);
 
     if (ret != 0) {
-        errorMessage  = codecString + "recording is not supported. FFMPEG " 
+        errorMessage  = codecString + "recording is not supported. FFMPEG "
                         + codecString + " could not be initialized";
         ret = -1;
     };

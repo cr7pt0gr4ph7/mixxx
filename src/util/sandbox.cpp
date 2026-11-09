@@ -2,6 +2,7 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QObject>
 #include <QtDebug>
 #include <QtGlobal>

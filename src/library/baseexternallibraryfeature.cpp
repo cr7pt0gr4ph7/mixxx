@@ -1,6 +1,7 @@
 #include "library/baseexternallibraryfeature.h"
 
 #include <QMenu>
+#include <QMessageBox>
 
 #include "library/basesqltablemodel.h"
 #include "library/library.h"

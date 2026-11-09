@@ -10,6 +10,7 @@
 #include "util/autofilereloader.h"
 
 class ControlObject;
+class QAction;
 class QEvent;
 class QKeyEvent;
 class WBaseWidget;
