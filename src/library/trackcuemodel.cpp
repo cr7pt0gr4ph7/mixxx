@@ -7,12 +7,9 @@
 #include "track/beats.h"
 #include "util/color/predefinedcolorpalettes.h"
 #include "util/duration.h"
+#include "util/optional.h"
 
 namespace {
-
-constexpr double kInvalidMilliseconds = std::numeric_limits<double>::quiet_NaN();
-constexpr double kInvalidBeats = std::numeric_limits<double>::quiet_NaN();
-constexpr double kInvalidFrameDiff = std::numeric_limits<mixxx::audio::FrameDiff_t>::quiet_NaN();
 
 inline std::optional<double> positionFramesToMillis(
         mixxx::audio::FramePos position,
@@ -55,22 +52,22 @@ TrackCueModel::CueTimeInfo TrackCueModel::CueTimeInfo::fromFramePos(const mixxx:
 
 // static
 TrackCueModel::CueTimeInfo TrackCueModel::CueTimeInfo::fromMilliseconds(std::optional<double> milliseconds, mixxx::audio::SampleRate sampleRate) {
-    return milliseconds ? fromMilliseconds(*milliseconds, sampleRate) : (CueTimeInfo{kInvalidMilliseconds, mixxx::audio::kInvalidFramePos, false});
+    return milliseconds ? fromMilliseconds(*milliseconds, sampleRate) : CueTimeInfo();
 }
 
 // static
 TrackCueModel::CueLengthInfo TrackCueModel::CueLengthInfo::fromStartEnd(const CueTimeInfo& start, const CueTimeInfo& end, const mixxx::BeatsPointer& pBeats) {
     CueLengthInfo info;
     if (start.isValid() && end.isValid()) {
-        info.beats = pBeats ? pBeats->findDistanceInBeats(start.frames, end.frames) : kInvalidBeats;
-        info.milliseconds = end.milliseconds - start.milliseconds;
-        info.frames = end.frames - start.frames;
-        info.valid = true;
+        info.m_beats = pBeats ? pBeats->findDistanceInBeats(start.getPositionAsFrames(), end.getPositionAsFrames()) : kInvalidBeats;
+        info.m_milliseconds = end.getPositionAsMilliseconds() - start.getPositionAsMilliseconds();
+        info.m_frames = end.getPositionAsFrames() - start.getPositionAsFrames();
+        info.m_valid = true;
     } else {
-        info.beats = kInvalidBeats;
-        info.milliseconds = kInvalidMilliseconds;
-        info.frames = kInvalidFrameDiff;
-        info.valid = false;
+        info.m_beats = kInvalidBeats;
+        info.m_milliseconds = kInvalidMilliseconds;
+        info.m_frames = kInvalidFrameDiff;
+        info.m_valid = false;
     }
     return info;
 }
@@ -106,8 +103,8 @@ TrackCueModel::CuePointInfo::CuePointInfo(const Cue& cue, const mixxx::BeatsPoin
 mixxx::CueInfo TrackCueModel::CuePointInfo::toCueInfo() const {
     return mixxx::CueInfo(
             type,
-            start.isValid() ? std::make_optional(start.milliseconds) : std::nullopt,
-            end.isValid() ? std::make_optional(end.milliseconds) : std::nullopt,
+            start.toMillisecondsOptional(),
+            end.toMillisecondsOptional(),
             number ? std::make_optional(*number - 1) : std::nullopt,
             label,
             color,
@@ -118,8 +115,8 @@ CuePointer TrackCueModel::CuePointInfo::toCuePointer() const {
     return CuePointer(new Cue(
             id,
             type,
-            start.frames,
-            length.frames,
+            start.toFramePos(),
+            length.toFrameDiff(),
             number ? (*number - 1) : Cue::kNoHotCue,
             label,
             color.value_or(mixxx::PredefinedColorPalettes::kDefaultCueColor)));
@@ -315,7 +312,7 @@ QVariant TrackCueModel::data(const QModelIndex& index,
             return QVariant::fromValue(cue.type);
         }
         case CUE_COLUMN_NUMBER: {
-            return cue.number ? QVariant(*cue.number) : QVariant();
+            return mixxx::optionalToQVariant(cue.number);
         }
         case CUE_COLUMN_COLOR: {
             return QVariant();
@@ -324,30 +321,29 @@ QVariant TrackCueModel::data(const QModelIndex& index,
             return cue.label;
         }
         case CUE_COLUMN_START_POSITION: {
-            return cue.start.isValid()
+            return cue.start.hasTimePosition()
                     ? mixxx::Duration::formatTime(
-                              cue.start.milliseconds / mixxx::Duration::kMillisPerSecond,
+                              cue.start.getPositionAsSeconds(),
                               mixxx::Duration::Precision::CENTISECONDS)
                     : QVariant();
         }
         case CUE_COLUMN_END_POSITION: {
-            return cue.end.isValid()
+            return cue.end.hasTimePosition()
                     ? mixxx::Duration::formatTime(
-                              cue.end.milliseconds / mixxx::Duration::kMillisPerSecond,
+                              cue.end.getPositionAsSeconds(),
                               mixxx::Duration::Precision::CENTISECONDS)
                     : QVariant();
         }
         case CUE_COLUMN_LENGTH: {
-            if (!cue.start.isValid() || !cue.end.isValid()) {
+            if (!cue.length.isValid()) {
                 return QVariant();
             }
-            double duration = cue.end.milliseconds - cue.start.milliseconds;
             return mixxx::Duration::formatTime(
-                    duration / mixxx::Duration::kMillisPerSecond,
+                    cue.length.getDurationAsSeconds(),
                     mixxx::Duration::Precision::CENTISECONDS);
         }
         case CUE_COLUMN_LENGTH_BEATS: {
-            return cue.length.isValid() ? cue.length.beats : QVariant();
+            return mixxx::optionalToQVariant(cue.length.getBeatsOptional());
         }
         }
     } else if (role == Qt::BackgroundRole) {
