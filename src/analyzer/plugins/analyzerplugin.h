@@ -3,7 +3,6 @@
 #include <QString>
 
 #include "audio/frame.h"
-#include "track/beats.h"
 #include "track/bpm.h"
 #include "track/keys.h"
 #include "util/types.h"
