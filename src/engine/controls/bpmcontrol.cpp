@@ -131,7 +131,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::Halve);
+                    slotScaleBpm(mixxx::Beats::BpmScale::Halve);
                 }
             });
     m_pBeatsTwoThirds = std::make_unique<ControlPushButton>(
@@ -141,7 +141,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::TwoThirds);
+                    slotScaleBpm(mixxx::Beats::BpmScale::TwoThirds);
                 }
             });
     m_pBeatsThreeFourths = std::make_unique<ControlPushButton>(
@@ -151,7 +151,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::ThreeFourths);
+                    slotScaleBpm(mixxx::Beats::BpmScale::ThreeFourths);
                 }
             });
     m_pBeatsFourFifths = std::make_unique<ControlPushButton>(
@@ -161,7 +161,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::FourFifths);
+                    slotScaleBpm(mixxx::Beats::BpmScale::FourFifths);
                 }
             });
     m_pBeatsFiveFourths = std::make_unique<ControlPushButton>(
@@ -171,7 +171,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::FiveFourths);
+                    slotScaleBpm(mixxx::Beats::BpmScale::FiveFourths);
                 }
             });
     m_pBeatsFourThirds = std::make_unique<ControlPushButton>(
@@ -181,7 +181,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::FourThirds);
+                    slotScaleBpm(mixxx::Beats::BpmScale::FourThirds);
                 }
             });
     m_pBeatsThreeHalves = std::make_unique<ControlPushButton>(
@@ -191,7 +191,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::ThreeHalves);
+                    slotScaleBpm(mixxx::Beats::BpmScale::ThreeHalves);
                 }
             });
     m_pBeatsDouble = std::make_unique<ControlPushButton>(
@@ -201,7 +201,7 @@ BpmControl::BpmControl(const QString& group,
             this,
             [this](int value) {
                 if (value > 0) {
-                    slotScaleBpm(mixxx::Bpm::Scale::Double);
+                    slotScaleBpm(mixxx::Beats::BpmScale::Double);
                 }
             });
 
@@ -459,7 +459,7 @@ void BpmControl::slotTempoTapFilter(double averageLength, int numSamples) {
     slotUpdateRateSlider(averageBpm.value());
 }
 
-void BpmControl::slotScaleBpm(mixxx::Bpm::Scale bpmScale) {
+void BpmControl::slotScaleBpm(mixxx::beats::BpmScale bpmScale) {
     const TrackPointer pTrack = getEngineBuffer()->getLoadedTrack();
     if (!pTrack) {
         return;

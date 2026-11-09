@@ -2,11 +2,7 @@
 
 #include <memory>
 
-#include "audio/frame.h"
 #include "engine/controls/enginecontrol.h"
-#include "preferences/usersettings.h"
-#include "track/beats.h"
-#include "track/track_decl.h"
 
 class ControlProxy;
 class ControlObject;

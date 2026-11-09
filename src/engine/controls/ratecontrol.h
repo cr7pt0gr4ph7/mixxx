@@ -5,7 +5,6 @@
 #include "control/pollingcontrolproxy.h"
 #include "engine/controls/enginecontrol.h"
 #include "engine/sync/syncable.h"
-#include "preferences/usersettings.h"
 
 class BpmControl;
 class Rotary;

@@ -9,7 +9,8 @@
 #include "control/controlvalue.h"
 #include "engine/cachingreader/cachingreader.h"
 #include "preferences/usersettings.h"
-#include "track/beats.h"
+#include "track/bpm.h"
+#include "track/beats_decl.h"
 #include "track/track_decl.h"
 
 class EngineMixer;

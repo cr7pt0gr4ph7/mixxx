@@ -7,7 +7,8 @@
 
 #include "library/ui_dlgtrackinfo.h"
 #include "preferences/usersettings.h"
-#include "track/beats.h"
+#include "track/bpm.h"
+#include "track/beats_decl.h"
 #include "track/track_decl.h"
 #include "track/trackrecord.h"
 #include "util/parented_ptr.h"

@@ -1,9 +1,6 @@
 #pragma once
 
 #include "engine/controls/enginecontrol.h"
-#include "preferences/usersettings.h"
-#include "track/beats.h"
-#include "track/track_decl.h"
 
 class ControlObject;
 class ControlPushButton;

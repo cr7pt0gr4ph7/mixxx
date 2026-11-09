@@ -7,7 +7,6 @@
 #include "control/pollingcontrolproxy.h"
 #include "engine/controls/enginecontrol.h"
 #include "engine/sync/syncable.h"
-#include "track/beats.h"
 #include "util/tapfilter.h"
 
 class ControlEncoder;

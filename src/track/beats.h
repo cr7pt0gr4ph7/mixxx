@@ -9,6 +9,7 @@
 
 #include "audio/frame.h"
 #include "audio/types.h"
+#include "track/beats_decl.h"
 #include "track/bpm.h"
 #include "util/types.h"
 
@@ -17,9 +18,6 @@
 #define BEAT_MAP_VERSION "BeatMap-1.0"
 
 namespace mixxx {
-
-class Beats;
-typedef std::shared_ptr<const Beats> BeatsPointer;
 
 /// A beat marker is denotes the border of a tempo section inside a track.
 class BeatMarker {

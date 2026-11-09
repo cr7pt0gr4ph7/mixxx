@@ -2,8 +2,6 @@
 
 #include "control/pollingcontrolproxy.h"
 #include "engine/controls/enginecontrol.h"
-#include "preferences/usersettings.h"
-#include "track/track_decl.h"
 
 class ControlObject;
 class ControlPushButton;

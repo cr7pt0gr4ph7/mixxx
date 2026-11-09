@@ -10,6 +10,7 @@
 #include "engine/enginebuffer.h"
 #include "moc_loopingcontrol.cpp"
 #include "preferences/usersettings.h"
+#include "track/beats.h"
 #include "track/track.h"
 #include "util/compatibility/qatomic.h"
 #include "util/make_const_iterator.h"
