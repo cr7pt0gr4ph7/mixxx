@@ -528,28 +528,28 @@ void WTrackMenu::createActions() {
         storeActionTextAndScaleInProperties(m_pBpmDoubleAction, 2.0);
 
         connect(m_pBpmHalveAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::Halve);
+            slotScaleBpm(mixxx::Bpm::Scale::Halve);
         });
         connect(m_pBpmTwoThirdsAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::TwoThirds);
+            slotScaleBpm(mixxx::Bpm::Scale::TwoThirds);
         });
         connect(m_pBpmThreeFourthsAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::ThreeFourths);
+            slotScaleBpm(mixxx::Bpm::Scale::ThreeFourths);
         });
         connect(m_pBpmFourFifthsAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::FourFifths);
+            slotScaleBpm(mixxx::Bpm::Scale::FourFifths);
         });
         connect(m_pBpmFiveFourthsAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::FiveFourths);
+            slotScaleBpm(mixxx::Bpm::Scale::FiveFourths);
         });
         connect(m_pBpmFourThirdsAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::FourThirds);
+            slotScaleBpm(mixxx::Bpm::Scale::FourThirds);
         });
         connect(m_pBpmThreeHalvesAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::ThreeHalves);
+            slotScaleBpm(mixxx::Bpm::Scale::ThreeHalves);
         });
         connect(m_pBpmDoubleAction, &QAction::triggered, this, [this] {
-            slotScaleBpm(mixxx::Beats::BpmScale::Double);
+            slotScaleBpm(mixxx::Bpm::Scale::Double);
         });
 
         m_pBpmResetAction = make_parented<QAction>(tr("Clear BPM and Beatgrid"), m_pBPMMenu);
@@ -1836,7 +1836,7 @@ namespace {
 
 class ScaleBpmTrackPointerOperation : public mixxx::TrackPointerOperation {
   public:
-    explicit ScaleBpmTrackPointerOperation(mixxx::Beats::BpmScale bpmScale)
+    explicit ScaleBpmTrackPointerOperation(mixxx::Bpm::Scale bpmScale)
             : m_bpmScale(bpmScale) {
     }
 
@@ -1857,12 +1857,12 @@ class ScaleBpmTrackPointerOperation : public mixxx::TrackPointerOperation {
         pTrack->trySetBeats(*scaledBeats);
     }
 
-    const mixxx::Beats::BpmScale m_bpmScale;
+    const mixxx::Bpm::Scale m_bpmScale;
 };
 
 } // anonymous namespace
 
-void WTrackMenu::slotScaleBpm(mixxx::Beats::BpmScale scale) {
+void WTrackMenu::slotScaleBpm(mixxx::Bpm::Scale scale) {
     const auto progressLabelText =
             tr("Scaling BPM of %n track(s)", "", getTrackCount());
     const auto trackOperator =

@@ -166,7 +166,7 @@ class WTrackMenu : public QMenu {
     // BPM
     void slotLockBpm();
     void slotUnlockBpm();
-    void slotScaleBpm(mixxx::Beats::BpmScale scale);
+    void slotScaleBpm(mixxx::Bpm::Scale scale);
     void slotUndoBeatsChange();
     void slotTranslateBeatsHalf();
 

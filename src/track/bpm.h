@@ -75,6 +75,17 @@ public:
         return static_cast<int>(std::round(value));
     }
 
+    enum class Scale {
+        Halve,
+        TwoThirds,
+        ThreeFourths,
+        FourFifths,
+        FiveFourths,
+        FourThirds,
+        ThreeHalves,
+        Double,
+    };
+
     enum class Comparison {
         Default, // full precision
         Integer, // rounded

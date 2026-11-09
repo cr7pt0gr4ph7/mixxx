@@ -60,7 +60,7 @@ class DlgTrackInfo : public QDialog, public Ui::DlgTrackInfo {
     void slotApply();
     void slotCancel();
 
-    void slotBpmScale(mixxx::Beats::BpmScale bpmScale);
+    void slotBpmScale(mixxx::Bpm::Scale bpmScale);
     void slotBpmClear();
     void slotBpmLockClicked();
 #if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)

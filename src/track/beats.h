@@ -263,16 +263,7 @@ class Beats : private std::enable_shared_from_this<Beats> {
             const Bpm lastMarkerBpm,
             const QString& subVersion = QString());
 
-    enum class BpmScale {
-        Halve,
-        TwoThirds,
-        ThreeFourths,
-        FourFifths,
-        FiveFourths,
-        FourThirds,
-        ThreeHalves,
-        Double,
-    };
+    typedef Bpm::Scale BpmScale;
 
     /// Returns false if the beats implementation supports non-const beats.
     ///

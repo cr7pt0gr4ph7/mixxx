@@ -126,7 +126,7 @@ class BpmControl : public EngineControl {
     }
     double calcSyncAdjustment(bool userTweakingSync);
     void adjustBeatsBpm(double deltaBpm);
-    void slotScaleBpm(mixxx::Beats::BpmScale bpmScale);
+    void slotScaleBpm(mixxx::Bpm::Scale bpmScale);
 
     friend class SyncControl;
 
