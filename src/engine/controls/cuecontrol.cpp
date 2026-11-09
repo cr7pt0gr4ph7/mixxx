@@ -7,7 +7,6 @@
 #include "mixer/playermanager.h"
 #include "moc_cuecontrol.cpp"
 #include "preferences/colorpalettesettings.h"
-#include "track/cueinfo.h"
 #include "track/track.h"
 #include "util/assert.h"
 #include "util/color/predefinedcolorpalettes.h"

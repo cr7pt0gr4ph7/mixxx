@@ -8,7 +8,6 @@
 
 #include "audio/signalinfo.h"
 #include "track/beats.h"
-#include "track/cueinfo.h"
 #include "track/taglib/trackmetadata_file.h"
 #include "util/assert.h"
 #include "util/duration.h"
