@@ -1,6 +1,11 @@
 #include "util/dnd.h"
 
 #include <QDirIterator>
+#include <QDrag>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QString>
+#include <QUrl>
 
 #include "control/controlobject.h"
 #include "library/parser.h"

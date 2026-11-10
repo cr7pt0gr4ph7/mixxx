@@ -1,16 +1,19 @@
 #pragma once
 
-#include <QDrag>
-#include <QDropEvent>
 #include <QList>
-#include <QMimeData>
-#include <QString>
-#include <QUrl>
 
 #include "preferences/usersettings.h"
 #include "track/track_decl.h"
 #include "util/fileinfo.h"
 #include "widget/trackdroptarget.h"
+
+class QDrag;
+class QDragEnterEvent;
+class QDropEvent;
+class QMimeData;
+class QMouseEvent;
+class QUrl;
+class QString;
 
 class DragAndDropHelper final {
   public:

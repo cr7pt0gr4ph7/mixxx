@@ -1,5 +1,6 @@
 #include "library/sidebarmodel.h"
 
+#include <QMimeData>
 #include <QTimer>
 #include <QUrl>
 
