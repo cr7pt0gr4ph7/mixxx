@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <QMetaObject>
 
-#include "preferences/configobject.h"
+#include "preferences/configkey.h"
 #include "util/runtimeloggingcategory.h"
 
 class CompressingProxy : public QObject {

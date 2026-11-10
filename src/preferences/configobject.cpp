@@ -125,12 +125,6 @@ QString computeSettingsPath(const QString& configFilename) {
 }
 
 } // namespace
-// static
-ConfigKey ConfigKey::parseCommaSeparated(const QString& key) {
-    int comma = key.indexOf(",");
-    ConfigKey configKey(key.left(comma), key.mid(comma + 1));
-    return configKey;
-}
 
 ConfigValue::ConfigValue(int iValue)
         : value(QString::number(iValue)) {

@@ -1533,6 +1533,7 @@ add_library(
   src/preferences/colorpaletteeditormodel.cpp
   src/preferences/colorpalettesettings.cpp
   src/preferences/colorpalettesettings.cpp
+  src/preferences/configkey.cpp
   src/preferences/configobject.cpp
   src/preferences/constants.cpp
   src/preferences/dialog/dlgprefautodj.cpp
