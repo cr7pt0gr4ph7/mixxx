@@ -1,5 +1,7 @@
 #include "control/controlcompressingproxy.h"
 
+#include <QApplication>
+
 #include "moc_controlcompressingproxy.cpp"
 
 namespace {

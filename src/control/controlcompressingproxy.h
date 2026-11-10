@@ -1,7 +1,6 @@
 #pragma once
 
-#include <QApplication>
-#include <QMetaObject>
+#include <QObject>
 
 #include "preferences/configkey.h"
 #include "util/runtimeloggingcategory.h"
