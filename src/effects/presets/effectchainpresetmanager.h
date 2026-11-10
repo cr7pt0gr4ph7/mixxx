@@ -7,6 +7,8 @@
 #include "effects/backends/effectsbackendmanager.h"
 #include "preferences/usersettings.h"
 
+class QDomDocument;
+
 struct EffectsXmlData {
     QHash<QString, EffectManifestPointer> eqEffectManifests;
     QHash<QString, EffectChainPresetPointer> quickEffectChainPresets;

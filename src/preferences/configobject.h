@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QDomNode>
 #include <QHash>
 #include <QKeySequence>
 #include <QMap>
@@ -12,6 +11,8 @@
 #include "util/assert.h"
 #include "util/compatibility/qhash.h"
 #include "util/debug.h"
+
+class QDomNode;
 
 // Class for the key for a specific configuration element. A key consists of a
 // group and an item.

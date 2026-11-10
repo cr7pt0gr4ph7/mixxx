@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QDomNode>
 #include <QIODevice>
 #include <QTextStream>
 #include <QtDebug>
