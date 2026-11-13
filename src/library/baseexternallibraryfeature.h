@@ -54,7 +54,7 @@ class BaseExternalLibraryFeature : public LibraryFeature {
 
   private:
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
-    void importAsMixxxPlaylist(const QModelIndex& index);
+    bool importAsMixxxPlaylist(const QModelIndex& index, int parentId = kInvalidPlaylistId, bool recursive = true);
     void importAsMixxxCrate(const QModelIndex& index);
 
     // Caution: Make sure this is reset whenever the library tree is updated,

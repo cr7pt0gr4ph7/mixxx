@@ -114,7 +114,8 @@ void BaseExternalLibraryFeature::slotImportAsMixxxPlaylist() {
     importAsMixxxPlaylist(m_lastRightClickedIndex);
 }
 
-void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index) {
+bool BaseExternalLibraryFeature::importAsMixxxPlaylist(
+        const QModelIndex& index, int parentId, bool recursive) {
     QList<TrackId> trackIds;
     QString playlist;
     appendTrackIdsFromModelIndex(index, &trackIds, &playlist);
@@ -125,18 +126,39 @@ void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index)
     //     return true;
     // }
 
+    QList<QModelIndex> children;
+    appendChildIndicesFromModelIndex(index, &children);
+    const bool isFolder = !children.isEmpty();
+
     PlaylistDAO& playlistDao = m_pTrackCollection->getPlaylistDAO();
 
-    int playlistId = playlistDao.createUniquePlaylist(&playlist);
+    int playlistId = playlistDao.createUniquePlaylist(&playlist, PlaylistDAO::PLHT_NOT_HIDDEN, parentId, isFolder);
 
     if (playlistId != kInvalidPlaylistId) {
         playlistDao.appendTracksToPlaylist(trackIds, playlistId);
+
+        if (recursive) {
+            for (const auto& childIndex : std::as_const(children)) {
+                if (!importAsMixxxPlaylist(crateId, recursive)) {
+                    // Abort if an error occurs during the creation of a child playlists.
+                    // This prevents the warning message box from being shown
+                    // potentially tenths or hundreths of times.
+                    return false;
+                }
+            }
+        }
+
+        // Signal success
+        return true;
     } else {
         // Do not change strings here without also changing strings in
         // src/library/trackset/baseplaylistfeature.cpp
         QMessageBox::warning(nullptr,
                 tr("Playlist Creation Failed"),
                 tr("An unknown error occurred while creating playlist: ") + playlist);
+
+        // Signal failure
+        return false;
     }
 }
 
