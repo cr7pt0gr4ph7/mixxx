@@ -1,5 +1,7 @@
 #include "controllers/midi/midiutils.h"
 
+#include <QObject>
+
 // static
 QString MidiUtils::opCodeToTranslatedString(MidiOpCode code) {
     switch (code) {

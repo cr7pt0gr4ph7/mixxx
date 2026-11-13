@@ -9,9 +9,10 @@
 #include <QtDebug>
 #include <cstdint>
 #include <memory>
+#include <type_traits>
 #include <variant>
 
-#include "preferences/usersettings.h"
+#include "preferences/configkey.h"
 #include "util/always_false_v.h"
 
 // The second value of each OpCode will be the channel number the message

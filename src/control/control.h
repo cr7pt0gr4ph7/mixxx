@@ -10,6 +10,7 @@
 #include "control/controlvalue.h"
 #include "preferences/configkey.h"
 #include "preferences/usersettings_decl.h"
+#include "util/assert.h"
 
 class ControlObject;
 
