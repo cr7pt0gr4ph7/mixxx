@@ -8,7 +8,6 @@
 #include <memory>
 
 #include "audio/streaminfo.h"
-#include "sources/metadatasource.h"
 #include "track/beats.h"
 #include "track/cue.h"
 #include "track/cueinfoimporter.h"
@@ -22,6 +21,10 @@
 #include "util/fileaccess.h"
 #include "util/performancetimer.h"
 #include "waveform/waveform.h"
+
+namespace mixxx {
+class MetadataSource;
+}
 
 class Track : public QObject {
     Q_OBJECT
