@@ -196,8 +196,8 @@ void SetlogFeature::onRightClickChild(const QPoint& globalPos, const QModelIndex
         m_pJoinWithPreviousAction->setEnabled(!locked);
         m_pLockPlaylistAction->setText(locked ? tr("Unlock") : tr("Lock"));
 
-        menu.addAction(m_pAddToAutoDJAction);
         menu.addAction(m_pAddToAutoDJTopAction);
+        menu.addAction(m_pAddToAutoDJAction);
         menu.addSeparator();
         menu.addAction(m_pRenamePlaylistAction);
         if (playlistId != m_currentPlaylistId) {

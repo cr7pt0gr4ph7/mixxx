@@ -110,8 +110,8 @@ void PlaylistFeature::onRightClickChild(
     menu.addAction(m_pDeletePlaylistAction);
     menu.addAction(m_pLockPlaylistAction);
     menu.addSeparator();
-    menu.addAction(m_pAddToAutoDJAction);
     menu.addAction(m_pAddToAutoDJTopAction);
+    menu.addAction(m_pAddToAutoDJAction);
     menu.addAction(m_pAddToAutoDJReplaceAction);
     menu.addSeparator();
     menu.addAction(m_pAnalyzePlaylistAction);

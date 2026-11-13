@@ -635,8 +635,8 @@ void WTrackMenu::setupActions() {
     }
 
     if (featureIsEnabled(Feature::AutoDJ)) {
-        addAction(m_pAutoDJBottomAct);
         addAction(m_pAutoDJTopAct);
+        addAction(m_pAutoDJBottomAct);
         addAction(m_pAutoDJReplaceAct);
         addSeparator();
     }
