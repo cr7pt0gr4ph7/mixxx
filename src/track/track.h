@@ -5,7 +5,6 @@
 #include <QObject>
 #include <QRecursiveMutex>
 #include <QStack>
-#include <QUrl>
 #include <memory>
 
 #include "audio/streaminfo.h"
