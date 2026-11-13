@@ -1,13 +1,7 @@
 #pragma once
 
-#include <QSharedPointer>
-#include <QWeakPointer>
-
 #include "preferences/configobject.h"
-
-typedef ConfigObject<ConfigValue> UserSettings;
-typedef QSharedPointer<UserSettings> UserSettingsPointer;
-typedef QWeakPointer<UserSettings> UserSettingsWeakPointer;
+#include "preferences/usersettings_decl.h"
 
 // Helper for defining preference getters/setters.
 //

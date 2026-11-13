@@ -8,7 +8,8 @@
 
 #include "control/controlbehavior.h"
 #include "control/controlvalue.h"
-#include "preferences/usersettings.h"
+#include "preferences/configkey.h"
+#include "preferences/usersettings_decl.h"
 
 class ControlObject;
 
