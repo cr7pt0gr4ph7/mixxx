@@ -1,6 +1,8 @@
 #pragma once
 
+#include <QDialog>
 #include <QMainWindow>
+#include <QMessageBox>
 #include <QString>
 #include <memory>
 

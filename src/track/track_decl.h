@@ -4,9 +4,10 @@
 
 #include <QList>
 #include <QMetaType>
+#include <QString>
 #include <memory>
 
-#include "preferences/usersettings.h"
+#include "preferences/usersettings_decl.h"
 
 class Track;
 
