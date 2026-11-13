@@ -10,7 +10,6 @@
 #include "audio/streaminfo.h"
 #include "track/beats.h"
 #include "track/cue.h"
-#include "track/cueinfoimporter.h"
 #ifdef __STEM__
 #include "track/steminfo.h"
 #include "track/steminfoimporter.h"
@@ -23,6 +22,7 @@
 #include "waveform/waveform.h"
 
 namespace mixxx {
+class CueInfoImporter;
 class MetadataSource;
 }
 

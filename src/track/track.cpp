@@ -8,7 +8,9 @@
 
 #include "library/library_prefs.h"
 #include "moc_track.cpp"
+#include "preferences/usersettings.h"
 #include "sources/metadatasource.h"
+#include "track/cueinfoimporter.h"
 #include "track/keyfactory.h"
 #include "util/assert.h"
 #include "util/logger.h"
