@@ -2,6 +2,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QObject>
 
 #include "effects/backends/effectsbackendmanager.h"
 #include "preferences/usersettings.h"

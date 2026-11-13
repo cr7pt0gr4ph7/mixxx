@@ -2,6 +2,7 @@
 
 #include <QInputDialog>
 #include <QLineEdit>
+#include <QMessageBox>
 
 #include "library/trackcollection.h"
 #include "library/trackset/crate/crate.h"

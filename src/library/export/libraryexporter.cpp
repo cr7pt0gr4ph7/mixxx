@@ -1,5 +1,6 @@
 #include "library/export/libraryexporter.h"
 
+#include <QMessageBox>
 #include <QProgressDialog>
 
 #include "library/export/engineprimeexportjob.h"

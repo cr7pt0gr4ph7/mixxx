@@ -1,5 +1,6 @@
 #include "library/libraryfeature.h"
 
+#include <QMessageBox>
 #include <QStandardPaths>
 
 #include "library/library.h"

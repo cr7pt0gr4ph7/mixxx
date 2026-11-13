@@ -6,6 +6,7 @@
 #include <QList>
 #include <QListWidget>
 #include <QModelIndex>
+#include <QMessageBox>
 #include <QVBoxLayout>
 
 #include "analyzer/analyzerscheduledtrack.h"

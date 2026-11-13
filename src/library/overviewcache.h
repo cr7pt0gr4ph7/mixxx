@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QImage>
+#include <QSize>
 #include <QSqlDatabase>
 
 #include "analyzer/analyzerprogress.h"

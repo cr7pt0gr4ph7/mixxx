@@ -1,6 +1,7 @@
 #include "controllers/dlgcontrollerlearning.h"
 
 #include <QCompleter>
+#include <QMessageBox>
 
 #include "control/controlobject.h"
 #include "controllers/learningutils.h"

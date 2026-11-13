@@ -1,5 +1,7 @@
 #include "library/trackcollection.h"
 
+#include <QMessageBox>
+
 #include "library/basetrackcache.h"
 #include "library/trackset/crate/crate.h"
 #include "moc_trackcollection.cpp"

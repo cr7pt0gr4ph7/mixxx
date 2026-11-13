@@ -1669,6 +1669,7 @@ add_library(
   src/util/db/sqlqueryfinisher.cpp
   src/util/db/sqlstringformatter.cpp
   src/util/db/sqltransaction.cpp
+  src/util/debug.cpp
   src/util/desktophelper.cpp
   src/util/dnd.cpp
   src/util/duration.cpp

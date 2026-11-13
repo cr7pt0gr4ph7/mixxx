@@ -3,6 +3,7 @@
 #include <QAction>
 #include <QFileInfo>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QStringList>

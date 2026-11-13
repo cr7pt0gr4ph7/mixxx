@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QWidget>
 #include <Qt>
 #include <memory>
 

@@ -10,6 +10,7 @@
 #include "preferences/configobject.h"
 #include "util/autofilereloader.h"
 
+class QAction;
 class ControlObject;
 class QEvent;
 class QKeyEvent;

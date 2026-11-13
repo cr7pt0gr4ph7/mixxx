@@ -1,6 +1,7 @@
 #include "library/autodj/autodjfeature.h"
 
 #include <QMenu>
+#include <QMessageBox>
 #include <QtDebug>
 
 #include "controllers/keyboard/keyboardeventfilter.h"

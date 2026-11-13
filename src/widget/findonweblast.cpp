@@ -1,5 +1,6 @@
 #include "findonweblast.h"
 
+#include <QWidget>
 #include <QtDebug>
 
 #include "moc_findonweblast.cpp"

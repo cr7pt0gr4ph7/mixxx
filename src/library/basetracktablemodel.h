@@ -8,6 +8,7 @@
 #include "library/columncache.h"
 #include "library/trackmodel.h"
 #include "track/track_decl.h"
+#include "util/class.h"
 #include "util/color/colorpalette.h"
 #include "util/datetime.h"
 

@@ -1,5 +1,6 @@
 #include "library/dlgtagfetcher.h"
 
+#include <QMessageBox>
 #include <QTreeWidget>
 #include <QtDebug>
 

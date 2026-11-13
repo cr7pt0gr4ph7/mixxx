@@ -6,6 +6,7 @@
 #include "util/timer.h"
 
 class QApplication;
+class QDialog;
 class CmdlineArgs;
 class KeyboardEventFilter;
 class EffectsManager;
