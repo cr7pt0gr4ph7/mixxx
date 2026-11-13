@@ -18,6 +18,7 @@ class WLibrary;
 class WLibrarySidebar;
 class WSearchLineEdit;
 class KeyboardEventFilter;
+class QKeyEvent;
 
 class LoadToGroupController : public QObject {
     Q_OBJECT

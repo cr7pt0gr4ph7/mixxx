@@ -7,6 +7,8 @@
 #include <QWindow>
 #include <QtDebug>
 
+#include <QKeyEvent>
+
 #include "control/controlencoder.h"
 #include "control/controlobject.h"
 #include "control/controlpushbutton.h"
