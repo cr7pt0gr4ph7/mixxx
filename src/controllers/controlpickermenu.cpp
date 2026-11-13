@@ -949,13 +949,13 @@ ControlPickerMenu::ControlPickerMenu(QWidget* pParent)
             pLibraryMenu);
     pLibraryMenu->addSeparator();
     // Auto DJ
-    addLibraryControl("AutoDjAddBottom",
-            tr("Add to Auto DJ Queue (bottom)"),
-            tr("Append the selected track to the Auto DJ Queue"),
-            pLibraryMenu);
     addLibraryControl("AutoDjAddTop",
             tr("Add to Auto DJ Queue (top)"),
             tr("Prepend selected track to the Auto DJ Queue"),
+            pLibraryMenu);
+    addLibraryControl("AutoDjAddBottom",
+            tr("Add to Auto DJ Queue (bottom)"),
+            tr("Append the selected track to the Auto DJ Queue"),
             pLibraryMenu);
     addLibraryControl("AutoDjAddReplace",
             tr("Add to Auto DJ Queue (replace)"),

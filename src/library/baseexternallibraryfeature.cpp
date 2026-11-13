@@ -71,8 +71,8 @@ void BaseExternalLibraryFeature::onRightClickChild(
     // Make sure that this is reset when the related TreeItem is deleted.
     m_lastRightClickedIndex = index;
     QMenu menu(m_pSidebarWidget);
-    menu.addAction(m_pAddToAutoDJAction);
     menu.addAction(m_pAddToAutoDJTopAction);
+    menu.addAction(m_pAddToAutoDJAction);
     menu.addAction(m_pAddToAutoDJReplaceAction);
     menu.addSeparator();
     menu.addAction(m_pImportAsMixxxPlaylistAction);
