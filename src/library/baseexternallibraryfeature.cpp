@@ -142,13 +142,20 @@ void BaseExternalLibraryFeature::importAsMixxxPlaylist(const QModelIndex& index)
 
 void BaseExternalLibraryFeature::slotImportAsMixxxCrate() {
     // qDebug() << "slotImportAsMixxxCrate() row:" << m_lastRightClickedIndex.data();
+    importAsMixxxCrate(m_lastRightClickedIndex);
+}
 
+void BaseExternalLibraryFeature::importAsMixxxCrate(const QModelIndex& index) {
     QList<TrackId> trackIds;
     QString playlist;
-    appendTrackIdsFromRightClickIndex(&trackIds, &playlist);
-    if (trackIds.isEmpty()) {
-        return;
-    }
+    appendTrackIdsFromModelIndex(index, &trackIds, &playlist);
+
+    // Do not skip import of empty playlists, as they might have children
+    // if (trackIds.isEmpty()) {
+    //     // No tracks had to be imported
+    //     return true;
+    // }
+
 
     Crate crate;
     crate.setName(playlist);

@@ -7,6 +7,7 @@
 
 #include "library/dao/playlistdao.h"
 #include "library/libraryfeature.h"
+#include "library/trackset/crate/crateid.h"
 #include "util/parented_ptr.h"
 
 class BaseSqlTableModel;
@@ -54,6 +55,7 @@ class BaseExternalLibraryFeature : public LibraryFeature {
   private:
     void addToAutoDJ(PlaylistDAO::AutoDJSendLoc loc);
     void importAsMixxxPlaylist(const QModelIndex& index);
+    void importAsMixxxCrate(const QModelIndex& index);
 
     // Caution: Make sure this is reset whenever the library tree is updated,
     // so that the internalPointer() does not become dangling
