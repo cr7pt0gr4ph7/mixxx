@@ -167,7 +167,8 @@ void BaseExternalLibraryFeature::slotImportAsMixxxCrate() {
     importAsMixxxCrate(m_lastRightClickedIndex);
 }
 
-void BaseExternalLibraryFeature::importAsMixxxCrate(const QModelIndex& index) {
+bool BaseExternalLibraryFeature::importAsMixxxCrate(
+        const QModelIndex& index, const CrateId& parentId, bool recursive) {
     QList<TrackId> trackIds;
     QString playlist;
     appendTrackIdsFromModelIndex(index, &trackIds, &playlist);
@@ -178,18 +179,38 @@ void BaseExternalLibraryFeature::importAsMixxxCrate(const QModelIndex& index) {
     //     return true;
     // }
 
+    QList<QModelIndex> children;
+    appendChildIndicesFromModelIndex(index, &children);
+    const bool isFolder = !children.isEmpty();
 
     Crate crate;
     crate.setName(playlist);
+    crate.setParentId(parentId);
 
     CrateId crateId;
 
     if (m_pTrackCollection->insertCrate(crate, &crateId)) {
         m_pTrackCollection->addCrateTracks(crateId, trackIds);
+        if (recursive) {
+            for (const auto& childIndex : std::as_const(children)) {
+                if (!importAsMixxxCrate(crateId, recursive)) {
+                    // Abort if an error occurs during the creation of a child crate.
+                    // This prevents the warning message box from being shown
+                    // potentially tenths or hundreths of times.
+                    return false;
+                }
+            }
+        }
+
+        // Signal success
+        return true;
     } else {
         QMessageBox::warning(nullptr,
                 tr("Crate Creation Failed"),
                 tr("Could not create crate, it most likely already exists: ") + playlist);
+
+        // Signal failure
+        return false;
     }
 }
 
