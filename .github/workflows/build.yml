@@ -14,6 +14,33 @@ on:
       ref:
         type: string
         required: true
+      use_all:
+        type: boolean
+        default: true
+      use_ubuntu:
+        type: string
+        default: default
+      use_macos_x64:
+        type: string
+        default: default
+      use_macos_arm64:
+        type: string
+        default: default
+      use_windows_x64:
+        type: string
+        default: default
+      use_windows_arm64:
+        type: string
+        default: default
+      use_android:
+        type: string
+        default: default
+      use_appimage:
+        type: string
+        default: default
+      use_flatpak:
+        type: string
+        default: default
     secrets:
       AZURE_CLIENT_ID:
         required: false
@@ -229,6 +256,17 @@ jobs:
             artifacts_path: build/*.AppImage
             artifacts_slug: linux-appimage
             arch: x86_64
+        exclude: >-
+          ${{ fromJSON(format(
+            '[{{"name":"__matrix_sentinel__"}}{0}{1}{2}{3}{4}{5}{6}]',
+            (inputs.use_ubuntu == 'false' || (!inputs.use_all && inputs.use_ubuntu != 'true')) && ',{"name":"Ubuntu 24.04"}' || '',
+            (inputs.use_macos_x64 == 'false' || (!inputs.use_all && inputs.use_macos_x64 != 'true')) && ',{"name":"macOS 15 x64"}' || '',
+            (inputs.use_macos_arm64 == 'false' || (!inputs.use_all && inputs.use_macos_arm64 != 'true')) && ',{"name":"macOS 15 arm64"}' || '',
+            (inputs.use_windows_x64 == 'false' || (!inputs.use_all && inputs.use_windows_x64 != 'true')) && ',{"name":"Windows Server 2025 VS2026 x64"}' || '',
+            (inputs.use_windows_arm64 == 'false' || (!inputs.use_all && inputs.use_windows_arm64 != 'true')) && ',{"name":"Windows 11 VS2026 ARM64"}' || '',
+            (inputs.use_android == 'false' || (!inputs.use_all && inputs.use_android != 'true')) && ',{"name":"Android 15 arm64"}' || '',
+            (inputs.use_appimage == 'false' || (!inputs.use_all && inputs.use_appimage != 'true')) && ',{"name":"AppImage Linux x86_64"}' || ''
+          )) }}
 
     env:
       # macOS codesigning
@@ -820,6 +858,7 @@ jobs:
           path: ${{ matrix.artifacts_path }}
 
   build-flatpak:
+    if: ${{ inputs.use_flatpak == 'true' || (inputs.use_flatpak == 'default' && inputs.use_all) }}
     name: "Flatpak"
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.10
