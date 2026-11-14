@@ -1,28 +1,24 @@
 #pragma once
 
-#include <QtDebug>
+#include <cstddef>
+
+#include <QtGlobal>
 
 static constexpr const char* kDebugAssertPrefix = "DEBUG ASSERT";
 
 #ifdef MIXXX_DEBUG_ASSERTIONS_ENABLED
-inline void mixxx_debug_assert(const char* assertion, const char* file, int line, const char* function) {
-    qCritical("%s: \"%s\" in function %s at %s:%d", kDebugAssertPrefix, assertion, function, file, line);
-}
+void mixxx_debug_assert(const char* assertion, const char* file, int line, const char* function);
 #endif
 
 #ifdef MIXXX_DEBUG_ASSERTIONS_ENABLED
-inline bool mixxx_debug_assert_return_true(const char* assertion,
+bool mixxx_debug_assert_return_true(
+        const char* assertion,
         const char* file,
         int line,
-        const char* function) {
-    mixxx_debug_assert(assertion, file, line, function);
-    return true;
-}
+        const char* function);
 #endif
 
-inline void mixxx_release_assert(const char* assertion, const char* file, int line, const char* function) {
-    qFatal("ASSERT: \"%s\" in function %s at %s:%d", assertion, function, file, line);
-}
+void mixxx_release_assert(const char* assertion, const char* file, int line, const char* function);
 
 // These macros provide the demangled function name (including helpful template
 // type information) and are supported on every version of GCC, Clang, and MSVC
