@@ -1,12 +1,13 @@
 #pragma once
 
-#include <QtDebug>
 #include <cstdint>
 #include <limits>
 
 #include "util/assert.h"
 #include "util/optional.h"
 #include "util/types.h"
+
+class QDebug;
 
 // Various properties of digital PCM audio signals and streams.
 //

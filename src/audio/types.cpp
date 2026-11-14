@@ -1,5 +1,7 @@
 #include "audio/types.h"
 
+#include <QDebug>
+
 namespace mixxx {
 
 namespace audio {
