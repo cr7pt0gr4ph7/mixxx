@@ -25,7 +25,11 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="4">
-        <widget class="WSearchLineEdit" name="controlSearch"/>
+        <widget class="WSearchLineEdit" name="controlSearch">
+         <property name="toolTip">
+          <string>Search for matching control by name. You can use regular expressions (e.g. "hotcue_[0-9]+_set"), multiple words ("[Playlist] Move"), or a combination of those.</string>
+         </property>
+        </widget>
        </item>
        <item row="0" column="3">
         <spacer name="horizontalSpacer">

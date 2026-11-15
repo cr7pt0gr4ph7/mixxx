@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QDir>
 #include <QKeyEvent>
+#include <QRegularExression>
 
 #include "control/control.h"
 #include "moc_dlgdevelopertools.cpp"
@@ -108,9 +109,18 @@ void DlgDeveloperTools::timerEvent(QTimerEvent* pEvent) {
 }
 
 void DlgDeveloperTools::slotControlSearch(const QString& search) {
-    QStringList words = search.split(' ');
-    if (words.size() > 1) {
-        QString combo = words.join(QStringLiteral(".*"));
+    if (search.size() > 1) {
+        QStringList words = search.split(' ');
+        for (int i = 0; i < words.size(); i++) {
+            // Check if the word can be interpreted as a regular expression
+            const bool isValidRegularExpression = QRegularExpression(words[i]).isValid();
+            if (isValidRegularExpression) {
+                words[i] = QStringLiteral("(?:%1|%2)").arg(words[i], QRegularExpression::escape(words[i]));
+            } else {
+                words[i] = QRegularExpression::escape(words[i]);
+            }
+        }
+        const QString combo = words.join(QStringLiteral(".*"));
         m_controlProxyModel.setFilterRegularExpression(combo);
     } else {
         m_controlProxyModel.setFilterFixedString(search);
